@@ -1,0 +1,56 @@
+================================================================================
+Sharier – Authentication, Profile, Waitlist
+================================================================================
+
+# | Time   | Feature                              | Prerequisites                | Member Responsible | Members Waiting | The Feature They Are
+  |        |                                      |                              | for Prerequisites  | on Feature      | Waiting For
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+1 | Week 1 | Firebase Authentication              | Firebase initialized         | Mayesha            | Ahmed, Fatima   | Game creation,
+  |        | (signup/login/logout)                |                              |                    |                 | Notification identity
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+2 | Week 1 | Password reset                       | Auth framework               | Sharier            | None            | —
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+3 | Week 1 | Session persistence                  | Login working                | Sharier            | None            | —
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+4 | Week 1 | Create user document in Firestore    | Authentication complete      | Sharier            | Fatima          | Notification targeting
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+5 | Week 1 | Profile screen                       | User document exists         | Sharier            | None            | —
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+6 | Week 1 | Profile editing                      | Profile screen UI            | Sharier            | None            | —
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+7 | Week 1 | Profile photo upload                 | Firebase Storage initialized | Mayesha            | None            | —
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+8 | Week 1 | Base Firestore security rules        | Auth + user docs created     | Sharier            | All members     | Secure read/write
+  |        |                                      |                              |                    |                 | for features
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+9 | Week 2 | Waitlist system                      | Game creation implemented    | Ahmed              | Fatima          | Waitlist notifications
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+10| Week 2 | Auto-promotion logic                 | Waitlist system complete     | Sharier            | Fatima          | Spot-open
+  |        |                                      |                              |                    |                 | notifications
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+11| Week 2 | Finalize Firestore rules             | Waitlist + game model stable | Sharier            | All             | Final feature locking
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+
+================================================================================
+SUMMARY BY WEEK
+================================================================================
+
+WEEK 1:
+-------
+1. Firebase Authentication (signup/login/logout) - Mayesha
+2. Password reset - Sharier
+3. Session persistence - Sharier
+4. Create user document in Firestore - Sharier
+5. Profile screen - Sharier
+6. Profile editing - Sharier
+7. Profile photo upload - Mayesha
+8. Base Firestore security rules - Sharier
+
+WEEK 2:
+-------
+9. Waitlist system - Ahmed
+10. Auto-promotion logic - Sharier
+11. Finalize Firestore rules - Sharier
+
+================================================================================
+

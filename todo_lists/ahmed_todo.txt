@@ -1,0 +1,70 @@
+================================================================================
+Ahmed – Game Creation, Host Tools, Chat
+================================================================================
+
+# | Time   | Feature                              | Prerequisites                    | Member Responsible | Members Waiting | The Feature They Are
+  |        |                                      |                                  | for Prerequisites  | on Feature      | Waiting For
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+1 | Week 1 | Finalize Game data model             | Team design alignment            | All                | Mayesha,        | Discovery, Waitlist,
+  |        |                                      |                                  |                    | Sharier, Fatima | Notification triggers
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+2 | Week 1 | Create Game UI                       | Navigation implemented           | Mayesha            | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+3 | Week 1 | Firestore Game Creation              | Authentication implemented       | Sharier            | Mayesha,        | Listing, Waitlist
+  |        |                                      |                                  |                    | Sharier, Fatima | logic, Game
+  |        |                                      |                                  |                    |                 | notifications
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+4 | Week 1 | Edit / Cancel game                   | Game creation complete           | Ahmed              | Fatima          | Cancellation
+  |        |                                      |                                  |                    |                 | notifications
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+5 | Week 1 | Host-only management tools           | Game model finalized             | Ahmed              | Sharier         | Accurate waitlist
+  |        |                                      |                                  |                    |                 | behaviour
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+6 | Week 1 | Participant list structure           | User model stable                | Sharier            | Fatima          | Host notification
+  |        |                                      |                                  |                    |                 | details
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+7 | Week 2 | Real-time Chat backend               | Authentication +                 | Sharier            | Fatima          | Chat message
+  |        |                                      | participation data               |                    |                 | notifications
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+8 | Week 2 | Chat UI & messaging                  | Chat backend                     | Ahmed              | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+9 | Week 2 | Message deletion (optional)          | Chat functional                  | Ahmed              | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+10| Week 2 | Typing indicator (optional)          | Basic chat functional            | Ahmed              | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+
+================================================================================
+SUMMARY BY WEEK
+================================================================================
+
+WEEK 1:
+-------
+1. Finalize Game data model - All team members
+2. Create Game UI - Mayesha
+3. Firestore Game Creation - Sharier
+4. Edit / Cancel game - Ahmed
+5. Host-only management tools - Ahmed
+6. Participant list structure - Sharier
+
+WEEK 2:
+-------
+7. Real-time Chat backend - Sharier
+8. Chat UI & messaging - Ahmed
+9. Message deletion (optional) - Ahmed
+10. Typing indicator (optional) - Ahmed
+
+================================================================================
+AHMED'S SPECIFIC RESPONSIBILITIES
+================================================================================
+
+WEEK 1:
+- Edit / Cancel game
+- Host-only management tools
+
+WEEK 2:
+- Chat UI & messaging
+- Message deletion (optional)
+- Typing indicator (optional)
+
+================================================================================
+
