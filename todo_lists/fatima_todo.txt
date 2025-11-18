@@ -1,0 +1,61 @@
+================================================================================
+Fatima – Notifications & Attendance Alerts
+================================================================================
+
+# | Time   | Feature                              | Prerequisites                    | Member Responsible | Members Waiting | The Feature They Are
+  |        |                                      |                                  | for Prerequisites  | on Feature      | Waiting For
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+1 | Week 1 | Plan notification triggers           | Game model draft                 | Ahmed              | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+2 | Week 1 | Notification UI placeholder          | Screen structure                 | Mayesha            | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+3 | Week 1 | Confirm data model requirements      | Firestore structure alignment    | Team               | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+4 | Week 2 | Implement notifications storage      | Game creation + waitlist model   | Ahmed, Sharier     | All members     | Full system
+  |        |                                      |                                  |                    | (testing)       | integration
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+5 | Week 2 | Host notifications (user joined)     | Join-game flow                   | Ahmed              | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+6 | Week 2 | Waitlist notifications               | Waitlist system                  | Sharier            | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+7 | Week 2 | Cancellation notifications           | Game cancellation implemented    | Ahmed              | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+8 | Week 2 | Game start reminders                 | Schedule data available          | Ahmed              | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+9 | Week 2 | Chat message alerts (optional)       | Chat system implemented          | Ahmed              | None            | —
+--|--------|--------------------------------------|----------------------------------|--------------------|-----------------|-----------------------
+
+================================================================================
+SUMMARY BY WEEK
+================================================================================
+
+WEEK 1:
+-------
+1. Plan notification triggers - Ahmed
+2. Notification UI placeholder - Mayesha
+3. Confirm data model requirements - Team
+
+WEEK 2:
+-------
+4. Implement notifications storage - Ahmed, Sharier
+5. Host notifications (user joined) - Ahmed
+6. Waitlist notifications - Sharier
+7. Cancellation notifications - Ahmed
+8. Game start reminders - Ahmed
+9. Chat message alerts (optional) - Ahmed
+
+================================================================================
+FATIMA'S SPECIFIC RESPONSIBILITIES
+================================================================================
+
+Note: While most notification implementation is handled by Ahmed and Sharier,
+Fatima is responsible for:
+- Testing all notification features (Item 4)
+- Integration testing with the full system
+- Coordinating notification requirements with the team
+
+The table shows dependencies where Fatima is waiting on various notification
+features to be implemented before she can proceed with her integration work.
+
+================================================================================
+

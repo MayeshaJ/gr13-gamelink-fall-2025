@@ -1,0 +1,76 @@
+================================================================================
+Mayesha – Team Lead & Game Discovery
+================================================================================
+
+# | Time   | Feature                              | Prerequisites                | Member Responsible | Members Waiting | The Feature They Are
+  |        |                                      |                              | for Prerequisites  | on Feature      | Waiting For
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+1 | Week 1 | Create GitHub repository &           | None                         | None               | All members     | Start of all feature
+  |        | project structure                    |                              |                    |                 | work
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+2 | Week 1 | Initialize Firebase project          | Repository setup             | Mayesha            | Sharier         | Authentication
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+3 | Week 1 | Set up navigation flow               | Firebase initialized         | Mayesha            | Ahmed           | Game creation UI
+  |        | (Auth ↔ App screens)                 |                              |                    |                 | integration
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+4 | Week 1 | Build Game List UI skeleton          | Navigation setup             | Mayesha            | None            | —
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+5 | Week 1 | Connect Game List to Firestore       | Game data model              | Ahmed              | Sharier, Fatima | Waitlist tests,
+  |        |                                      |                              |                    |                 | Notification triggers
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+6 | Week 1 | Implement search & filtering         | Game list functional         | Mayesha            | None            | —
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+7 | Week 1 | Game Details screen                  | Real game documents          | Ahmed              | Fatima          | Trigger-related
+  |        |                                      |                              |                    |                 | notifications
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+8 | Week 2 | My Games view                        | Game creation implemented    | Ahmed              | None            | —
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+9 | Week 2 | Light / Dark mode                    | UI stable                    | Mayesha            | None            | —
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+10| Week 2 | Full UI/UX consistency &             | All core features            | All members        | All members     | Final integration
+  |        | app testing                          |                              |                    |                 |
+--|--------|--------------------------------------|------------------------------|--------------------|-----------------|-----------------------
+
+================================================================================
+SUMMARY BY WEEK
+================================================================================
+
+WEEK 1:
+-------
+1. Create GitHub repository & project structure - Mayesha (Team Lead)
+2. Initialize Firebase project - Mayesha
+3. Set up navigation flow (Auth ↔ App screens) - Mayesha
+4. Build Game List UI skeleton - Mayesha
+5. Connect Game List to Firestore - Ahmed
+6. Implement search & filtering - Mayesha
+7. Game Details screen - Ahmed
+
+WEEK 2:
+-------
+8. My Games view - Ahmed
+9. Light / Dark mode - Mayesha
+10. Full UI/UX consistency & app testing - All members
+
+================================================================================
+MAYESHA'S SPECIFIC RESPONSIBILITIES
+================================================================================
+
+WEEK 1 (Team Lead & Setup):
+- Create GitHub repository & project structure
+- Initialize Firebase project
+- Set up navigation flow (Auth ↔ App screens)
+- Build Game List UI skeleton
+- Implement search & filtering
+
+WEEK 2 (Polish & Integration):
+- Light / Dark mode
+- Full UI/UX consistency & app testing (with team)
+
+TEAM LEAD RESPONSIBILITIES:
+- Project setup and initialization
+- Navigation architecture
+- UI/UX consistency across the app
+- Coordinating final testing and integration
+
+================================================================================
+
