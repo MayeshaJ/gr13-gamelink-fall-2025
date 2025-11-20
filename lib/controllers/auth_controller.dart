@@ -58,4 +58,11 @@ class AuthController {
     // sign out current user from firebase auth
     await _auth.signOut();
   }
+
+  Future<void> sendPasswordResetEmail({
+    required String email,
+  }) async {
+    // send reset email to user if account exists
+    await _auth.sendPasswordResetEmail(email: email);
+  }
 }

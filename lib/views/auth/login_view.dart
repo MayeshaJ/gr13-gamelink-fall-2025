@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../controllers/auth_controller.dart';
 import '../home/home_view.dart';
 import 'signup_view.dart';
+import 'forgot_password_view.dart';
+
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -124,6 +126,16 @@ class _LoginViewState extends State<LoginView> {
             TextButton(
               onPressed: _goToSignup,
               child: const Text('Create an account'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ForgotPasswordView(),
+                  ),
+                );
+              },
+              child: const Text('Forgot password'),
             ),
           ],
         ),
