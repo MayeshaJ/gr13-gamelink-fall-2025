@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-import 'views/auth/login_view.dart';
+import 'views/auth/auth_gate_view.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // keep your existing Firebase initialization here if it is already set up
+  // firebase must be initialized before running the app
   await Firebase.initializeApp();
 
   runApp(const MyApp());
@@ -20,7 +20,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'GameLink',
       debugShowCheckedModeBanner: false,
-      home: const LoginView(),
+      // AuthGateView decides login or home based on auth state
+      home: const AuthGateView(),
     );
   }
 }
