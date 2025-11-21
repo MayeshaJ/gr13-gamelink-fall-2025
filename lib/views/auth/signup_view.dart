@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../controllers/auth_controller.dart';
+import '../../controllers/user_controller.dart';
 import '../home/home_view.dart';
 
 class SignupView extends StatefulWidget {
@@ -18,7 +19,7 @@ class _SignupViewState extends State<SignupView> {
 
   @override
   void dispose() {
-    // clean up controllers when screen is destroyed
+    // clean up controllers when screen is closed
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -47,11 +48,19 @@ class _SignupViewState extends State<SignupView> {
         password: password,
       );
 
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        await UserController.instance.createUserDocument(
+          uid: user.uid,
+          email: user.email ?? '',
+        );
+      }
+
       if (!mounted) {
         return;
       }
 
-      // go to home view after signup
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => const HomeView(),
