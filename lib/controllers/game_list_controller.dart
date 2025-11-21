@@ -2,33 +2,48 @@ import 'dart:async';
 
 import 'package:game_link_group13/models/game.dart';
 
+/// Controller for managing the game list UI state.
+/// Currently uses mock data, but designed to integrate with GameController
+/// for Firestore-backed data in the future.
 class GameListController {
   GameListController._internal() {
-    // Seed initial data on creation
-    _gamesStreamController.add(List<Game>.unmodifiable(_mockGames));
+    _currentGames = List<Game>.from(_mockGames);
+    _gamesStreamController = StreamController<List<Game>>.broadcast(
+      onListen: () {
+        // Immediately deliver the latest snapshot to new listeners
+        _gamesStreamController.add(List<Game>.unmodifiable(_currentGames));
+      },
+    );
   }
 
   static final GameListController instance = GameListController._internal();
 
-  final StreamController<List<Game>> _gamesStreamController =
-      StreamController<List<Game>>.broadcast();
+  late final StreamController<List<Game>> _gamesStreamController;
+  List<Game> _currentGames = const <Game>[];
 
+  /// Stream of games for the list view.
   Stream<List<Game>> watchGames() {
     return _gamesStreamController.stream;
   }
 
+  /// Fetch games (currently returns mock data).
+  /// TODO: Replace with GameController.getAllGames() integration
+  /// and convert GameModel to Game for the UI.
   Future<List<Game>> fetchGames() async {
     // Simulate async fetch; replace with repository calls later
     await Future<void>.delayed(const Duration(milliseconds: 150));
-    return List<Game>.unmodifiable(_mockGames);
+    return List<Game>.unmodifiable(_currentGames);
   }
 
+  /// Refresh the game list and notify listeners.
   Future<void> refresh() async {
     final List<Game> latest = await fetchGames();
-    _gamesStreamController.add(latest);
+    _currentGames = List<Game>.from(latest);
+    _gamesStreamController.add(List<Game>.unmodifiable(_currentGames));
   }
 
   // Mocked data until Firestore wiring is ready
+  // TODO: Replace with GameController.getAllGames() and convert GameModel -> Game
   static final List<Game> _mockGames = <Game>[
     Game(
       id: 'g1',
@@ -56,5 +71,3 @@ class GameListController {
     ),
   ];
 }
-
-
