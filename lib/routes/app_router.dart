@@ -6,6 +6,7 @@ import 'package:game_link_group13/widgets/error_state.dart';
 import 'package:game_link_group13/views/auth/login_view.dart';
 import 'package:game_link_group13/views/auth/signup_view.dart';
 import 'package:game_link_group13/views/auth/forgot_password_view.dart';
+import 'package:game_link_group13/views/game/game_list_view.dart';
 
 /// Centralized application router.
 /// Screens are placeholders for now and will be replaced in later commits.
@@ -46,11 +47,17 @@ final GoRouter appRouter = GoRouter(
         return const HomeView();
       },
     ),
+    GoRoute(
+      path: '/games',
+      name: 'games',
+      builder: (BuildContext context, GoRouterState state) {
+        return const GameListView();
+      },
+    ),
   ],
   errorBuilder: (BuildContext context, GoRouterState state) {
     final String? message = state.error?.toString();
     return ErrorState(details: message);
   },
 );
-
 
