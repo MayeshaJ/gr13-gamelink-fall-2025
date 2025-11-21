@@ -13,4 +13,11 @@ class AppUser {
       'email': email,
     };
   }
+
+  factory AppUser.fromMap(Map<String, dynamic> data) {
+    return AppUser(
+      uid: data['uid'] ?? '',
+      email: data['email'] ?? '',
+    );
+  }
 }
