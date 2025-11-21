@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../auth/login_view.dart';
+import '../profile/profile_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -32,6 +33,16 @@ class HomeView extends StatelessWidget {
           IconButton(
             onPressed: () => _handleLogout(context),
             icon: const Icon(Icons.logout),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ProfileView(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.person),
           ),
         ],
       ),
