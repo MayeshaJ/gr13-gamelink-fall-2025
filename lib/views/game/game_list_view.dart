@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../controllers/game_list_controller.dart';
 import '../../models/game.dart';
+import 'game_tile.dart';
 
 class GameListView extends StatelessWidget {
   const GameListView({super.key});
@@ -30,20 +31,7 @@ class GameListView extends StatelessWidget {
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (BuildContext context, int index) {
               final Game game = games[index];
-              return Card(
-                child: ListTile(
-                  title: Text(game.title),
-                  subtitle: Text('${game.hostName} • ${game.location}'),
-                  trailing: Text(
-                    game.status == GameStatus.open ? 'Open' : 'Closed',
-                    style: TextStyle(
-                      color: game.status == GameStatus.open
-                          ? Colors.green
-                          : Colors.red,
-                    ),
-                  ),
-                ),
-              );
+              return GameTile(game: game);
             },
           );
         },
