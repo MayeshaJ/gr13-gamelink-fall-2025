@@ -29,4 +29,12 @@ class UserController {
     }
     return doc.data();
   }
+
+  Future<void> updateUserDocument({
+    required String uid,
+    required Map<String, dynamic> data,
+  }) async {
+    // update selected fields in Firestore
+    await _db.collection('users').doc(uid).update(data);
+  }
 }
