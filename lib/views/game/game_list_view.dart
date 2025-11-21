@@ -1,34 +1,54 @@
 import 'package:flutter/material.dart';
 
+import '../../controllers/game_list_controller.dart';
+import '../../models/game.dart';
+
 class GameListView extends StatelessWidget {
   const GameListView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<String> mockGames = <String>[
-      'Pickup Soccer - Saturday 10AM - Central Park',
-      'Basketball 3v3 - Friday 6PM - Community Gym',
-      'Tennis Doubles - Sunday 2PM - Courts A/B',
-    ];
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Games'),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: mockGames.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (BuildContext context, int index) {
-          return Card(
-            child: ListTile(
-              title: Text(mockGames[index]),
-            ),
+      body: StreamBuilder<List<Game>>(
+        stream: GameListController.instance.watchGames(),
+        builder: (BuildContext context, AsyncSnapshot<List<Game>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final List<Game> games = snapshot.data ?? <Game>[];
+          if (games.isEmpty) {
+            return const Center(child: Text('No games yet'));
+          }
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: games.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (BuildContext context, int index) {
+              final Game game = games[index];
+              return Card(
+                child: ListTile(
+                  title: Text(game.title),
+                  subtitle: Text('${game.hostName} • ${game.location}'),
+                  trailing: Text(
+                    game.status == GameStatus.open ? 'Open' : 'Closed',
+                    style: TextStyle(
+                      color: game.status == GameStatus.open
+                          ? Colors.green
+                          : Colors.red,
+                    ),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
     );
   }
 }
-
 
