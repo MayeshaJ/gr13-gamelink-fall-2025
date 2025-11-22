@@ -19,25 +19,54 @@ class EditProfileView extends StatefulWidget {
 
 class _EditProfileViewState extends State<EditProfileView> {
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
   bool _saving = false;
   bool _photoUpdating = false;
   late String _photoUrl;
+  late String _selectedSport;
+  late String _selectedSkillLevel;
+
+  final List<String> _sportsOptions = const [
+    'Soccer',
+    'Basketball',
+    'Tennis',
+    'Volleyball',
+    'Cricket',
+    'Baseball',
+    'Hockey',
+    'Esports',
+  ];
+
+  final List<String> _skillLevels = const [
+    'Beginner',
+    'Intermediate',
+    'Advanced',
+  ];
 
   @override
   void initState() {
     super.initState();
     _nameController.text = widget.user.name;
+    _bioController.text = widget.user.bio;
     _photoUrl = widget.user.photoUrl;
+    _selectedSport = widget.user.primarySport.isNotEmpty
+        ? widget.user.primarySport
+        : _sportsOptions.first;
+    _selectedSkillLevel = widget.user.skillLevel.isNotEmpty
+        ? widget.user.skillLevel
+        : _skillLevels.first;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _bioController.dispose();
     super.dispose();
   }
 
   Future<void> _saveProfile() async {
     final newName = _nameController.text.trim();
+    final newBio = _bioController.text.trim();
     final authUser = AuthController.instance.currentUser;
 
     if (authUser == null) {
@@ -54,6 +83,9 @@ class _EditProfileViewState extends State<EditProfileView> {
         data: {
           'name': newName,
           'photoUrl': _photoUrl,
+          'primarySport': _selectedSport,
+          'skillLevel': _selectedSkillLevel,
+          'bio': newBio,
         },
       );
 
@@ -113,7 +145,6 @@ class _EditProfileViewState extends State<EditProfileView> {
         return;
       }
 
-      // update only local preview
       setState(() {
         _photoUrl = url;
       });
@@ -140,10 +171,29 @@ class _EditProfileViewState extends State<EditProfileView> {
       return;
     }
 
-    // only clear local preview
     setState(() {
       _photoUrl = '';
     });
+  }
+
+  Widget _buildSkillChip(String level, IconData icon) {
+    final bool selected = _selectedSkillLevel == level;
+    return ChoiceChip(
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16),
+          const SizedBox(width: 4),
+          Text(level),
+        ],
+      ),
+      selected: selected,
+      onSelected: (_) {
+        setState(() {
+          _selectedSkillLevel = level;
+        });
+      },
+    );
   }
 
   @override
@@ -160,77 +210,137 @@ class _EditProfileViewState extends State<EditProfileView> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Center(
-              child: Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundImage:
-                        _photoUrl.isNotEmpty ? NetworkImage(_photoUrl) : null,
-                    child: _photoUrl.isEmpty
-                        ? const Icon(
-                            Icons.person,
-                            size: 40,
-                          )
-                        : null,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: InkWell(
-                      onTap: _photoUpdating ? null : _changePhoto,
-                      child: CircleAvatar(
-                        radius: 16,
-                        child: _photoUpdating
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(
-                                Icons.camera_alt,
-                                size: 16,
-                              ),
-                      ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Center(
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundImage:
+                          _photoUrl.isNotEmpty ? NetworkImage(_photoUrl) : null,
+                      child: _photoUrl.isEmpty
+                          ? const Icon(
+                              Icons.person,
+                              size: 40,
+                            )
+                          : null,
                     ),
-                  ),
-                  if (_photoUrl.isNotEmpty)
                     Positioned(
-                      top: 0,
+                      bottom: 0,
                       right: 0,
                       child: InkWell(
-                        onTap: _photoUpdating ? null : _deletePhoto,
-                        child: const CircleAvatar(
-                          radius: 14,
-                          child: Icon(
-                            Icons.close,
-                            size: 16,
-                          ),
+                        onTap: _photoUpdating ? null : _changePhoto,
+                        child: CircleAvatar(
+                          radius: 16,
+                          child: _photoUpdating
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.camera_alt,
+                                  size: 16,
+                                ),
                         ),
                       ),
                     ),
+                    if (_photoUrl.isNotEmpty)
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: InkWell(
+                          onTap: _photoUpdating ? null : _deletePhoto,
+                          child: const CircleAvatar(
+                            radius: 14,
+                            child: Icon(
+                              Icons.close,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 25),
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                  prefixIcon: Icon(Icons.badge),
+                ),
+              ),
+              const SizedBox(height: 20),
+              DropdownButtonFormField<String>(
+                value: _selectedSport,
+                decoration: const InputDecoration(
+                  labelText: 'Favorite sport',
+                  prefixIcon: Icon(Icons.sports),
+                ),
+                items: _sportsOptions
+                    .map(
+                      (sport) => DropdownMenuItem(
+                        value: sport,
+                        child: Text(sport),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) {
+                    return;
+                  }
+                  setState(() {
+                    _selectedSport = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    const Icon(Icons.military_tech),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Skill level',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: [
+                  _buildSkillChip('Beginner', Icons.looks_one),
+                  _buildSkillChip('Intermediate', Icons.looks_two),
+                  _buildSkillChip('Advanced', Icons.looks_3),
                 ],
               ),
-            ),
-            const SizedBox(height: 25),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
+              const SizedBox(height: 20),
+              TextField(
+                controller: _bioController,
+                decoration: const InputDecoration(
+                  labelText: 'About you',
+                  alignLabelWithHint: true,
+                  prefixIcon: Icon(Icons.info_outline),
+                ),
+                maxLines: 3,
               ),
-            ),
-            const SizedBox(height: 25),
-            _saving
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _saveProfile,
-                    child: const Text('Save'),
-                  ),
-          ],
+              const SizedBox(height: 25),
+              _saving
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _saveProfile,
+                      child: const Text('Save'),
+                    ),
+            ],
+          ),
         ),
       ),
     );
