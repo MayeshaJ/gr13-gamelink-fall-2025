@@ -42,6 +42,7 @@ class GameListController {
       hostName: 'Alex',
       dateTime: DateTime.now().add(const Duration(days: 1, hours: 2)),
       location: 'Central Park Field 3',
+      sport: 'soccer',
       status: GameStatus.open,
     ),
     Game(
@@ -50,6 +51,7 @@ class GameListController {
       hostName: 'Jamie',
       dateTime: DateTime.now().add(const Duration(days: 2, hours: 1)),
       location: 'Community Gym',
+      sport: 'basketball',
       status: GameStatus.open,
     ),
     Game(
@@ -58,6 +60,7 @@ class GameListController {
       hostName: 'Riley',
       dateTime: DateTime.now().add(const Duration(days: 3, hours: 4)),
       location: 'Courts A/B',
+      sport: 'tennis',
       status: GameStatus.closed,
     ),
   ];
