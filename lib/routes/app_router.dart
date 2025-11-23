@@ -1,15 +1,17 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:game_link_group13/views/home/home_view.dart';
 import 'package:game_link_group13/views/auth/auth_gate.dart';
 import 'package:game_link_group13/widgets/error_state.dart';
 import 'package:game_link_group13/views/auth/login_view.dart';
 import 'package:game_link_group13/views/auth/signup_view.dart';
 import 'package:game_link_group13/views/auth/forgot_password_view.dart';
 import 'package:game_link_group13/views/game/game_list_view.dart';
+import 'package:game_link_group13/views/profile/profile_view.dart';
+import 'package:game_link_group13/views/profile/edit_profile_view.dart';
+import 'package:game_link_group13/models/app_user.dart';
 
 /// Centralized application router.
-/// Screens are placeholders for now and will be replaced in later commits.
+/// All navigation should use GoRouter (context.go, context.push, etc.)
 final GoRouter appRouter = GoRouter(
   routes: <RouteBase>[
     GoRoute(
@@ -44,14 +46,37 @@ final GoRouter appRouter = GoRouter(
       path: '/home',
       name: 'home',
       builder: (BuildContext context, GoRouterState state) {
-        return const HomeView();
+        // Support query parameter for search persistence
+        final String? query = state.uri.queryParameters['q'];
+        return GameListView(initialQuery: query);
       },
     ),
     GoRoute(
       path: '/games',
       name: 'games',
       builder: (BuildContext context, GoRouterState state) {
-        return const GameListView();
+        final String? query = state.uri.queryParameters['q'];
+        return GameListView(initialQuery: query);
+      },
+    ),
+    GoRoute(
+      path: '/profile',
+      name: 'profile',
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProfileView();
+      },
+    ),
+    GoRoute(
+      path: '/edit-profile',
+      name: 'edit-profile',
+      builder: (BuildContext context, GoRouterState state) {
+        // User data should be passed via state.extra when navigating
+        final user = state.extra;
+        if (user == null) {
+          // If no user data provided, go back to profile
+          return const ProfileView();
+        }
+        return EditProfileView(user: user as AppUser);
       },
     ),
   ],
@@ -60,4 +85,3 @@ final GoRouter appRouter = GoRouter(
     return ErrorState(details: message);
   },
 );
-

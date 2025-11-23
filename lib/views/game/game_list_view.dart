@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../controllers/game_list_controller.dart';
 import '../../controllers/search_controller.dart' as gl;
@@ -8,7 +9,9 @@ import '../../widgets/loading_indicator.dart';
 import 'game_list_empty.dart';
 
 class GameListView extends StatefulWidget {
-  const GameListView({super.key});
+  const GameListView({super.key, this.initialQuery});
+
+  final String? initialQuery;
 
   @override
   State<GameListView> createState() => _GameListViewState();
@@ -17,15 +20,28 @@ class GameListView extends StatefulWidget {
 class _GameListViewState extends State<GameListView> {
   late final TextEditingController _searchController;
   late final FocusNode _searchFocusNode;
+  bool _suppressSearchListener = false;
+  String _syncedQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _searchController = TextEditingController(
-      text: gl.SearchController.instance.state.query,
-    );
+    final String initialQuery =
+        widget.initialQuery ?? gl.SearchController.instance.state.query;
+    _syncedQuery = initialQuery;
+    _searchController = TextEditingController(text: initialQuery);
+    gl.SearchController.instance.updateQuery(initialQuery);
     _searchController.addListener(_handleSearchChanged);
     _searchFocusNode = FocusNode();
+  }
+
+  @override
+  void didUpdateWidget(covariant GameListView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final String newQuery = widget.initialQuery ?? '';
+    if (newQuery != _syncedQuery) {
+      _applyRouterQuery(newQuery);
+    }
   }
 
   @override
@@ -37,7 +53,34 @@ class _GameListViewState extends State<GameListView> {
   }
 
   void _handleSearchChanged() {
-    gl.SearchController.instance.updateQuery(_searchController.text);
+    if (_suppressSearchListener) {
+      return;
+    }
+    final String newQuery = _searchController.text;
+    gl.SearchController.instance.updateQuery(newQuery);
+    if (newQuery == _syncedQuery) {
+      return;
+    }
+    _syncedQuery = newQuery;
+    _updateQueryParam(newQuery);
+  }
+
+  void _applyRouterQuery(String value) {
+    _suppressSearchListener = true;
+    _searchController
+      ..text = value
+      ..selection = TextSelection.collapsed(offset: value.length);
+    _suppressSearchListener = false;
+    _syncedQuery = value;
+    gl.SearchController.instance.updateQuery(value);
+  }
+
+  void _updateQueryParam(String value) {
+    final Map<String, String> params = <String, String>{};
+    if (value.isNotEmpty) {
+      params['q'] = value;
+    }
+    context.goNamed('home', queryParameters: params);
   }
 
   @override
