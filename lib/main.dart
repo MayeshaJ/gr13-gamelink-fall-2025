@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'firebase_options.dart';
 import 'features/notifications/local_notification_service.dart';
@@ -38,7 +39,7 @@ void main() async {
     sound: true,
   );
 
-  // OPTIONAL: Get the user's FCM token (for debugging only)
+  // Optional: print FCM token for debugging
   final token = await messaging.getToken();
   print("FCM Token: $token");
 
@@ -50,24 +51,34 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // This MaterialApp creates the Navigator
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      
-      // TEMP ROUTES — Will be replaced once your team builds navigation
+      title: 'GameLink Group 13',
+
+      // Register routes here
       routes: {
         '/notifications': (context) => const NotificationsScreen(),
       },
 
-      home: Scaffold(
-        appBar: AppBar(title: const Text("Home")),
-        body: Center(
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed('/notifications');
-            },
-            child: const Text("Go to Notifications"),
-          ),
-        ),
+      // Home screen with a button that uses the Navigator
+      home: Builder(
+        // Builder gives us a context *under* the MaterialApp / Navigator
+        builder: (context) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Home'),
+            ),
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/notifications');
+                },
+                child: const Text('Go to Notifications'),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

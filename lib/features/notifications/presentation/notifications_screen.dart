@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../data/notification_repository.dart';
-import '../models/app_notifications.dart';
+import '../models/app_notification.dart';
 import '../local_notification_service.dart';
 
 class NotificationsScreen extends StatelessWidget {
