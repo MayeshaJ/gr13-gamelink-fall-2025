@@ -23,10 +23,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
@@ -44,37 +41,47 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDl3zG4RvsUQeLevoXC4Lw_6ozLaPuH_C0',
-    appId: '1:565659495044:web:150e9bcc2f5b9c34c230d1',
-    messagingSenderId: '565659495044',
-    projectId: 'gr13-gamelink-fall-2025',
-    authDomain: 'gr13-gamelink-fall-2025.firebaseapp.com',
-    storageBucket: 'gr13-gamelink-fall-2025.firebasestorage.app',
+    apiKey: 'AIzaSyCYe-k7-t6JqeLqFEZw0wI2AkrAMjiHErA',
+    appId: '1:525274573346:web:0a2fd4abf3c77d80cf387b',
+    messagingSenderId: '525274573346',
+    projectId: 'gr13-gamelink-fall25',
+    authDomain: 'gr13-gamelink-fall25.firebaseapp.com',
+    storageBucket: 'gr13-gamelink-fall25.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC95_jJ41a1B9t733ud2zkv2XgW4qDRtqk',
-    appId: '1:565659495044:android:06f68196b96143f2c230d1',
-    messagingSenderId: '565659495044',
-    projectId: 'gr13-gamelink-fall-2025',
-    storageBucket: 'gr13-gamelink-fall-2025.firebasestorage.app',
+    apiKey: 'AIzaSyDH2ZGZoCAHlK6lzQZ9zr7oiOUKETERjLY',
+    appId: '1:525274573346:android:37a4586935a162cbcf387b',
+    messagingSenderId: '525274573346',
+    projectId: 'gr13-gamelink-fall25',
+    storageBucket: 'gr13-gamelink-fall25.firebasestorage.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDutcdvOtVzqnVlll4LRIyl77-a6LoYeEg',
-    appId: '1:565659495044:ios:7cbb143b2066532fc230d1',
-    messagingSenderId: '565659495044',
-    projectId: 'gr13-gamelink-fall-2025',
-    storageBucket: 'gr13-gamelink-fall-2025.firebasestorage.app',
+    apiKey: 'AIzaSyACkV5zP0IFIP-_ezBKCyzzymGc6IMO5fU',
+    appId: '1:525274573346:ios:2f672eb50d6f1f5bcf387b',
+    messagingSenderId: '525274573346',
+    projectId: 'gr13-gamelink-fall25',
+    storageBucket: 'gr13-gamelink-fall25.firebasestorage.app',
     iosBundleId: 'com.example.gameLinkGroup13',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDl3zG4RvsUQeLevoXC4Lw_6ozLaPuH_C0',
-    appId: '1:565659495044:web:5caa276ce77ced0cc230d1',
-    messagingSenderId: '565659495044',
-    projectId: 'gr13-gamelink-fall-2025',
-    authDomain: 'gr13-gamelink-fall-2025.firebaseapp.com',
-    storageBucket: 'gr13-gamelink-fall-2025.firebasestorage.app',
+    apiKey: 'AIzaSyCYe-k7-t6JqeLqFEZw0wI2AkrAMjiHErA',
+    appId: '1:525274573346:web:a984d48be7a365c9cf387b',
+    messagingSenderId: '525274573346',
+    projectId: 'gr13-gamelink-fall25',
+    authDomain: 'gr13-gamelink-fall25.firebaseapp.com',
+    storageBucket: 'gr13-gamelink-fall25.firebasestorage.app',
   );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyACkV5zP0IFIP-_ezBKCyzzymGc6IMO5fU',
+    appId: '1:525274573346:ios:2f672eb50d6f1f5bcf387b',
+    messagingSenderId: '525274573346',
+    projectId: 'gr13-gamelink-fall25',
+    storageBucket: 'gr13-gamelink-fall25.firebasestorage.app',
+    iosBundleId: 'com.example.gameLinkGroup13',
+  );
+
 }
