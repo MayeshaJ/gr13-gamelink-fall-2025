@@ -18,4 +18,15 @@ class UserController {
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
+
+  Future<Map<String, dynamic>?> getUserDocument({
+    required String uid,
+  }) async {
+    // read user document from Firestore
+    final doc = await _db.collection('users').doc(uid).get();
+    if (!doc.exists) {
+      return null;
+    }
+    return doc.data();
+  }
 }
