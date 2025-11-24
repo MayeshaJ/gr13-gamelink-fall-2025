@@ -17,6 +17,7 @@ class AuthController {
       uid: user.uid,
       email: user.email ?? '',
       name: '',
+      photoUrl: '',
     );
   }
 
@@ -30,6 +31,7 @@ class AuthController {
         uid: user.uid,
         email: user.email ?? '',
         name: '',
+        photoUrl: '',
       );
     });
   }

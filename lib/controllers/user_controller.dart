@@ -15,6 +15,8 @@ class UserController {
     await _db.collection('users').doc(uid).set({
       'uid': uid,
       'email': email,
+      'name': '',
+      'photoUrl': '',
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -36,5 +38,14 @@ class UserController {
   }) async {
     // update selected fields in Firestore
     await _db.collection('users').doc(uid).update(data);
+  }
+
+  Future<void> clearUserPhoto({
+    required String uid,
+  }) async {
+    // remove saved photo url
+    await _db.collection('users').doc(uid).update({
+      'photoUrl': '',
+    });
   }
 }

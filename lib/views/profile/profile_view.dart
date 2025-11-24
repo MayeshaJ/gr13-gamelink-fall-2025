@@ -76,12 +76,13 @@ class _ProfileViewState extends State<ProfileView> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.of(context).push(
+              Navigator.of(context)
+                  .push(
                 MaterialPageRoute(
                   builder: (_) => EditProfileView(user: _userData!),
                 ),
-              ).then((_) {
-                // refresh profile after editing
+              )
+                  .then((_) {
                 _loadUserData();
               });
             },
@@ -92,27 +93,47 @@ class _ProfileViewState extends State<ProfileView> {
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Email',
-              style: Theme.of(context).textTheme.titleMedium,
+            Center(
+              child: CircleAvatar(
+                radius: 40,
+                backgroundImage: _userData!.photoUrl.isNotEmpty
+                    ? NetworkImage(_userData!.photoUrl)
+                    : null,
+                child: _userData!.photoUrl.isEmpty
+                    ? const Icon(
+                        Icons.person,
+                        size: 40,
+                      )
+                    : null,
+              ),
             ),
-            Text(_userData!.email),
-            const SizedBox(height: 20),
-
-            Text(
-              'Name',
-              style: Theme.of(context).textTheme.titleMedium,
+            const SizedBox(height: 24),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Email',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(_userData!.email),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Name',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(_userData!.name.isEmpty ? 'Not set' : _userData!.name),
+                  const SizedBox(height: 20),
+                  Text(
+                    'User ID',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(_userData!.uid),
+                ],
+              ),
             ),
-            Text(_userData!.name.isEmpty ? 'Not set' : _userData!.name),
-            const SizedBox(height: 20),
-
-            Text(
-              'User ID',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            Text(_userData!.uid),
           ],
         ),
       ),
