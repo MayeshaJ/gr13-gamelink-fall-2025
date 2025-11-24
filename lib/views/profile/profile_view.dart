@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../models/app_user.dart';
+import 'edit_profile_view.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -22,7 +23,6 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Future<void> _loadUserData() async {
-    // read firebase auth current user
     final user = AuthController.instance.currentUser;
 
     if (user == null) {
@@ -67,6 +67,27 @@ class _ProfileViewState extends State<ProfileView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Profile'),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => EditProfileView(user: _userData!),
+                ),
+              ).then((_) {
+                // refresh profile after editing
+                _loadUserData();
+              });
+            },
+            icon: const Icon(Icons.edit),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -79,6 +100,14 @@ class _ProfileViewState extends State<ProfileView> {
             ),
             Text(_userData!.email),
             const SizedBox(height: 20),
+
+            Text(
+              'Name',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Text(_userData!.name.isEmpty ? 'Not set' : _userData!.name),
+            const SizedBox(height: 20),
+
             Text(
               'User ID',
               style: Theme.of(context).textTheme.titleMedium,
