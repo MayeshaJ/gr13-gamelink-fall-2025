@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../controllers/auth_controller.dart';
-import '../home/home_view.dart';
-import 'signup_view.dart';
-import 'forgot_password_view.dart';
 
 
 class LoginView extends StatefulWidget {
@@ -55,11 +53,8 @@ class _LoginViewState extends State<LoginView> {
       }
 
       // go to home view after successful login
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => const HomeView(),
-        ),
-      );
+      if (!mounted) return;
+      context.go('/home');
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -83,11 +78,7 @@ class _LoginViewState extends State<LoginView> {
 
   void _goToSignup() {
     // navigate to signup view
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const SignupView(),
-      ),
-    );
+    context.go('/signup');
   }
 
   @override
@@ -128,13 +119,7 @@ class _LoginViewState extends State<LoginView> {
               child: const Text('Create an account'),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const ForgotPasswordView(),
-                  ),
-                );
-              },
+              onPressed: () => context.push('/forgot-password'),
               child: const Text('Forgot password'),
             ),
           ],

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
-import '../home/home_view.dart';
 
 class SignupView extends StatefulWidget {
   const SignupView({super.key});
@@ -61,11 +61,8 @@ class _SignupViewState extends State<SignupView> {
         return;
       }
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => const HomeView(),
-        ),
-      );
+      if (!mounted) return;
+      context.go('/home');
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
