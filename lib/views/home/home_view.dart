@@ -1,25 +1,19 @@
 import 'package:flutter/material.dart';
-
 import '../../controllers/auth_controller.dart';
 import '../auth/login_view.dart';
+import '../game/create_game_view.dart';   // ← add this (file you'll create next)
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
   Future<void> _handleLogout(BuildContext context) async {
-    // sign out through controller
     await AuthController.instance.signOut();
 
-    if (!context.mounted) {
-      return;
-    }
+    if (!context.mounted) return;
 
-    // go back to login and clear navigation stack
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (_) => const LoginView(),
-      ),
-      (route) => false,
+      MaterialPageRoute(builder: (_) => const LoginView()),
+          (route) => false,
     );
   }
 
@@ -27,16 +21,27 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('GameLink Home'),
         actions: [
           IconButton(
-            onPressed: () => _handleLogout(context),
             icon: const Icon(Icons.logout),
+            onPressed: () => _handleLogout(context),
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Home view'),
+
+      body: Center(
+        child: ElevatedButton(
+          child: const Text("Create a Game"),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const CreateGameView(),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
