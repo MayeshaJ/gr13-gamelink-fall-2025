@@ -17,6 +17,9 @@ class UserController {
       'email': email,
       'name': '',
       'photoUrl': '',
+      'primarySport': '',
+      'skillLevel': '',
+      'bio': '',
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
