@@ -33,6 +33,11 @@ class GameTile extends StatelessWidget {
             Text('${game.hostName} • ${game.location}'),
             const SizedBox(height: 4),
             Text(dateText),
+            const SizedBox(height: 4),
+            Text(
+              _capitalize(game.sport),
+              style: const TextStyle(color: Colors.blueGrey),
+            ),
           ],
         ),
         trailing: Chip(
@@ -47,6 +52,6 @@ class GameTile extends StatelessWidget {
   }
 
   String _two(int n) => n.toString().padLeft(2, '0');
+  String _capitalize(String s) =>
+      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1).toLowerCase();
 }
-
-

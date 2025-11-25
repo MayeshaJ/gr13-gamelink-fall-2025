@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../controllers/auth_controller.dart';
@@ -93,7 +94,7 @@ class _EditProfileViewState extends State<EditProfileView> {
         return;
       }
 
-      Navigator.pop(context);
+      context.pop(true); // Return true to indicate successful save
     } catch (_) {
       if (!mounted) {
         return;
@@ -203,7 +204,7 @@ class _EditProfileViewState extends State<EditProfileView> {
         title: const Text('Edit Profile'),
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
           },
           icon: const Icon(Icons.arrow_back),
         ),

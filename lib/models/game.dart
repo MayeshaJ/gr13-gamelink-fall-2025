@@ -109,6 +109,7 @@ class Game {
   final String hostName;
   final DateTime dateTime;
   final String location;
+  final String sport;
   final GameStatus status;
 
   const Game({
@@ -117,6 +118,7 @@ class Game {
     required this.hostName,
     required this.dateTime,
     required this.location,
+    required this.sport,
     required this.status,
   });
 
@@ -126,6 +128,7 @@ class Game {
     String? hostName,
     DateTime? dateTime,
     String? location,
+    String? sport,
     GameStatus? status,
   }) {
     return Game(
@@ -134,6 +137,7 @@ class Game {
       hostName: hostName ?? this.hostName,
       dateTime: dateTime ?? this.dateTime,
       location: location ?? this.location,
+      sport: sport ?? this.sport,
       status: status ?? this.status,
     );
   }
@@ -145,6 +149,7 @@ class Game {
       'hostName': hostName,
       'dateTime': dateTime.toIso8601String(),
       'location': location,
+      'sport': sport,
       'status': status.name,
     };
   }
@@ -156,6 +161,7 @@ class Game {
       hostName: map['hostName'] as String,
       dateTime: DateTime.parse(map['dateTime'] as String),
       location: map['location'] as String,
+      sport: map['sport'] as String,
       status: _statusFromString(map['status'] as String),
     );
   }

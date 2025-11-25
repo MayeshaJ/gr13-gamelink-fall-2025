@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../controllers/auth_controller.dart';
-import '../auth/login_view.dart';
-import '../profile/profile_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -15,13 +14,8 @@ class HomeView extends StatelessWidget {
       return;
     }
 
-    // go back to login and clear navigation stack
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (_) => const LoginView(),
-      ),
-      (route) => false,
-    );
+    // go back to login and clear navigation stack using GoRouter
+    context.go('/auth');
   }
 
   @override
@@ -36,11 +30,7 @@ class HomeView extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ProfileView(),
-                ),
-              );
+              context.push('/profile');
             },
             icon: const Icon(Icons.person),
           ),

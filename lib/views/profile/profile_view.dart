@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../models/app_user.dart';
-import 'edit_profile_view.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -92,22 +92,21 @@ class _ProfileViewState extends State<ProfileView> {
         title: const Text('My Profile'),
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
           },
           icon: const Icon(Icons.arrow_back),
         ),
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.of(context)
-                  .push(
-                MaterialPageRoute(
-                  builder: (_) => EditProfileView(user: user),
-                ),
-              )
-                  .then((_) {
+            onPressed: () async {
+              // Navigate to edit profile with user data
+              final result = await context.push(
+                '/edit-profile',
+                extra: user,
+              );
+              if (result == true || context.mounted) {
                 _loadUserData();
-              });
+              }
             },
             icon: const Icon(Icons.edit),
           ),
