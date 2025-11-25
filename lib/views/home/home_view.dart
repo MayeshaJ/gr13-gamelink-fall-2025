@@ -1,48 +1,47 @@
-  import 'package:flutter/material.dart';
-  import '../../controllers/auth_controller.dart';
-  import '../auth/login_view.dart';
-  import '../game/create_game_view.dart';   // ← add this (file you'll create next)
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-  class HomeView extends StatelessWidget {
-    const HomeView({super.key});
+import '../../controllers/auth_controller.dart';
+import '../auth/login_view.dart';
+import '../game/create_game_view.dart';
 
-    Future<void> _handleLogout(BuildContext context) async {
-      await AuthController.instance.signOut();
+class HomeView extends StatelessWidget {
+  const HomeView({super.key});
 
-      if (!context.mounted) return;
+  Future<void> _handleLogout(BuildContext context) async {
+    await AuthController.instance.signOut();
 
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginView()),
-            (route) => false,
-      );
-    }
+    if (!context.mounted) return;
 
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('GameLink Home'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () => _handleLogout(context),
-            ),
-          ],
-        ),
-
-        body: Center(
-          child: ElevatedButton(
-            child: const Text("Create a Game"),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const CreateGameView(),
-                ),
-              );
-            },
-          ),
-        ),
-      );
-    }
+    // Clear navigation stack and go to auth route
+    context.go('/auth');
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('GameLink Home'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => _handleLogout(context),
+          ),
+          IconButton(
+            onPressed: () => context.push('/profile'),
+            icon: const Icon(Icons.person),
+          ),
+        ],
+      ),
+      body: Center(
+        child: ElevatedButton(
+          child: const Text("Create a Game"),
+          onPressed: () {
+            // Using GoRouter instead of Navigator
+            context.push('/game/create');
+          },
+        ),
+      ),
+    );
+  }
+}

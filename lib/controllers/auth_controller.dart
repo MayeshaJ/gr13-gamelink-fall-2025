@@ -16,6 +16,8 @@ class AuthController {
     return AppUser(
       uid: user.uid,
       email: user.email ?? '',
+      name: '',
+      photoUrl: '',
     );
   }
 
@@ -28,6 +30,8 @@ class AuthController {
       return AppUser(
         uid: user.uid,
         email: user.email ?? '',
+        name: '',
+        photoUrl: '',
       );
     });
   }
