@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../controllers/auth_controller.dart';
+import '../auth/login_view.dart';
+import '../game/create_game_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
   Future<void> _handleLogout(BuildContext context) async {
-    // sign out through controller
     await AuthController.instance.signOut();
 
-    if (!context.mounted) {
-      return;
-    }
+    if (!context.mounted) return;
 
-    // go back to login and clear navigation stack using GoRouter
+    // Clear navigation stack and go to auth route
     context.go('/auth');
   }
 
@@ -22,22 +21,26 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('GameLink Home'),
         actions: [
           IconButton(
-            onPressed: () => _handleLogout(context),
             icon: const Icon(Icons.logout),
+            onPressed: () => _handleLogout(context),
           ),
           IconButton(
-            onPressed: () {
-              context.push('/profile');
-            },
+            onPressed: () => context.push('/profile'),
             icon: const Icon(Icons.person),
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Home view'),
+      body: Center(
+        child: ElevatedButton(
+          child: const Text("Create a Game"),
+          onPressed: () {
+            // Using GoRouter instead of Navigator
+            context.push('/game/create');
+          },
+        ),
       ),
     );
   }
