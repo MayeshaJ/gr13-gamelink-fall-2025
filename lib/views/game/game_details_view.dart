@@ -24,6 +24,8 @@ class _GameDetailsViewState extends State<GameDetailsView> {
   final UserController _userController = UserController.instance;
   bool _isJoining = false;
   bool _isLeaving = false;
+  bool _isJoiningWaitlist = false;
+  bool _isLeavingWaitlist = false;
   Map<String, String> _participantNames = <String, String>{};
   String? _hostName;
 
@@ -86,11 +88,20 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           _loadParticipantNames(gameModel.participants);
           _loadHostName(gameModel.hostId);
 
-          final bool isFull = gameModel.participants.length >= gameModel.maxPlayers;
+          final int capacity = gameModel.maxPlayers;
+          final int joined = gameModel.participants.length;
+          final int remaining = capacity > joined ? capacity - joined : 0;
+          final int waitlistCount = gameModel.waitlist.length;
+
+          final bool isFull = joined >= capacity;
+          final bool isStarted = DateTime.now().isAfter(gameModel.date);
           final bool isParticipant = currentUserId != null &&
               gameModel.participants.contains(currentUserId);
           final bool isHost = currentUserId == gameModel.hostId;
-          final bool canJoin = !isFull && !isParticipant && !isHost && currentUserId != null;
+          final bool isOnWaitlist = currentUserId != null &&
+              gameModel.waitlist.contains(currentUserId);
+          final bool canJoin =
+              !isFull && !isParticipant && !isHost && currentUserId != null && !isStarted;
 
           final DateTime dt = gameModel.date.toLocal();
           final String dateText =
@@ -118,7 +129,15 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                 _buildInfoRow(
                   Icons.people,
                   'Players',
-                  '${gameModel.participants.length} / ${gameModel.maxPlayers}',
+                  'Joined: $joined / $capacity  •  Remaining: $remaining',
+                ),
+                const SizedBox(height: 12),
+                _buildInfoRow(
+                  Icons.hourglass_empty,
+                  'Waitlist',
+                  isStarted
+                      ? 'Waitlist closed (game already started)'
+                      : '$waitlistCount on waitlist',
                 ),
                 const SizedBox(height: 24),
 
@@ -169,7 +188,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                 // Action Buttons
                 if (currentUserId != null) ...[
                   // Leave Button (shown when user is a participant but not host)
-                  if (isParticipant && !isHost) ...[
+                  if (!isStarted && isParticipant && !isHost) ...[
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -213,9 +232,11 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         label: Text(
                           isHost
                               ? 'You are the host'
-                              : isFull
-                                  ? 'Game is full'
-                                  : 'Join Game',
+                              : isStarted
+                                  ? 'Game has already started'
+                                  : isFull
+                                      ? 'Game is full'
+                                      : 'Join Game',
                         ),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -226,6 +247,27 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    if (!isStarted && isFull && !isHost) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: _isJoiningWaitlist || _isLeavingWaitlist
+                              ? null
+                              : () {
+                                  if (isOnWaitlist) {
+                                    _handleLeaveWaitlist(gameModel, currentUserId);
+                                  } else {
+                                    _handleJoinWaitlist(gameModel, currentUserId);
+                                  }
+                                },
+                          icon: const Icon(Icons.hourglass_empty),
+                          label: Text(
+                            isOnWaitlist ? 'Leave waitlist' : 'Join waitlist',
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                   // Host message (shown when user is the host)
                   if (isHost) ...[
@@ -409,6 +451,73 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     }
   }
 
+  Future<void> _handleJoinWaitlist(GameModel game, String userId) async {
+    setState(() {
+      _isJoiningWaitlist = true;
+    });
+
+    try {
+      await _gameController.joinWaitlist(game.id, userId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Added to waitlist'),
+          backgroundColor: Colors.blue,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isJoiningWaitlist = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleLeaveWaitlist(GameModel game, String userId) async {
+    setState(() {
+      _isLeavingWaitlist = true;
+    });
+
+    try {
+      await _gameController.leaveWaitlist(game.id, userId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Removed from waitlist'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLeavingWaitlist = false;
+        });
+      }
+    }
+  }
+
   String _two(int n) => n.toString().padLeft(2, '0');
 }
-

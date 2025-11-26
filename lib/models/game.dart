@@ -111,7 +111,9 @@ class Game {
   final String location;
   final String sport;
   final GameStatus status;
-  final List<String> participantIds; // Added to track participants
+  final int maxPlayers;              // capacity
+  final List<String> participantIds; // participants
+  final List<String> waitlist;       // waitlisted user IDs
 
   const Game({
     required this.id,
@@ -121,7 +123,9 @@ class Game {
     required this.location,
     required this.sport,
     required this.status,
-    this.participantIds = const [], // Default to empty list
+    required this.maxPlayers,
+    this.participantIds = const [],
+    this.waitlist = const [],
   });
 
   Game copyWith({
@@ -132,7 +136,9 @@ class Game {
     String? location,
     String? sport,
     GameStatus? status,
+    int? maxPlayers,
     List<String>? participantIds,
+    List<String>? waitlist,
   }) {
     return Game(
       id: id ?? this.id,
@@ -142,7 +148,9 @@ class Game {
       location: location ?? this.location,
       sport: sport ?? this.sport,
       status: status ?? this.status,
+      maxPlayers: maxPlayers ?? this.maxPlayers,
       participantIds: participantIds ?? this.participantIds,
+      waitlist: waitlist ?? this.waitlist,
     );
   }
 
@@ -155,7 +163,9 @@ class Game {
       'location': location,
       'sport': sport,
       'status': status.name,
+      'maxPlayers': maxPlayers,
       'participantIds': participantIds,
+      'waitlist': waitlist,
     };
   }
 
@@ -168,7 +178,9 @@ class Game {
       location: map['location'] as String,
       sport: map['sport'] as String,
       status: _statusFromString(map['status'] as String),
+      maxPlayers: (map['maxPlayers'] as int?) ?? 0,
       participantIds: List<String>.from(map['participantIds'] ?? []),
+      waitlist: List<String>.from(map['waitlist'] ?? []),
     );
   }
 
