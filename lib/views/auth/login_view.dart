@@ -54,7 +54,7 @@ class _LoginViewState extends State<LoginView> {
 
       // go to home view after successful login
       if (!mounted) return;
-      context.go('/home');
+      context.goNamed('home');
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -78,7 +78,7 @@ class _LoginViewState extends State<LoginView> {
 
   void _goToSignup() {
     // navigate to signup view
-    context.go('/signup');
+    context.goNamed('signup');
   }
 
   @override
@@ -119,7 +119,7 @@ class _LoginViewState extends State<LoginView> {
               child: const Text('Create an account'),
             ),
             TextButton(
-              onPressed: () => context.push('/forgot-password'),
+              onPressed: () => context.pushNamed('forgot-password'),
               child: const Text('Forgot password'),
             ),
           ],

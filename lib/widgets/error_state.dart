@@ -35,7 +35,7 @@ class ErrorState extends StatelessWidget {
               ],
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => context.go('/'),
+                onPressed: () => context.goNamed('root'),
                 child: const Text('Go Home'),
               ),
             ],

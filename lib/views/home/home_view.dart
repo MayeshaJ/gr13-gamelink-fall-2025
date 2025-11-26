@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../controllers/auth_controller.dart';
-import '../auth/login_view.dart';
-import '../game/create_game_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -14,7 +12,7 @@ class HomeView extends StatelessWidget {
     if (!context.mounted) return;
 
     // Clear navigation stack and go to auth route
-    context.go('/auth');
+    context.goNamed('auth');
   }
 
   @override
@@ -28,18 +26,37 @@ class HomeView extends StatelessWidget {
             onPressed: () => _handleLogout(context),
           ),
           IconButton(
-            onPressed: () => context.push('/profile'),
+            onPressed: () => context.pushNamed('profile'),
             icon: const Icon(Icons.person),
           ),
         ],
       ),
-      body: Center(
-        child: ElevatedButton(
-          child: const Text("Create a Game"),
-          onPressed: () {
-            // Using GoRouter instead of Navigator
-            context.push('/game/create');
-          },
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () {
+                // Navigate to games list
+                context.push('/games');
+              },
+              icon: const Icon(Icons.sports_soccer),
+              label: const Text('Browse Games'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => context.pushNamed('create-game'),
+              icon: const Icon(Icons.add),
+              label: const Text('Create a Game'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+          ],
         ),
       ),
     );

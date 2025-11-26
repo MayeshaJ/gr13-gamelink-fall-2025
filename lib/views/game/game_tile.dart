@@ -1,54 +1,125 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/game.dart';
+import '../../controllers/game_controller.dart';
+import '../../controllers/auth_controller.dart';
 
-class GameTile extends StatelessWidget {
+class GameTile extends StatefulWidget {
   final Game game;
-  final VoidCallback? onTap;
 
   const GameTile({
     super.key,
     required this.game,
-    this.onTap,
   });
 
   @override
+  State<GameTile> createState() => _GameTileState();
+}
+
+class _GameTileState extends State<GameTile> {
+  final GameController _gameController = GameController();
+  bool _isJoining = false;
+
+  @override
   Widget build(BuildContext context) {
-    final DateTime dt = game.dateTime.toLocal();
+    final DateTime dt = widget.game.dateTime.toLocal();
     final String dateText =
         '${dt.year}-${_two(dt.month)}-${_two(dt.day)} ${_two(dt.hour)}:${_two(dt.minute)}';
 
-    final bool isOpen = game.status == GameStatus.open;
-    final Color chipColor = isOpen ? Colors.green : Colors.red;
-    final String chipText = isOpen ? 'Open' : 'Closed';
+    final currentUser = AuthController.instance.currentUser;
+    final String? currentUserId = currentUser?.uid;
+    final bool isParticipant = currentUserId != null &&
+        widget.game.participantIds.contains(currentUserId);
+    final bool isOpen = widget.game.status == GameStatus.open;
+    final bool canJoin = isOpen && !isParticipant && currentUserId != null;
+    final String? userIdForJoin = canJoin ? currentUserId : null;
 
     return Card(
       child: ListTile(
-        onTap: onTap,
-        title: Text(game.title),
+        onTap: () {
+          // Navigate to game details page
+          context.pushNamed('game-details', pathParameters: {'id': widget.game.id});
+        },
+        title: Text(
+          widget.game.title,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Text('${game.hostName} • ${game.location}'),
+            Text('${widget.game.hostName} • ${widget.game.location}'),
             const SizedBox(height: 4),
             Text(dateText),
             const SizedBox(height: 4),
             Text(
-              _capitalize(game.sport),
+              _capitalize(widget.game.sport),
               style: const TextStyle(color: Colors.blueGrey),
             ),
           ],
         ),
-        trailing: Chip(
-          label: Text(
-            chipText,
-            style: const TextStyle(color: Colors.white),
+        trailing: ElevatedButton(
+          onPressed: canJoin && !_isJoining && userIdForJoin != null
+              ? () => _handleJoin(widget.game.id, userIdForJoin)
+              : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isParticipant
+                ? Colors.grey
+                : isOpen
+                    ? Colors.green
+                    : Colors.grey,
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: Colors.grey.shade300,
+            disabledForegroundColor: Colors.grey.shade600,
           ),
-          backgroundColor: chipColor,
+          child: _isJoining
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Text(isParticipant ? 'Joined' : 'Join'),
         ),
       ),
     );
+  }
+
+  Future<void> _handleJoin(String gameId, String userId) async {
+    setState(() {
+      _isJoining = true;
+    });
+
+    try {
+      await _gameController.joinGame(gameId, userId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Successfully joined the game!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isJoining = false;
+        });
+      }
+    }
   }
 
   String _two(int n) => n.toString().padLeft(2, '0');

@@ -80,7 +80,7 @@ class _GameListViewState extends State<GameListView> {
     if (value.isNotEmpty) {
       params['q'] = value;
     }
-    context.goNamed('home', queryParameters: params);
+    context.goNamed('games', queryParameters: params);
   }
 
   @override
@@ -91,8 +91,11 @@ class _GameListViewState extends State<GameListView> {
       ),
       body: StreamBuilder<List<Game>>(
         stream: GameListController.instance.watchGames(),
+        initialData: <Game>[], // Provide initial data to prevent waiting state
         builder: (BuildContext context, AsyncSnapshot<List<Game>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          // With initialData, snapshot should always have data
+          // Only show loading on first connection if we truly have no data
+          if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
             return const LoadingIndicator(message: 'Loading games...');
           }
 
@@ -122,19 +125,17 @@ class _GameListViewState extends State<GameListView> {
           }
 
           final List<Game> allGames = snapshot.data ?? <Game>[];
-          if (allGames.isEmpty) {
-            return GameListEmpty(
-              onRefresh: () => GameListController.instance.refresh(),
-            );
-          }
-
+          
+          // Use StreamBuilder for search state with proper initial data
           return StreamBuilder<gl.SearchState>(
             stream: gl.SearchController.instance.watch(),
             initialData: gl.SearchController.instance.state,
             builder:
                 (BuildContext context, AsyncSnapshot<gl.SearchState> searchSnap) {
-              final gl.SearchState search = searchSnap.data ??
-                  const gl.SearchState(); // fallback to default state
+              // Use search state from snapshot or fallback to current state
+              final gl.SearchState search = searchSnap.connectionState == ConnectionState.waiting
+                  ? gl.SearchController.instance.state
+                  : (searchSnap.data ?? gl.SearchController.instance.state);
 
               // Build sport options from current game list
               final List<String> sportOptions = allGames
@@ -163,6 +164,13 @@ class _GameListViewState extends State<GameListView> {
 
               final List<Game> games =
                   allGames.where((Game g) => matches(g)).toList();
+              
+              // Show empty state if no games match search
+              if (allGames.isEmpty) {
+                return GameListEmpty(
+                  onRefresh: () => GameListController.instance.refresh(),
+                );
+              }
 
               return Column(
                 children: <Widget>[

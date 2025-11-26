@@ -1,0 +1,12 @@
+sharier: feature/auth-signup-login
+sharier: feature/auth-password-reset
+sharier: feature/auth-session-persistence
+sharier: feature/user-doc-creation
+mayesha: feature/auth-nav-flow
+sharier: feature/profile-screen
+sharier: feature/profile-edit
+sharier: feature/profile-photo
+sharier: feature/profile-extra-details
+ahmed: feature/game-model
+mayesha: feature/game-list
+mayesha: feature/game-search

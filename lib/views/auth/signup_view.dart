@@ -62,7 +62,7 @@ class _SignupViewState extends State<SignupView> {
       }
 
       if (!mounted) return;
-      context.go('/home');
+      context.goNamed('home');
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

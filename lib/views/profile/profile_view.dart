@@ -100,8 +100,8 @@ class _ProfileViewState extends State<ProfileView> {
           IconButton(
             onPressed: () async {
               // Navigate to edit profile with user data
-              final result = await context.push(
-                '/edit-profile',
+              final result = await context.pushNamed(
+                'edit-profile',
                 extra: user,
               );
               if (result == true || context.mounted) {

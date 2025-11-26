@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 import '../../controllers/game_controller.dart';
+import '../../controllers/game_list_controller.dart';
 import '../../models/game.dart';
 
 class CreateGameView extends StatefulWidget {
@@ -81,13 +83,18 @@ class _CreateGameViewState extends State<CreateGameView> {
 
     final newId = await gameController.createGame(game);
 
+    // Ensure current user's name is cached for immediate display in game list
+    await GameListController.instance.ensureCurrentUserNameCached();
+
     setState(() => loading = false);
+
+    if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Game created! ID: $newId")),
     );
 
-    Navigator.pop(context);
+    context.pop();
   }
 
   @override
