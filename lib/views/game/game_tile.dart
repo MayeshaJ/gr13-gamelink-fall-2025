@@ -35,6 +35,11 @@ class _GameTileState extends State<GameTile> {
     final bool canJoin = isOpen && !isParticipant && currentUserId != null;
     final String? userIdForJoin = canJoin ? currentUserId : null;
 
+    final int capacity = widget.game.maxPlayers;
+    final int joined = widget.game.participantIds.length;
+    final int remaining = capacity > joined ? capacity - joined : 0;
+    final bool isFull = remaining == 0;
+
     return Card(
       child: ListTile(
         onTap: () {
@@ -57,6 +62,22 @@ class _GameTileState extends State<GameTile> {
               _capitalize(widget.game.sport),
               style: const TextStyle(color: Colors.blueGrey),
             ),
+            const SizedBox(height: 6),
+            Text(
+              'Capacity: $capacity • Joined: $joined • Remaining: $remaining',
+              style: const TextStyle(fontSize: 12),
+            ),
+            if (isFull) ...[
+              const SizedBox(height: 4),
+              const Text(
+                'Game is full. Waitlist available (coming soon).',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
           ],
         ),
         trailing: ElevatedButton(

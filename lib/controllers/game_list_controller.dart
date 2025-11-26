@@ -73,7 +73,9 @@ class GameListController {
         location: model.location,
         sport: sport,
         status: status,
+        maxPlayers: model.maxPlayers,
         participantIds: model.participants,
+        waitlist: model.waitlist,
       );
     }).toList();
 
@@ -263,7 +265,9 @@ class GameListController {
         location: model.location,
         sport: sport,
         status: status,
-        participantIds: model.participants, // Include participant IDs
+        maxPlayers: model.maxPlayers,
+        participantIds: model.participants,
+        waitlist: model.waitlist,
       );
     }).toList();
 
@@ -322,7 +326,9 @@ class GameListController {
           location: model.location,
           sport: sport,
           status: status,
+          maxPlayers: model.maxPlayers,
           participantIds: model.participants,
+          waitlist: model.waitlist,
         );
       }).toList();
 
@@ -356,7 +362,9 @@ class GameListController {
           location: model.location,
           sport: sport,
           status: status,
+          maxPlayers: model.maxPlayers,
           participantIds: model.participants,
+          waitlist: model.waitlist,
         );
       }).toList();
       

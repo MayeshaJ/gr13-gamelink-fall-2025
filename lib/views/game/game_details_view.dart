@@ -86,7 +86,12 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           _loadParticipantNames(gameModel.participants);
           _loadHostName(gameModel.hostId);
 
-          final bool isFull = gameModel.participants.length >= gameModel.maxPlayers;
+          final int capacity = gameModel.maxPlayers;
+          final int joined = gameModel.participants.length;
+          final int remaining = capacity > joined ? capacity - joined : 0;
+          final int waitlistCount = gameModel.waitlist.length;
+
+          final bool isFull = joined >= capacity;
           final bool isParticipant = currentUserId != null &&
               gameModel.participants.contains(currentUserId);
           final bool isHost = currentUserId == gameModel.hostId;
@@ -118,7 +123,13 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                 _buildInfoRow(
                   Icons.people,
                   'Players',
-                  '${gameModel.participants.length} / ${gameModel.maxPlayers}',
+                  'Joined: $joined / $capacity  •  Remaining: $remaining',
+                ),
+                const SizedBox(height: 12),
+                _buildInfoRow(
+                  Icons.hourglass_empty,
+                  'Waitlist',
+                  '$waitlistCount waitlisted (feature coming soon)',
                 ),
                 const SizedBox(height: 24),
 
@@ -226,6 +237,17 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    if (isFull && !isHost) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: null, // waitlist feature to be implemented later
+                          icon: const Icon(Icons.hourglass_empty),
+                          label: const Text('Join waitlist (coming soon)'),
+                        ),
+                      ),
+                    ],
                   ],
                   // Host message (shown when user is the host)
                   if (isHost) ...[
@@ -411,4 +433,3 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
   String _two(int n) => n.toString().padLeft(2, '0');
 }
-
