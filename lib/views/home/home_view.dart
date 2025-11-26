@@ -31,10 +31,32 @@ class HomeView extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => context.pushNamed('create-game'),
-          child: const Text('Create a Game'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () {
+                // Navigate to games list
+                context.push('/games');
+              },
+              icon: const Icon(Icons.sports_soccer),
+              label: const Text('Browse Games'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => context.pushNamed('create-game'),
+              icon: const Icon(Icons.add),
+              label: const Text('Create a Game'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+          ],
         ),
       ),
     );

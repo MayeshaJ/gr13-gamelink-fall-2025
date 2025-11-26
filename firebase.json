@@ -1,1 +1,28 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"gr13-gamelink-fall25","appId":"1:525274573346:android:37a4586935a162cbcf387b","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"gr13-gamelink-fall25","configurations":{"android":"1:525274573346:android:37a4586935a162cbcf387b","ios":"1:525274573346:ios:2f672eb50d6f1f5bcf387b","macos":"1:525274573346:ios:2f672eb50d6f1f5bcf387b","web":"1:525274573346:web:0a2fd4abf3c77d80cf387b","windows":"1:525274573346:web:a984d48be7a365c9cf387b"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "gr13-gamelink-fall25",
+          "appId": "1:525274573346:android:37a4586935a162cbcf387b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "gr13-gamelink-fall25",
+          "configurations": {
+            "android": "1:525274573346:android:37a4586935a162cbcf387b",
+            "ios": "1:525274573346:ios:2f672eb50d6f1f5bcf387b",
+            "macos": "1:525274573346:ios:2f672eb50d6f1f5bcf387b",
+            "web": "1:525274573346:web:0a2fd4abf3c77d80cf387b",
+            "windows": "1:525274573346:web:a984d48be7a365c9cf387b"
+          }
+        }
+      }
+    }
+  }
+}}

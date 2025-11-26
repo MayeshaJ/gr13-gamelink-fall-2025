@@ -111,6 +111,7 @@ class Game {
   final String location;
   final String sport;
   final GameStatus status;
+  final List<String> participantIds; // Added to track participants
 
   const Game({
     required this.id,
@@ -120,6 +121,7 @@ class Game {
     required this.location,
     required this.sport,
     required this.status,
+    this.participantIds = const [], // Default to empty list
   });
 
   Game copyWith({
@@ -130,6 +132,7 @@ class Game {
     String? location,
     String? sport,
     GameStatus? status,
+    List<String>? participantIds,
   }) {
     return Game(
       id: id ?? this.id,
@@ -139,6 +142,7 @@ class Game {
       location: location ?? this.location,
       sport: sport ?? this.sport,
       status: status ?? this.status,
+      participantIds: participantIds ?? this.participantIds,
     );
   }
 
@@ -151,6 +155,7 @@ class Game {
       'location': location,
       'sport': sport,
       'status': status.name,
+      'participantIds': participantIds,
     };
   }
 
@@ -163,6 +168,7 @@ class Game {
       location: map['location'] as String,
       sport: map['sport'] as String,
       status: _statusFromString(map['status'] as String),
+      participantIds: List<String>.from(map['participantIds'] ?? []),
     );
   }
 

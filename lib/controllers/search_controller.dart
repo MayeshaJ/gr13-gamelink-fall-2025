@@ -21,7 +21,11 @@ class SearchState {
 /// Simple controller that holds search/filter state and exposes a stream.
 /// Integration into views is part of later commits.
 class SearchController {
-  SearchController._internal();
+  SearchController._internal() {
+    // Emit initial state immediately to prevent infinite loading
+    _stateController.add(_state);
+  }
+  
   static final SearchController instance = SearchController._internal();
 
   final StreamController<SearchState> _stateController =
@@ -33,7 +37,11 @@ class SearchController {
   SearchState get state => _state;
 
   /// Listen for state updates.
-  Stream<SearchState> watch() => _stateController.stream;
+  /// The stream will emit the current state and then any updates.
+  Stream<SearchState> watch() {
+    // Return the broadcast stream - initialData in StreamBuilder will handle initial state
+    return _stateController.stream;
+  }
 
   void updateQuery(String query) {
     _update(_state.copyWith(query: query));
@@ -45,8 +53,16 @@ class SearchController {
   }
 
   void _update(SearchState next) {
+    if (_state.query == next.query) {
+      // No change, don't emit
+      return;
+    }
     _state = next;
     _stateController.add(_state);
+  }
+  
+  void dispose() {
+    _stateController.close();
   }
 }
 

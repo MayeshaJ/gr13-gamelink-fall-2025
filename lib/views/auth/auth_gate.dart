@@ -21,8 +21,11 @@ class AuthGate extends StatelessWidget {
         final bool isSignedIn = snapshot.data != null;
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          final String target = isSignedIn ? '/home' : '/auth';
-          context.go(target);
+          if (isSignedIn) {
+            context.goNamed('home');
+          } else {
+            context.goNamed('auth');
+          }
         });
 
         // Render a minimal placeholder while redirecting.

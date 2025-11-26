@@ -9,6 +9,7 @@ import 'package:game_link_group13/views/auth/forgot_password_view.dart';
 import 'package:game_link_group13/views/home/home_view.dart';
 import 'package:game_link_group13/views/game/game_list_view.dart';
 import 'package:game_link_group13/views/game/create_game_view.dart';
+import 'package:game_link_group13/views/game/game_details_view.dart';
 import 'package:game_link_group13/views/profile/profile_view.dart';
 import 'package:game_link_group13/views/profile/edit_profile_view.dart';
 import 'package:game_link_group13/models/app_user.dart';
@@ -16,6 +17,7 @@ import 'package:game_link_group13/models/app_user.dart';
 /// Centralized application router.
 /// All navigation should use GoRouter (context.go, context.push, etc.)
 final GoRouter appRouter = GoRouter(
+  debugLogDiagnostics: true, // Enable debug logging for route issues
   routes: <RouteBase>[
     GoRoute(
       path: '/',
@@ -66,6 +68,14 @@ final GoRouter appRouter = GoRouter(
       name: 'create-game',
       builder: (BuildContext context, GoRouterState state) {
         return const CreateGameView();
+      },
+    ),
+    GoRoute(
+      path: '/game/:id',
+      name: 'game-details',
+      builder: (BuildContext context, GoRouterState state) {
+        final gameId = state.pathParameters['id']!;
+        return GameDetailsView(gameId: gameId);
       },
     ),
     GoRoute(

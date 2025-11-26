@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is the owner of a document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // ─────────────────────────────────────────────────────────────
+    // USERS COLLECTION
+    // ─────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Users can read any user document
+      allow read: if isAuthenticated();
+      
+      // Users can create their own user document
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      
+      // Users can update only their own user document
+      allow update: if isOwner(userId);
+      
+      // Users can delete only their own user document
+      allow delete: if isOwner(userId);
+    }
+    
+    // ─────────────────────────────────────────────────────────────
+    // GAMES COLLECTION
+    // ─────────────────────────────────────────────────────────────
+    match /games/{gameId} {
+      // Anyone authenticated can read games
+      allow read: if isAuthenticated();
+      
+      // Only authenticated users can create games
+      allow create: if isAuthenticated() 
+        && request.resource.data.hostId == request.auth.uid
+        && request.resource.data.participants is list
+        && request.resource.data.waitlist is list;
+      
+      // Update rules:
+      // 1. Host can update any field of their game
+      // 2. Any authenticated user can update only participants/waitlist arrays
+      allow update: if isAuthenticated() && (
+        // Host can update their own game
+        resource.data.hostId == request.auth.uid ||
+        // Users can join/leave by updating only participants or waitlist
+        // Check that only participants or waitlist fields changed
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants']) ||
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['waitlist']) ||
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants', 'waitlist'])) &&
+        // Ensure other critical fields remain unchanged
+        request.resource.data.hostId == resource.data.hostId &&
+        request.resource.data.title == resource.data.title &&
+        request.resource.data.description == resource.data.description &&
+        request.resource.data.date == resource.data.date &&
+        request.resource.data.location == resource.data.location &&
+        request.resource.data.maxPlayers == resource.data.maxPlayers &&
+        request.resource.data.isCancelled == resource.data.isCancelled
+      );
+      
+      // Only host can delete their game
+      allow delete: if isAuthenticated() && resource.data.hostId == request.auth.uid;
+    }
+  }
+}
+
