@@ -46,13 +46,16 @@ service cloud.firestore {
       // 1. Host can update any field of their game
       // 2. Any authenticated user can update only participants/waitlist arrays
       allow update: if isAuthenticated() && (
-        // Host can update their own game
+        // Host can update their own game without restrictions
         resource.data.hostId == request.auth.uid ||
-        // Users can join/leave by updating only participants or waitlist
-        // Check that only participants or waitlist fields changed
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants']) ||
-         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['waitlist']) ||
-         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants', 'waitlist'])) &&
+
+        // Non-host updates are restricted to participants/waitlist changes only
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants']) ||
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['waitlist']) ||
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants', 'waitlist'])
+        ) &&
+
         // Ensure other critical fields remain unchanged
         request.resource.data.hostId == resource.data.hostId &&
         request.resource.data.title == resource.data.title &&
@@ -60,11 +63,80 @@ service cloud.firestore {
         request.resource.data.date == resource.data.date &&
         request.resource.data.location == resource.data.location &&
         request.resource.data.maxPlayers == resource.data.maxPlayers &&
-        request.resource.data.isCancelled == resource.data.isCancelled
+        request.resource.data.isCancelled == resource.data.isCancelled &&
+
+        // Prevent unauthorized joining / waitlisting:
+        // participants and waitlist can only be modified to add/remove the
+        // authenticated user, and capacity / start-time constraints are enforced.
+        validParticipantAndWaitlistChange()
       );
       
       // Only host can delete their game
       allow delete: if isAuthenticated() && resource.data.hostId == request.auth.uid;
+
+      function validParticipantAndWaitlistChange() {
+        let oldParticipants = resource.data.participants;
+        let newParticipants = request.resource.data.participants;
+
+        let oldWaitlist = resource.data.waitlist;
+        let newWaitlist = request.resource.data.waitlist;
+
+        let uid = request.auth.uid;
+
+        // Helper booleans
+        let wasParticipant = oldParticipants.hasAny([uid]);
+        let isParticipant = newParticipants.hasAny([uid]);
+
+        let wasWaitlisted = oldWaitlist.hasAny([uid]);
+        let isWaitlisted = newWaitlist.hasAny([uid]);
+
+        // Determine how many entries for this uid in before / after
+        // (prevent duplicates)
+        let oldParticipantCount =
+          oldParticipants.where(userId => userId == uid).size();
+        let newParticipantCount =
+          newParticipants.where(userId => userId == uid).size();
+
+        let oldWaitlistCount =
+          oldWaitlist.where(userId => userId == uid).size();
+        let newWaitlistCount =
+          newWaitlist.where(userId => userId == uid).size();
+
+        // Capacity and time constraints
+        let maxPlayers = resource.data.maxPlayers;
+        let gameHasStarted = request.time > resource.data.date;
+
+        // Participants list cannot exceed capacity
+        let capacityOk = newParticipants.size() <= maxPlayers;
+
+        // Users cannot join or waitlist for games that already started
+        // (but can leave)
+        let isJoining =
+          (!wasParticipant && isParticipant) || (!wasWaitlisted && isWaitlisted);
+        let timeOk = !gameHasStarted || !isJoining;
+
+        // Prevent duplicates of uid in participants / waitlist
+        let noDuplicateSelf =
+          newParticipantCount <= 1 && newWaitlistCount <= 1;
+
+        // No one else can be added/removed in participants/waitlist:
+        // enforce that the sets of "other users" remain identical.
+        let oldParticipantsOthers =
+          oldParticipants.where(userId => userId != uid);
+        let newParticipantsOthers =
+          newParticipants.where(userId => userId != uid);
+
+        let oldWaitlistOthers =
+          oldWaitlist.where(userId => userId != uid);
+        let newWaitlistOthers =
+          newWaitlist.where(userId => userId != uid);
+
+        let othersUnchanged =
+          oldParticipantsOthers == newParticipantsOthers &&
+          oldWaitlistOthers == newWaitlistOthers;
+
+        return capacityOk && timeOk && noDuplicateSelf && othersUnchanged;
+      }
     }
   }
 }

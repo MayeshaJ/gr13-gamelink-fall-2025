@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../controllers/auth_controller.dart';
+import '../../controllers/notification_controller.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
   Future<void> _handleLogout(BuildContext context) async {
     await AuthController.instance.signOut();
 
@@ -16,7 +22,28 @@ class HomeView extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // At this point the user is authenticated; ensure their FCM token
+    // is registered against their `users/{uid}` document.
+    NotificationController.instance.init();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Register handler to show in-app prompts for notification events
+    NotificationPromptBus.registerPromptHandler(
+      (String message) {
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      },
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('GameLink Home'),
