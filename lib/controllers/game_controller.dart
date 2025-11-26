@@ -82,7 +82,7 @@ class GameController {
   // ─────────────────────────────────────────────────────────────
   Future<void> joinGame(String gameId, String userId) async {
     final docRef = gamesRef.doc(gameId);
-    
+
     // Use transaction to ensure atomicity
     await FirebaseFirestore.instance.runTransaction((transaction) async {
       final doc = await transaction.get(docRef);
@@ -92,11 +92,19 @@ class GameController {
 
       final data = doc.data() as Map<String, dynamic>;
       final List<String> participants = List<String>.from(data['participants'] ?? []);
+      final List<String> waitlist = List<String>.from(data['waitlist'] ?? []);
       final int maxPlayers = data['maxPlayers'] ?? 0;
       final bool isCancelled = data['isCancelled'] ?? false;
+      final Timestamp? dateTs = data['date'] as Timestamp?;
+      final DateTime? gameDate = dateTs?.toDate();
 
       if (isCancelled) {
         throw Exception('Game has been cancelled');
+      }
+
+      // Prevent joining games that already started
+      if (gameDate != null && DateTime.now().isAfter(gameDate)) {
+        throw Exception('Game has already started');
       }
 
       if (participants.contains(userId)) {
@@ -107,9 +115,14 @@ class GameController {
         throw Exception('Game is full');
       }
 
-      // Add user to participants list
+      // Add user to participants list and remove from waitlist if present
       participants.add(userId);
-      transaction.update(docRef, {'participants': participants});
+      waitlist.remove(userId);
+
+      transaction.update(docRef, {
+        'participants': participants,
+        'waitlist': waitlist,
+      });
     });
   }
 
@@ -118,7 +131,7 @@ class GameController {
   // ─────────────────────────────────────────────────────────────
   Future<void> leaveGame(String gameId, String userId) async {
     final docRef = gamesRef.doc(gameId);
-    
+
     await FirebaseFirestore.instance.runTransaction((transaction) async {
       final doc = await transaction.get(docRef);
       if (!doc.exists) {
@@ -135,6 +148,83 @@ class GameController {
       // Remove user from participants list
       participants.remove(userId);
       transaction.update(docRef, {'participants': participants});
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // JOIN WAITLIST
+  // ─────────────────────────────────────────────────────────────
+  Future<void> joinWaitlist(String gameId, String userId) async {
+    final docRef = gamesRef.doc(gameId);
+
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final doc = await transaction.get(docRef);
+      if (!doc.exists) {
+        throw Exception('Game not found');
+      }
+
+      final data = doc.data() as Map<String, dynamic>;
+      final List<String> participants = List<String>.from(data['participants'] ?? []);
+      final List<String> waitlist = List<String>.from(data['waitlist'] ?? []);
+      final int maxPlayers = data['maxPlayers'] ?? 0;
+      final bool isCancelled = data['isCancelled'] ?? false;
+      final Timestamp? dateTs = data['date'] as Timestamp?;
+      final DateTime? gameDate = dateTs?.toDate();
+
+      if (isCancelled) {
+        throw Exception('Game has been cancelled');
+      }
+
+      // Dismiss waitlist for games that already started
+      if (gameDate != null && DateTime.now().isAfter(gameDate)) {
+        throw Exception('Game has already started; waitlist is closed');
+      }
+
+      if (participants.contains(userId)) {
+        throw Exception('You are already a participant');
+      }
+
+      if (waitlist.contains(userId)) {
+        throw Exception('You are already on the waitlist');
+      }
+
+      // If a spot is open, ask user to join game instead of waitlist
+      if (participants.length < maxPlayers) {
+        throw Exception('A spot is available; join the game instead of waitlisting');
+      }
+
+      waitlist.add(userId);
+
+      transaction.update(docRef, {
+        'waitlist': waitlist,
+      });
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // LEAVE WAITLIST
+  // ─────────────────────────────────────────────────────────────
+  Future<void> leaveWaitlist(String gameId, String userId) async {
+    final docRef = gamesRef.doc(gameId);
+
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final doc = await transaction.get(docRef);
+      if (!doc.exists) {
+        throw Exception('Game not found');
+      }
+
+      final data = doc.data() as Map<String, dynamic>;
+      final List<String> waitlist = List<String>.from(data['waitlist'] ?? []);
+
+      if (!waitlist.contains(userId)) {
+        throw Exception('You are not on the waitlist');
+      }
+
+      waitlist.remove(userId);
+
+      transaction.update(docRef, {
+        'waitlist': waitlist,
+      });
     });
   }
 

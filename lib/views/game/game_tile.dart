@@ -39,6 +39,7 @@ class _GameTileState extends State<GameTile> {
     final int joined = widget.game.participantIds.length;
     final int remaining = capacity > joined ? capacity - joined : 0;
     final bool isFull = remaining == 0;
+    final int waitlistCount = widget.game.waitlist.length;
 
     return Card(
       child: ListTile(
@@ -69,9 +70,11 @@ class _GameTileState extends State<GameTile> {
             ),
             if (isFull) ...[
               const SizedBox(height: 4),
-              const Text(
-                'Game is full. Waitlist available (coming soon).',
-                style: TextStyle(
+              Text(
+                waitlistCount > 0
+                    ? 'Game is full • $waitlistCount on waitlist'
+                    : 'Game is full • Waitlist available',
+                style: const TextStyle(
                   fontSize: 12,
                   fontStyle: FontStyle.italic,
                   color: Colors.grey,
