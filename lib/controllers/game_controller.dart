@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/game.dart';
+import 'package:game_link_group13/controllers/notification_controller.dart';
+import 'package:game_link_group13/controllers/auth_controller.dart';
+
 
 class GameController {
   final CollectionReference gamesRef =
@@ -74,14 +77,49 @@ class GameController {
   // CANCEL GAME
   // ─────────────────────────────────────────────────────────────
   Future<void> cancelGame(String id) async {
-    await gamesRef.doc(id).update({'isCancelled': true});
+    final docRef = gamesRef.doc(id);
+
+    // We'll collect info inside the transaction and send notifications after.
+    List<String> participants = [];
+    List<String> waitlist = [];
+    String gameTitle = 'your game';
+
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final doc = await transaction.get(docRef);
+      if (!doc.exists) {
+        throw Exception('Game not found');
+      }
+
+      final data = doc.data() as Map<String, dynamic>;
+      participants = List<String>.from(data['participants'] ?? []);
+      waitlist = List<String>.from(data['waitlist'] ?? []);
+      gameTitle = data['title'] as String? ?? 'your game';
+
+      // Mark as cancelled
+      transaction.update(docRef, {'isCancelled': true});
+    });
+
+    // Notify all participants + waitlist outside the transaction
+    final affectedUserIds = <String>{...participants, ...waitlist};
+    for (final uid in affectedUserIds) {
+      await NotificationController.createNotification(
+        toUserId: uid,
+        type: 'game_cancelled',
+        message: 'The game "$gameTitle" has been cancelled.',
+        gameId: id,
+      );
+    }
   }
+
 
   // ─────────────────────────────────────────────────────────────
   // JOIN GAME
   // ─────────────────────────────────────────────────────────────
   Future<void> joinGame(String gameId, String userId) async {
     final docRef = gamesRef.doc(gameId);
+
+    String? hostId;
+    String gameTitle = 'your game';
 
     // Use transaction to ensure atomicity
     await FirebaseFirestore.instance.runTransaction((transaction) async {
@@ -97,6 +135,10 @@ class GameController {
       final bool isCancelled = data['isCancelled'] ?? false;
       final Timestamp? dateTs = data['date'] as Timestamp?;
       final DateTime? gameDate = dateTs?.toDate();
+
+      // Capture host + title so we can notify after the transaction
+      hostId = data['hostId'] as String?;
+      gameTitle = data['title'] as String? ?? 'your game';
 
       if (isCancelled) {
         throw Exception('Game has been cancelled');
@@ -124,13 +166,26 @@ class GameController {
         'waitlist': waitlist,
       });
     });
-  }
 
+    if (hostId != null && hostId != userId) {
+        await NotificationController.createNotification(
+          toUserId: hostId!,
+          type: 'player_joined',
+          message: 'A player joined your game "$gameTitle".',
+          gameId: gameId,
+        );
+      }
+  }
+  
   // ─────────────────────────────────────────────────────────────
   // LEAVE GAME
   // ─────────────────────────────────────────────────────────────
   Future<void> leaveGame(String gameId, String userId) async {
     final docRef = gamesRef.doc(gameId);
+
+    String? promotedUserId;
+    String? hostId;
+    String gameTitle = 'your game';
 
     await FirebaseFirestore.instance.runTransaction((transaction) async {
       final doc = await transaction.get(docRef);
@@ -139,7 +194,14 @@ class GameController {
       }
 
       final data = doc.data() as Map<String, dynamic>;
-      final List<String> participants = List<String>.from(data['participants'] ?? []);
+      final List<String> participants =
+          List<String>.from(data['participants'] ?? []);
+      final List<String> waitlist =
+          List<String>.from(data['waitlist'] ?? []);
+      final int maxPlayers = data['maxPlayers'] ?? 0;
+
+      hostId = data['hostId'] as String?;
+      gameTitle = data['title'] as String? ?? 'your game';
 
       if (!participants.contains(userId)) {
         throw Exception('You are not a participant');
@@ -147,8 +209,40 @@ class GameController {
 
       // Remove user from participants list
       participants.remove(userId);
-      transaction.update(docRef, {'participants': participants});
+
+      // If there is now a free spot and a waitlist, promote first waitlisted user
+      if (waitlist.isNotEmpty && participants.length < maxPlayers) {
+        promotedUserId = waitlist.first;
+        participants.add(promotedUserId!);
+        waitlist.removeAt(0);
+      }
+
+      transaction.update(docRef, {
+        'participants': participants,
+        'waitlist': waitlist,
+      });
     });
+
+    // Notify the host that someone left
+    if (hostId != null && hostId != userId) {
+      await NotificationController.createNotification(
+        toUserId: hostId!,
+        type: 'player_left',
+        message: 'A player left your game "$gameTitle".',
+        gameId: gameId,
+      );
+    }
+
+    // If someone was promoted from the waitlist, notify them
+    if (promotedUserId != null) {
+      await NotificationController.createNotification(
+        toUserId: promotedUserId!,
+        type: 'spot_opened',
+        message:
+            'A spot opened for "$gameTitle" and you have been added to the game.',
+        gameId: gameId,
+      );
+    }
   }
 
   // ─────────────────────────────────────────────────────────────
