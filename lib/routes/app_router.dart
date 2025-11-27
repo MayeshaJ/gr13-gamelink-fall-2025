@@ -13,6 +13,8 @@ import 'package:game_link_group13/views/game/game_details_view.dart';
 import 'package:game_link_group13/views/profile/profile_view.dart';
 import 'package:game_link_group13/views/profile/edit_profile_view.dart';
 import 'package:game_link_group13/models/app_user.dart';
+import 'package:game_link_group13/views/notifications/notifications_view.dart';
+
 
 /// Centralized application router.
 /// All navigation should use GoRouter (context.go, context.push, etc.)
@@ -97,6 +99,11 @@ final GoRouter appRouter = GoRouter(
         }
         return EditProfileView(user: extra);
       },
+    ),
+    GoRoute(
+      path: '/notifications',
+      name: 'notifications',
+      builder: (context, state) => const NotificationsView(),
     ),
   ],
   errorBuilder: (BuildContext context, GoRouterState state) {

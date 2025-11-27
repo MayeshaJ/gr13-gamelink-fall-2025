@@ -83,18 +83,64 @@ class NotificationController {
   void _handleForegroundMessage(RemoteMessage message) {
     // For now, we rely on the OS notification for background/terminated state.
     // When the app is open, we surface a prompt via a SnackBar.
-    final notification = message.notification;
     final data = message.data;
     final type = data['type'];
 
     if (type == 'spot_open') {
-      final String gameTitle = data['title'] as String? ?? 'one of your games';
+      final String gameTitle =
+          data['title'] as String? ?? 'one of your games';
       final String inAppMessage =
           'A spot just opened in "$gameTitle". You can join it from the Games list.';
 
       // Defer to root scaffold messenger for in-app prompt
       NotificationPromptBus.showSpotOpenPrompt(inAppMessage);
     }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Firestore-backed app notifications
+  // ─────────────────────────────────────────────────────────────
+
+  // Firestore notifications collection (instance reference, optional)
+  final CollectionReference _notificationsRef =
+      FirebaseFirestore.instance.collection('notifications');
+
+  /// Create a simple notification document for a user.
+  static Future<void> createNotification({
+    required String toUserId,
+    required String type,
+    required String message,
+    String? gameId,
+  }) async {
+      await FirebaseFirestore.instance.collection('notifications').add({
+        'userId': toUserId,
+        'type': type,
+        'message': message,
+        'gameId': gameId,
+        'createdAt': FieldValue.serverTimestamp(),
+        'read': false,
+      });
+  }
+  
+  /// Stream notifications for the currently signed-in user.
+  Stream<QuerySnapshot> watchNotificationsForCurrentUser() {
+    final user = AuthController.instance.currentUser;
+    if (user == null) {
+      return const Stream<QuerySnapshot>.empty();
+    }
+
+    return FirebaseFirestore.instance
+        .collection('notifications')
+        .where('userId', isEqualTo: user.uid)
+        .orderBy('createdAt', descending: true)
+        .snapshots();
+  }
+
+  Future<void> markAsRead(String notificationId) async {
+    await FirebaseFirestore.instance
+        .collection('notifications')
+        .doc(notificationId)
+        .update({'read': true});
   }
 }
 
@@ -115,5 +161,3 @@ class NotificationPromptBus {
     }
   }
 }
-
-

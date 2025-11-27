@@ -49,13 +49,17 @@ class _HomeViewState extends State<HomeView> {
         title: const Text('GameLink Home'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => _handleLogout(context),
+            onPressed: () => context.pushNamed('notifications'),
+            icon: const Icon(Icons.notifications),
           ),
           IconButton(
             onPressed: () => context.pushNamed('profile'),
             icon: const Icon(Icons.person),
           ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => _handleLogout(context),
+          ),  
         ],
       ),
       body: Padding(
