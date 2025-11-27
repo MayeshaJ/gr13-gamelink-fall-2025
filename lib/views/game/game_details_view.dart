@@ -6,6 +6,7 @@ import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../models/game.dart';
 import '../../widgets/loading_indicator.dart';
+import 'edit_game_view.dart';
 
 class GameDetailsView extends StatefulWidget {
   final String gameId;
@@ -171,14 +172,18 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                   )
                 else
                   ...gameModel.participants.map((participantId) {
-                    final participantName = _participantNames[participantId] ?? 'Loading...';
+                    final participantName =
+                        _participantNames[participantId] ?? 'Loading...';
                     return ListTile(
                       leading: const CircleAvatar(
                         child: Icon(Icons.person),
                       ),
                       title: Text(participantName),
                       subtitle: participantId == gameModel.hostId
-                          ? const Text('Host', style: TextStyle(fontStyle: FontStyle.italic))
+                          ? const Text(
+                        'Host',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      )
                           : null,
                     );
                   }),
@@ -197,23 +202,24 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                             : null,
                         icon: _isLeaving
                             ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                             : const Icon(Icons.exit_to_app),
                         label: const Text('Leave Game'),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
-                          disabledBackgroundColor: Colors.grey.shade300,
-                          disabledForegroundColor: Colors.grey.shade600,
+                          disabledBackgroundColor: Colors.grey,
+                          disabledForegroundColor: Colors.white,
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
                   ],
+
                   // Join Button (shown when user is not a participant)
                   if (!isParticipant) ...[
                     SizedBox(
@@ -224,19 +230,19 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                             : null,
                         icon: _isJoining
                             ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                             : const Icon(Icons.person_add),
                         label: Text(
                           isHost
                               ? 'You are the host'
                               : isStarted
-                                  ? 'Game has already started'
-                                  : isFull
-                                      ? 'Game is full'
-                                      : 'Join Game',
+                              ? 'Game has already started'
+                              : isFull
+                              ? 'Game is full'
+                              : 'Join Game',
                         ),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -255,12 +261,14 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                           onPressed: _isJoiningWaitlist || _isLeavingWaitlist
                               ? null
                               : () {
-                                  if (isOnWaitlist) {
-                                    _handleLeaveWaitlist(gameModel, currentUserId);
-                                  } else {
-                                    _handleJoinWaitlist(gameModel, currentUserId);
-                                  }
-                                },
+                            if (isOnWaitlist) {
+                              _handleLeaveWaitlist(
+                                  gameModel, currentUserId);
+                            } else {
+                              _handleJoinWaitlist(
+                                  gameModel, currentUserId);
+                            }
+                          },
                           icon: const Icon(Icons.hourglass_empty),
                           label: Text(
                             isOnWaitlist ? 'Leave waitlist' : 'Join waitlist',
@@ -269,8 +277,10 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                       ),
                     ],
                   ],
-                  // Host message (shown when user is the host)
+
+                  // Host area (info + edit)
                   if (isHost) ...[
+                    const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -284,6 +294,22 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                           disabledBackgroundColor: Colors.grey.shade300,
                           disabledForegroundColor: Colors.grey.shade600,
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EditGameView(game: gameModel),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.edit),
+                        label: const Text('Edit Game'),
                       ),
                     ),
                   ],
