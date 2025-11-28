@@ -55,8 +55,12 @@ class GameListController {
   void _updateGamesWithCachedNames() {
     if (_currentGameModels == null) return;
     
+    final currentUser = AuthController.instance.currentUser;
+    final String? currentUserId = currentUser?.uid;
+    
+    // Filter out cancelled games AND games hosted by current user
     final List<GameModel> activeGames = _currentGameModels!
-        .where((model) => !model.isCancelled)
+        .where((model) => !model.isCancelled && model.hostId != currentUserId)
         .toList();
     
     final List<Game> updatedGames = activeGames.map((model) {
@@ -230,18 +234,19 @@ class GameListController {
   /// Convert GameModel list to Game list, fetching host names as needed.
   /// Returns games immediately with cached/placeholder host names,
   /// then updates asynchronously as host names are fetched.
+  /// Filters out games hosted by the current user (they appear in Game Logs instead).
   Future<List<Game>> _convertGameModelsToGames(
     List<GameModel> gameModels,
   ) async {
-    // Filter out cancelled games
+    final currentUser = AuthController.instance.currentUser;
+    final String? currentUserId = currentUser?.uid;
+    
+    // Filter out cancelled games AND games hosted by current user
     final List<GameModel> activeGames = gameModels
-        .where((model) => !model.isCancelled)
+        .where((model) => !model.isCancelled && model.hostId != currentUserId)
         .toList();
 
     // Convert GameModel to Game immediately using cached host names or placeholder
-    // Check if current user is the host to use cached name immediately
-    final currentUser = AuthController.instance.currentUser;
-    final String? currentUserId = currentUser?.uid;
     
     final List<Game> games = activeGames.map((model) {
       // If this is the current user's game and we have their name cached, use it
@@ -308,8 +313,12 @@ class GameListController {
       // After all host names are fetched, update the games list using current models
       if (_currentGameModels == null) return;
       
+      final currentUser = AuthController.instance.currentUser;
+      final String? currentUserId = currentUser?.uid;
+      
+      // Filter out cancelled games AND games hosted by current user
       final List<GameModel> activeGames = _currentGameModels!
-          .where((model) => !model.isCancelled)
+          .where((model) => !model.isCancelled && model.hostId != currentUserId)
           .toList();
       
       final List<Game> updatedGames = activeGames.map((model) {
@@ -344,8 +353,12 @@ class GameListController {
       // Still update with 'Unknown' for failed fetches
       if (_currentGameModels == null) return;
       
+      final currentUser = AuthController.instance.currentUser;
+      final String? currentUserId = currentUser?.uid;
+      
+      // Filter out cancelled games AND games hosted by current user
       final List<GameModel> activeGames = _currentGameModels!
-          .where((model) => !model.isCancelled)
+          .where((model) => !model.isCancelled && model.hostId != currentUserId)
           .toList();
       
       final List<Game> updatedGames = activeGames.map((model) {

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/game.dart';
 import 'package:game_link_group13/controllers/notification_controller.dart';
-import 'package:game_link_group13/controllers/auth_controller.dart';
 
 
 class GameController {
@@ -330,5 +329,66 @@ class GameController {
       if (!doc.exists) return null;
       return GameModel.fromDocument(doc);
     });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // GET GAMES BY HOST (for game logs page)
+  // ─────────────────────────────────────────────────────────────
+  Stream<List<GameModel>> getGamesByHost(String hostId) {
+    return gamesRef
+        .where('hostId', isEqualTo: hostId)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) {
+            try {
+              return GameModel.fromDocument(doc);
+            } catch (e) {
+              print('GameController: Error parsing game document ${doc.id}: $e');
+              return null;
+            }
+          })
+          .whereType<GameModel>()
+          .toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Most recent first
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // DELETE GAME (permanently remove from database)
+  // ─────────────────────────────────────────────────────────────
+  Future<void> deleteGame(String id) async {
+    final docRef = gamesRef.doc(id);
+
+    // Collect info inside the transaction and send notifications after.
+    List<String> participants = [];
+    List<String> waitlist = [];
+    String gameTitle = 'your game';
+
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final doc = await transaction.get(docRef);
+      if (!doc.exists) {
+        throw Exception('Game not found');
+      }
+
+      final data = doc.data() as Map<String, dynamic>;
+      participants = List<String>.from(data['participants'] ?? []);
+      waitlist = List<String>.from(data['waitlist'] ?? []);
+      gameTitle = data['title'] as String? ?? 'your game';
+
+      // Delete the game document
+      transaction.delete(docRef);
+    });
+
+    // Notify all participants + waitlist outside the transaction
+    final affectedUserIds = <String>{...participants, ...waitlist};
+    for (final uid in affectedUserIds) {
+      await NotificationController.createNotification(
+        toUserId: uid,
+        type: 'game_cancelled',
+        message: 'The game "$gameTitle" has been deleted.',
+        gameId: id,
+      );
+    }
   }
 }

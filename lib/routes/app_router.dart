@@ -10,6 +10,7 @@ import 'package:game_link_group13/views/home/home_view.dart';
 import 'package:game_link_group13/views/game/game_list_view.dart';
 import 'package:game_link_group13/views/game/create_game_view.dart';
 import 'package:game_link_group13/views/game/game_details_view.dart';
+import 'package:game_link_group13/views/game/game_logs_view.dart';
 import 'package:game_link_group13/views/profile/profile_view.dart';
 import 'package:game_link_group13/views/profile/edit_profile_view.dart';
 import 'package:game_link_group13/models/app_user.dart';
@@ -78,6 +79,13 @@ final GoRouter appRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         final gameId = state.pathParameters['id']!;
         return GameDetailsView(gameId: gameId);
+      },
+    ),
+    GoRoute(
+      path: '/game-logs',
+      name: 'game-logs',
+      builder: (BuildContext context, GoRouterState state) {
+        return const GameLogsView();
       },
     ),
     GoRoute(

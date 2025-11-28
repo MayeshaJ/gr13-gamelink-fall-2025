@@ -88,6 +88,10 @@ class _GameListViewState extends State<GameListView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Games'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
       ),
       body: StreamBuilder<List<Game>>(
         stream: GameListController.instance.watchGames(),
@@ -137,15 +141,6 @@ class _GameListViewState extends State<GameListView> {
                   ? gl.SearchController.instance.state
                   : (searchSnap.data ?? gl.SearchController.instance.state);
 
-              // Build sport options from current game list
-              final List<String> sportOptions = allGames
-                  .map((Game g) => g.sport.trim().toLowerCase())
-                  .where((String sport) => sport.isNotEmpty)
-                  .toSet()
-                  .map(_capitalize)
-                  .toList()
-                ..sort();
-
               // Apply filters
               final String q = search.query.trim().toLowerCase();
               bool matches(Game g) {
@@ -177,81 +172,14 @@ class _GameListViewState extends State<GameListView> {
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: RawAutocomplete<String>(
-                      textEditingController: _searchController,
+                    child: TextField(
+                      controller: _searchController,
                       focusNode: _searchFocusNode,
-                      optionsBuilder: (TextEditingValue value) {
-                        if (sportOptions.isEmpty) {
-                          return const Iterable<String>.empty();
-                        }
-                        final String input = value.text.toLowerCase();
-                        if (input.isEmpty) {
-                          return sportOptions;
-                        }
-                        return sportOptions.where(
-                          (String option) =>
-                              option.toLowerCase().contains(input),
-                        );
-                      },
-                      onSelected: (String selection) {
-                        _searchController
-                          ..text = selection
-                          ..selection = TextSelection.collapsed(
-                            offset: selection.length,
-                          );
-                        gl.SearchController.instance.updateQuery(selection);
-                      },
-                      fieldViewBuilder: (
-                        BuildContext context,
-                        TextEditingController controller,
-                        FocusNode focusNode,
-                        VoidCallback onFieldSubmitted,
-                      ) {
-                        return TextField(
-                          controller: controller,
-                          focusNode: focusNode,
-                          decoration: const InputDecoration(
-                            labelText: 'Search by game, location, or sport',
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(),
-                          ),
-                        );
-                      },
-                      optionsViewBuilder: (
-                        BuildContext context,
-                        AutocompleteOnSelected<String> onSelected,
-                        Iterable<String> options,
-                      ) {
-                        if (options.isEmpty) {
-                          return const SizedBox.shrink();
-                        }
-                        return Align(
-                          alignment: Alignment.topLeft,
-                          child: Material(
-                            elevation: 4,
-                            borderRadius: BorderRadius.circular(8),
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(
-                                maxHeight: 200,
-                                maxWidth: 360,
-                              ),
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                padding: EdgeInsets.zero,
-                                itemCount: options.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  final String option =
-                                      options.elementAt(index);
-                                  return ListTile(
-                                    title: Text(option),
-                                    onTap: () => onSelected(option),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        );
-                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Search by game, location, or sport',
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
                   Expanded(
@@ -292,12 +220,4 @@ class _GameListViewState extends State<GameListView> {
       ),
     );
   }
-}
-
-String _capitalize(String value) {
-  if (value.isEmpty) {
-    return value;
-  }
-  final String lower = value.toLowerCase();
-  return lower[0].toUpperCase() + lower.substring(1);
 }
