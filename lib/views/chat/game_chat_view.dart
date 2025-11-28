@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../controllers/auth_controller.dart';
+import '../../models/app_user.dart';
 
 class GameChatView extends StatefulWidget {
   final String gameId;
@@ -15,91 +18,179 @@ class GameChatView extends StatefulWidget {
 }
 
 class _GameChatViewState extends State<GameChatView> {
-  final TextEditingController _messageCtrl = TextEditingController();
+  final TextEditingController _msgCtrl = TextEditingController();
+  final ScrollController _scrollCtrl = ScrollController();
   bool _sending = false;
+
+  CollectionReference get _messagesRef => FirebaseFirestore.instance
+      .collection('games')
+      .doc(widget.gameId)
+      .collection('messages');
 
   @override
   void dispose() {
-    _messageCtrl.dispose();
+    _msgCtrl.dispose();
+    _scrollCtrl.dispose();
     super.dispose();
   }
 
-  // NOTE: In Iteration 2 we will actually send messages here.
-  Future<void> _handleSend() async {
-    final text = _messageCtrl.text.trim();
-    if (text.isEmpty) return;
+  Future<void> _sendMessage() async {
+    if (_msgCtrl.text.trim().isEmpty) return;
 
-    // For now, just show a placeholder SnackBar.
-    // In the next iteration, this will call a controller method and write to Firestore.
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Chat sending will be implemented in the next iteration.'),
+    setState(() => _sending = true);
+
+    final AppUser? user = AuthController.instance.currentUser;
+    if (user == null) return;
+
+    final senderName = user.name; // FIXED
+
+    try {
+      await _messagesRef.add({
+        'senderId': user.uid,
+        'senderName': senderName,
+        'text': _msgCtrl.text.trim(),
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      _msgCtrl.clear();
+
+      // Scroll
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (_scrollCtrl.hasClients) {
+          _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to send message: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _sending = false);
+      }
+    }
+  }
+
+  Widget _buildMessageItem(Map<String, dynamic> data) {
+    final sender = data['senderName'] ?? 'Unknown';
+    final text = data['text'] ?? '';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const CircleAvatar(child: Icon(Icons.person, size: 18)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    sender,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    text,
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
-
-    _messageCtrl.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat - ${widget.gameTitle}'),
+        title: Text("Chat – ${widget.gameTitle}"),
       ),
       body: Column(
         children: [
-          // Messages area (will be wired to Firestore stream later)
           Expanded(
-            child: Center(
-              child: Text(
-                'No messages yet.\nChat for this game will appear here.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 16,
-                ),
-              ),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _messagesRef.orderBy('timestamp').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "No messages yet. Say something!",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  );
+                }
+
+                final docs = snapshot.data!.docs;
+
+                Future.delayed(const Duration(milliseconds: 200), () {
+                  if (_scrollCtrl.hasClients) {
+                    _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
+                  }
+                });
+
+                return ListView.builder(
+                  controller: _scrollCtrl,
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    return _buildMessageItem(data);
+                  },
+                );
+              },
             ),
           ),
 
-          const Divider(height: 1),
-
-          // Input area
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _messageCtrl,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _handleSend(),
-                      decoration: const InputDecoration(
-                        hintText: 'Type a message...',
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
+          // MESSAGE INPUT
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            color: Colors.grey.shade100,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _msgCtrl,
+                    decoration: InputDecoration(
+                      hintText: "Type a message...",
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade400),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: _sending ? null : _handleSend,
-                    icon: _sending
-                        ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                        : const Icon(Icons.send),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  onPressed: _sending ? null : _sendMessage,
+                  icon: _sending
+                      ? const CircularProgressIndicator(strokeWidth: 2)
+                      : const Icon(Icons.send, color: Colors.blue),
+                ),
+              ],
             ),
           ),
         ],
