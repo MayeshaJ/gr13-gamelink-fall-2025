@@ -13,6 +13,7 @@ class NotificationsView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
+        automaticallyImplyLeading: false,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: controller.watchNotificationsForCurrentUser(),

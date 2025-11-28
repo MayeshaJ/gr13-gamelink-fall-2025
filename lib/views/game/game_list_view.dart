@@ -87,11 +87,8 @@ class _GameListViewState extends State<GameListView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Games'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        title: const Text('Browse Games'),
+        automaticallyImplyLeading: false,
       ),
       body: StreamBuilder<List<Game>>(
         stream: GameListController.instance.watchGames(),

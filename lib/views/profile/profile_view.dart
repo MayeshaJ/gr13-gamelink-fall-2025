@@ -90,12 +90,7 @@ class _ProfileViewState extends State<ProfileView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Profile'),
-        leading: IconButton(
-          onPressed: () {
-            context.pop();
-          },
-          icon: const Icon(Icons.arrow_back),
-        ),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             onPressed: () async {
@@ -213,10 +208,34 @@ class _ProfileViewState extends State<ProfileView> {
                   ],
                 ),
               ),
+              const SizedBox(height: 32),
+              // Sign Out Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _handleLogout(context),
+                  icon: const Icon(Icons.logout),
+                  label: const Text('Sign Out'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    await AuthController.instance.signOut();
+
+    if (!context.mounted) return;
+
+    // Clear navigation stack and go to auth route
+    context.goNamed('auth');
   }
 }
