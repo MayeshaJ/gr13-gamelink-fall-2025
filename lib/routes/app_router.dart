@@ -6,7 +6,7 @@ import 'package:game_link_group13/widgets/error_state.dart';
 import 'package:game_link_group13/views/auth/login_view.dart';
 import 'package:game_link_group13/views/auth/signup_view.dart';
 import 'package:game_link_group13/views/auth/forgot_password_view.dart';
-import 'package:game_link_group13/views/home/home_view.dart';
+import 'package:game_link_group13/views/app/main_navigation_view.dart';
 import 'package:game_link_group13/views/game/game_list_view.dart';
 import 'package:game_link_group13/views/game/create_game_view.dart';
 import 'package:game_link_group13/views/game/game_details_view.dart';
@@ -54,7 +54,7 @@ final GoRouter appRouter = GoRouter(
       path: '/home',
       name: 'home',
       builder: (BuildContext context, GoRouterState state) {
-        return const HomeView();
+        return const MainNavigationView();
       },
     ),
     GoRoute(
