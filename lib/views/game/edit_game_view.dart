@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../controllers/game_controller.dart';
 import '../../models/game.dart';
 
@@ -71,21 +70,40 @@ class _EditGameViewState extends State<EditGameView> {
 
     setState(() => loading = true);
 
-    await gameController.updateGame(widget.game.id, {
-      'title': titleCtrl.text.trim(),
-      'description': descCtrl.text.trim(),
-      'location': locationCtrl.text.trim(),
-      'maxPlayers': int.tryParse(maxPlayersCtrl.text.trim()) ?? 0,
-      'date': selectedDate,
-    });
+    try {
+      await gameController.updateGame(widget.game.id, {
+        'title': titleCtrl.text.trim(),
+        'description': descCtrl.text.trim(),
+        'location': locationCtrl.text.trim(),
+        'maxPlayers': int.tryParse(maxPlayersCtrl.text.trim()) ?? 0,
+        'date': selectedDate,
+      });
 
-    setState(() => loading = false);
+      setState(() => loading = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Game updated!")),
-    );
+      if (!mounted) return;
 
-    Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Game updated!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Return true to indicate successful update
+      Navigator.pop(context, true);
+    } catch (e) {
+      setState(() => loading = false);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to update game: ${e.toString().replaceFirst('Exception: ', '')}"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override

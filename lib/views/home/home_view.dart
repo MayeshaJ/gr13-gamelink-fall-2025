@@ -87,6 +87,15 @@ class _HomeViewState extends State<HomeView> {
                 minimumSize: const Size(double.infinity, 48),
               ),
             ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => context.pushNamed('game-logs'),
+              icon: const Icon(Icons.history),
+              label: const Text('My Hosted Games'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
           ],
         ),
       ),
