@@ -3,8 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:game_link_group13/views/auth/auth_gate.dart';
 import 'package:game_link_group13/widgets/error_state.dart';
-import 'package:game_link_group13/views/auth/login_view.dart';
-import 'package:game_link_group13/views/auth/signup_view.dart';
+import 'package:game_link_group13/views/auth/auth_view.dart';
 import 'package:game_link_group13/views/auth/forgot_password_view.dart';
 import 'package:game_link_group13/views/app/main_navigation_view.dart';
 import 'package:game_link_group13/views/game/game_list_view.dart';
@@ -33,14 +32,14 @@ final GoRouter appRouter = GoRouter(
       path: '/auth',
       name: 'auth',
       builder: (BuildContext context, GoRouterState state) {
-        return const LoginView();
+        return const AuthView();
       },
     ),
     GoRoute(
       path: '/signup',
       name: 'signup',
       builder: (BuildContext context, GoRouterState state) {
-        return const SignupView();
+        return const AuthView();
       },
     ),
     GoRoute(
