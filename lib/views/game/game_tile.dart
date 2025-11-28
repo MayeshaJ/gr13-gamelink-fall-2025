@@ -19,7 +19,7 @@ class GameTile extends StatefulWidget {
 
 class _GameTileState extends State<GameTile> {
   final GameController _gameController = GameController();
-  bool _isJoining = false;
+  bool _isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class _GameTileState extends State<GameTile> {
         widget.game.participantIds.contains(currentUserId);
     final bool isOpen = widget.game.status == GameStatus.open;
     final bool canJoin = isOpen && !isParticipant && currentUserId != null;
-    final String? userIdForJoin = canJoin ? currentUserId : null;
+    final bool canLeave = isParticipant;
 
     final int capacity = widget.game.maxPlayers;
     final int joined = widget.game.participantIds.length;
@@ -84,12 +84,16 @@ class _GameTileState extends State<GameTile> {
           ],
         ),
         trailing: ElevatedButton(
-          onPressed: canJoin && !_isJoining && userIdForJoin != null
-              ? () => _handleJoin(widget.game.id, userIdForJoin)
-              : null,
+          onPressed: _isProcessing
+              ? null
+              : canLeave
+                  ? () => _handleLeave(widget.game.id, currentUserId)
+                  : canJoin
+                      ? () => _handleJoin(widget.game.id, currentUserId)
+                      : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: isParticipant
-                ? Colors.grey
+            backgroundColor: canLeave
+                ? Colors.orange
                 : isOpen
                     ? Colors.green
                     : Colors.grey,
@@ -97,7 +101,7 @@ class _GameTileState extends State<GameTile> {
             disabledBackgroundColor: Colors.grey.shade300,
             disabledForegroundColor: Colors.grey.shade600,
           ),
-          child: _isJoining
+          child: _isProcessing
               ? const SizedBox(
                   width: 16,
                   height: 16,
@@ -106,7 +110,7 @@ class _GameTileState extends State<GameTile> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-              : Text(isParticipant ? 'Joined' : 'Join'),
+              : Text(canLeave ? 'Leave' : 'Join'),
         ),
       ),
     );
@@ -114,7 +118,7 @@ class _GameTileState extends State<GameTile> {
 
   Future<void> _handleJoin(String gameId, String userId) async {
     setState(() {
-      _isJoining = true;
+      _isProcessing = true;
     });
 
     try {
@@ -140,7 +144,68 @@ class _GameTileState extends State<GameTile> {
     } finally {
       if (mounted) {
         setState(() {
-          _isJoining = false;
+          _isProcessing = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleLeave(String gameId, String userId) async {
+    // Show confirmation dialog
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Leave Game'),
+          content: const Text('Are you sure you want to leave this game?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Leave'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      await _gameController.leaveGame(gameId, userId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Successfully left the game'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
         });
       }
     }
