@@ -7,6 +7,7 @@ import '../../controllers/user_controller.dart';
 import '../../models/game.dart';
 import '../../widgets/loading_indicator.dart';
 import 'edit_game_view.dart';
+import '../chat/game_chat_view.dart';
 
 class GameDetailsView extends StatefulWidget {
   final String gameId;
@@ -378,6 +379,29 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                       ),
                     ),
                   ],
+
+                  const SizedBox(height: 16),
+
+                  // Open Chat button (everyone who is logged in can see for now;
+                  // we will restrict to host/participants in Iteration 5).
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => GameChatView(
+                              gameId: gameModel.id,
+                              gameTitle: gameModel.title,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.chat),
+                      label: const Text('Open Chat'),
+                    ),
+                  ),
                 ] else
                   const Padding(
                     padding: EdgeInsets.all(16),
