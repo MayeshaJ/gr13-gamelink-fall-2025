@@ -6,6 +6,7 @@ import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../models/game.dart';
 import '../../widgets/loading_indicator.dart';
+import 'edit_game_view.dart';
 
 class GameDetailsView extends StatefulWidget {
   final String gameId;
@@ -95,13 +96,18 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
           final bool isFull = joined >= capacity;
           final bool isStarted = DateTime.now().isAfter(gameModel.date);
+          final bool isCancelled = gameModel.isCancelled;
           final bool isParticipant = currentUserId != null &&
               gameModel.participants.contains(currentUserId);
           final bool isHost = currentUserId == gameModel.hostId;
           final bool isOnWaitlist = currentUserId != null &&
               gameModel.waitlist.contains(currentUserId);
-          final bool canJoin =
-              !isFull && !isParticipant && !isHost && currentUserId != null && !isStarted;
+          final bool canJoin = !isFull &&
+              !isParticipant &&
+              !isHost &&
+              currentUserId != null &&
+              !isStarted &&
+              !isCancelled;
 
           final DateTime dt = gameModel.date.toLocal();
           final String dateText =
@@ -112,6 +118,27 @@ class _GameDetailsViewState extends State<GameDetailsView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Cancelled banner
+                if (isCancelled)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade600,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'THIS GAME HAS BEEN CANCELLED',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
                 // Title
                 Text(
                   gameModel.title,
@@ -135,7 +162,9 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                 _buildInfoRow(
                   Icons.hourglass_empty,
                   'Waitlist',
-                  isStarted
+                  isCancelled
+                      ? 'Game cancelled'
+                      : isStarted
                       ? 'Waitlist closed (game already started)'
                       : '$waitlistCount on waitlist',
                 ),
@@ -171,14 +200,18 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                   )
                 else
                   ...gameModel.participants.map((participantId) {
-                    final participantName = _participantNames[participantId] ?? 'Loading...';
+                    final participantName =
+                        _participantNames[participantId] ?? 'Loading...';
                     return ListTile(
                       leading: const CircleAvatar(
                         child: Icon(Icons.person),
                       ),
                       title: Text(participantName),
                       subtitle: participantId == gameModel.hostId
-                          ? const Text('Host', style: TextStyle(fontStyle: FontStyle.italic))
+                          ? const Text(
+                        'Host',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      )
                           : null,
                     );
                   }),
@@ -187,90 +220,111 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
                 // Action Buttons
                 if (currentUserId != null) ...[
-                  // Leave Button (shown when user is a participant but not host)
-                  if (!isStarted && isParticipant && !isHost) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: !_isLeaving
-                            ? () => _handleLeave(gameModel, currentUserId)
-                            : null,
-                        icon: _isLeaving
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Icon(Icons.exit_to_app),
-                        label: const Text('Leave Game'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: Colors.grey.shade300,
-                          disabledForegroundColor: Colors.grey.shade600,
+                  if (isCancelled) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        'This game has been cancelled. No further actions are available.',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                  ],
-                  // Join Button (shown when user is not a participant)
-                  if (!isParticipant) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: canJoin && !_isJoining
-                            ? () => _handleJoin(gameModel, currentUserId)
-                            : null,
-                        icon: _isJoining
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Icon(Icons.person_add),
-                        label: Text(
-                          isHost
-                              ? 'You are the host'
-                              : isStarted
-                                  ? 'Game has already started'
-                                  : isFull
-                                      ? 'Game is full'
-                                      : 'Join Game',
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: canJoin ? Colors.green : Colors.grey,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: Colors.grey.shade300,
-                          disabledForegroundColor: Colors.grey.shade600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    if (!isStarted && isFull && !isHost) ...[
+                  ] else ...[
+                    // Leave Button (shown when user is a participant but not host)
+                    if (!isStarted && isParticipant && !isHost) ...[
                       SizedBox(
                         width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: _isJoiningWaitlist || _isLeavingWaitlist
-                              ? null
-                              : () {
-                                  if (isOnWaitlist) {
-                                    _handleLeaveWaitlist(gameModel, currentUserId);
-                                  } else {
-                                    _handleJoinWaitlist(gameModel, currentUserId);
-                                  }
-                                },
-                          icon: const Icon(Icons.hourglass_empty),
-                          label: Text(
-                            isOnWaitlist ? 'Leave waitlist' : 'Join waitlist',
+                        child: ElevatedButton.icon(
+                          onPressed: !_isLeaving
+                              ? () => _handleLeave(gameModel, currentUserId)
+                              : null,
+                          icon: _isLeaving
+                              ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                              : const Icon(Icons.exit_to_app),
+                          label: const Text('Leave Game'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: Colors.grey,
+                            disabledForegroundColor: Colors.white,
                           ),
                         ),
                       ),
+                      const SizedBox(height: 12),
+                    ],
+
+                    // Join Button (shown when user is not a participant)
+                    if (!isParticipant) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: canJoin && !_isJoining
+                              ? () => _handleJoin(gameModel, currentUserId)
+                              : null,
+                          icon: _isJoining
+                              ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                              : const Icon(Icons.person_add),
+                          label: Text(
+                            isHost
+                                ? 'You are the host'
+                                : isStarted
+                                ? 'Game has already started'
+                                : isFull
+                                ? 'Game is full'
+                                : 'Join Game',
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor:
+                            canJoin ? Colors.green : Colors.grey,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: Colors.grey.shade300,
+                            disabledForegroundColor: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      if (!isStarted && isFull && !isHost) ...[
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: _isJoiningWaitlist || _isLeavingWaitlist
+                                ? null
+                                : () {
+                              if (isOnWaitlist) {
+                                _handleLeaveWaitlist(
+                                    gameModel, currentUserId);
+                              } else {
+                                _handleJoinWaitlist(
+                                    gameModel, currentUserId);
+                              }
+                            },
+                            icon: const Icon(Icons.hourglass_empty),
+                            label: Text(
+                              isOnWaitlist
+                                  ? 'Leave waitlist'
+                                  : 'Join waitlist',
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ],
-                  // Host message (shown when user is the host)
+
+                  // Host area (info + edit + cancel)
                   if (isHost) ...[
+                    const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -283,6 +337,43 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                           foregroundColor: Colors.white,
                           disabledBackgroundColor: Colors.grey.shade300,
                           disabledForegroundColor: Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EditGameView(game: gameModel),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.edit),
+                        label: const Text('Edit Game'),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: isCancelled
+                            ? null
+                            : () => _confirmCancel(gameModel.id),
+                        icon: const Icon(Icons.cancel),
+                        label: Text(
+                          isCancelled ? 'Game Cancelled' : 'Cancel Game',
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor:
+                          isCancelled ? Colors.grey : Colors.red,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: Colors.grey.shade400,
+                          disabledForegroundColor: Colors.white,
                         ),
                       ),
                     ),
@@ -303,6 +394,36 @@ class _GameDetailsViewState extends State<GameDetailsView> {
       ),
     );
   }
+
+  // ——————————————— ADD CONFIRM CANCEL ———————————————
+
+  Future<void> _confirmCancel(String gameId) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Cancel Game'),
+        content: const Text(
+          'Are you sure you want to cancel this game?\nThis action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            child: const Text('No'),
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          TextButton(
+            child: const Text('Yes, cancel'),
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _cancelGame(gameId);
+    }
+  }
+
+  // ————————————————————————————————————————————————
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
@@ -516,6 +637,32 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           _isLeavingWaitlist = false;
         });
       }
+    }
+  }
+
+  Future<void> _cancelGame(String gameId) async {
+    try {
+      await _gameController.cancelGame(gameId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Game has been cancelled'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      context.pop();
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
