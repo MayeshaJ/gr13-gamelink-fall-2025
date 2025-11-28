@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/game_controller.dart';
 import '../../controllers/game_list_controller.dart';
 import '../../models/game.dart';
+
+// Color Palette
+const kDarkNavy = Color(0xFF1A2332);
+const kNeonGreen = Color(0xFF39FF14);
 
 class CreateGameView extends StatefulWidget {
   const CreateGameView({super.key});
@@ -100,60 +105,210 @@ class _CreateGameViewState extends State<CreateGameView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Create Game")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: titleCtrl,
-                decoration: const InputDecoration(labelText: "Game Title"),
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
-              TextFormField(
-                controller: descCtrl,
-                decoration: const InputDecoration(labelText: "Description"),
-                maxLines: 2,
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
-              TextFormField(
-                controller: locationCtrl,
-                decoration: const InputDecoration(labelText: "Location"),
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
-              TextFormField(
-                controller: maxPlayersCtrl,
-                decoration: const InputDecoration(labelText: "Max Players"),
-                keyboardType: TextInputType.number,
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
+      backgroundColor: kDarkNavy,
+      appBar: AppBar(
+        backgroundColor: kDarkNavy,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          'CREATE GAME',
+          style: GoogleFonts.teko(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.italic,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                _buildTextField(
+                  controller: titleCtrl,
+                  label: "Game Title",
+                  icon: Icons.sports_esports_outlined,
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: descCtrl,
+                  label: "Description",
+                  icon: Icons.description_outlined,
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: locationCtrl,
+                  label: "Location",
+                  icon: Icons.location_on_outlined,
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: maxPlayersCtrl,
+                  label: "Max Players",
+                  icon: Icons.people_outline,
+                  keyboardType: TextInputType.number,
+                ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(selectedDate == null
-                      ? "No date selected"
-                      : selectedDate.toString()),
-                  ElevatedButton(
-                    onPressed: _pickDate,
-                    child: const Text("Pick Date & Time"),
+                // Date Picker
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF243447),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.1),
+                      width: 1,
+                    ),
                   ),
-                ],
-              ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today_outlined, color: kNeonGreen, size: 20),
+                          const SizedBox(width: 12),
+                          Text(
+                            selectedDate == null
+                                ? "No date selected"
+                                : "${selectedDate!.year}-${_two(selectedDate!.month)}-${_two(selectedDate!.day)} ${_two(selectedDate!.hour)}:${_two(selectedDate!.minute)}",
+                            style: TextStyle(
+                              color: selectedDate == null ? Colors.grey[500] : Colors.white,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                      OutlinedButton(
+                        onPressed: _pickDate,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: kNeonGreen,
+                          side: BorderSide(color: kNeonGreen, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'PICK',
+                          style: GoogleFonts.teko(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-              const SizedBox(height: 30),
+                const SizedBox(height: 32),
 
-              ElevatedButton(
-                onPressed: loading ? null : _createGame,
-                child: loading
-                    ? const CircularProgressIndicator()
-                    : const Text("Create Game"),
-              ),
-            ],
+                // Create Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: loading ? null : _createGame,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kNeonGreen,
+                      foregroundColor: Colors.black,
+                      disabledBackgroundColor: kNeonGreen.withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: loading
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.add_circle_outline, size: 20),
+                              const SizedBox(width: 10),
+                              Text(
+                                'CREATE GAME',
+                                style: GoogleFonts.teko(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _two(int n) => n.toString().padLeft(2, '0');
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF243447),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        keyboardType: keyboardType,
+        style: const TextStyle(color: Colors.white),
+        validator: (v) => v == null || v.isEmpty ? "Required" : null,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            color: Colors.grey[500],
+            fontSize: 15,
+          ),
+          prefixIcon: Icon(
+            icon,
+            color: Colors.grey[600],
+            size: 22,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: kNeonGreen,
+              width: 2,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
           ),
         ),
       ),

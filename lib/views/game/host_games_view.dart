@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/game_controller.dart';
 import '../../models/game.dart';
 import '../../widgets/loading_indicator.dart';
 import 'game_log_tile.dart';
+
+// Color Palette
+const kDarkNavy = Color(0xFF1A2332);
+const kNeonGreen = Color(0xFF39FF14);
 
 /// Host Games page - shows create game button and list of hosted games
 class HostGamesView extends StatefulWidget {
@@ -53,20 +58,45 @@ class _HostGamesViewState extends State<HostGamesView> {
 
     if (user == null || _gamesStream == null) {
       return Scaffold(
+        backgroundColor: kDarkNavy,
         appBar: AppBar(
-          title: const Text('Host Games'),
+          backgroundColor: kDarkNavy,
+          elevation: 0,
           automaticallyImplyLeading: false,
+          title: Text(
+            'HOST GAMES',
+            style: GoogleFonts.teko(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              fontStyle: FontStyle.italic,
+              color: Colors.white,
+            ),
+          ),
         ),
-        body: const Center(
-          child: Text('Please log in to host games.'),
+        body: Center(
+          child: Text(
+            'Please log in to host games.',
+            style: TextStyle(color: Colors.grey[400]),
+          ),
         ),
       );
     }
 
     return Scaffold(
+      backgroundColor: kDarkNavy,
       appBar: AppBar(
-        title: const Text('Host Games'),
+        backgroundColor: kDarkNavy,
+        elevation: 0,
         automaticallyImplyLeading: false,
+        title: Text(
+          'HOST GAMES',
+          style: GoogleFonts.teko(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.italic,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -75,14 +105,31 @@ class _HostGamesViewState extends State<HostGamesView> {
             padding: const EdgeInsets.all(16.0),
             child: SizedBox(
               width: double.infinity,
-              child: ElevatedButton.icon(
+              height: 54,
+              child: ElevatedButton(
                 onPressed: () => context.pushNamed('create-game'),
-                icon: const Icon(Icons.add),
-                label: const Text('Create a Game'),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
+                  backgroundColor: kNeonGreen,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.add_circle_outline, size: 22),
+                    const SizedBox(width: 10),
+                    Text(
+                      'CREATE A GAME',
+                      style: GoogleFonts.teko(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -147,22 +194,24 @@ class _HostGamesViewState extends State<HostGamesView> {
                           Icon(
                             Icons.sports_esports_outlined,
                             size: 64,
-                            color: Colors.grey.shade400,
+                            color: Colors.grey[600],
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No hosted games yet',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey.shade600,
+                            'NO HOSTED GAMES YET',
+                            style: GoogleFonts.teko(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey[400],
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'Tap "Create a Game" to get started!',
                             style: TextStyle(
-                              color: Colors.grey.shade500,
+                              color: Colors.grey[500],
+                              fontSize: 14,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -187,10 +236,13 @@ class _HostGamesViewState extends State<HostGamesView> {
                       // Active games section
                       if (activeGames.isNotEmpty) ...[
                         Text(
-                          'Active Games (${activeGames.length})',
-                          style: const TextStyle(
-                            fontSize: 16,
+                          'ACTIVE GAMES (${activeGames.length})',
+                          style: GoogleFonts.teko(
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic,
+                            color: kNeonGreen,
+                            letterSpacing: 1,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -206,13 +258,15 @@ class _HostGamesViewState extends State<HostGamesView> {
 
                       // Cancelled games section
                       if (cancelledGames.isNotEmpty) ...[
-                        if (activeGames.isNotEmpty) const SizedBox(height: 16),
+                        if (activeGames.isNotEmpty) const SizedBox(height: 24),
                         Text(
-                          'Cancelled Games (${cancelledGames.length})',
-                          style: TextStyle(
-                            fontSize: 16,
+                          'CANCELLED GAMES (${cancelledGames.length})',
+                          style: GoogleFonts.teko(
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade600,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey[600],
+                            letterSpacing: 1,
                           ),
                         ),
                         const SizedBox(height: 12),

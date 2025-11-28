@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/game_list_controller.dart';
 import '../../controllers/search_controller.dart' as gl;
@@ -8,6 +9,10 @@ import '../../models/game.dart';
 import 'game_tile.dart';
 import '../../widgets/loading_indicator.dart';
 import 'game_list_empty.dart';
+
+// Color Palette
+const kDarkNavy = Color(0xFF1A2332);
+const kNeonGreen = Color(0xFF39FF14);
 
 class GameListView extends StatefulWidget {
   const GameListView({super.key, this.initialQuery});
@@ -187,9 +192,20 @@ class _GameListViewState extends State<GameListView> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
+      backgroundColor: kDarkNavy,
       appBar: AppBar(
-        title: const Text('Browse Games'),
+        backgroundColor: kDarkNavy,
+        elevation: 0,
         automaticallyImplyLeading: false,
+        title: Text(
+          'BROWSE GAMES',
+          style: GoogleFonts.teko(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.italic,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: StreamBuilder<List<Game>>(
         stream: GameListController.instance.watchGames(),
@@ -281,8 +297,8 @@ class _GameListViewState extends State<GameListView> {
               if (allGames.isEmpty) {
                 return GameListEmpty(
                   onRefresh: () => GameListController.instance.refresh(),
-                );
-              }
+              );
+            }
 
               return GestureDetector(
                 onTap: () {
@@ -292,23 +308,56 @@ class _GameListViewState extends State<GameListView> {
                 child: Column(
                   children: <Widget>[
                     Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       child: Row(
                         children: [
                           Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              focusNode: _searchFocusNode,
-                              decoration: const InputDecoration(
-                                labelText: 'Search by game, location, or sport',
-                                prefixIcon: Icon(Icons.search),
-                                border: OutlineInputBorder(),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF243447),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.1),
+                                  width: 1,
+                                ),
                               ),
-                              onSubmitted: (_) {
-                                // Dismiss keyboard when user presses done
-                                _searchFocusNode.unfocus();
-                              },
+                              child: TextField(
+                                controller: _searchController,
+                                focusNode: _searchFocusNode,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: InputDecoration(
+                                  hintText: 'Search by game, location, or sport',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: 15,
+                                  ),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: Colors.grey[600],
+                                    size: 22,
+                                  ),
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 14,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(
+                                      color: kNeonGreen,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                                onSubmitted: (_) {
+                                  // Dismiss keyboard when user presses done
+                                  _searchFocusNode.unfocus();
+                                },
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -316,8 +365,8 @@ class _GameListViewState extends State<GameListView> {
                             icon: Icon(
                               Icons.filter_list,
                               color: _selectedFilter != 'all'
-                                  ? Theme.of(context).primaryColor
-                                  : null,
+                                  ? kNeonGreen
+                                  : Colors.grey[600],
                             ),
                             tooltip: 'Filter games',
                             onPressed: _showFilterDialog,

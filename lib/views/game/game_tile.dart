@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/game.dart';
 import '../../controllers/game_controller.dart';
 import '../../controllers/auth_controller.dart';
+
+// Color Palette
+const kDarkNavy = Color(0xFF1A2332);
+const kNeonGreen = Color(0xFF39FF14);
 
 class GameTile extends StatefulWidget {
   final Game game;
@@ -41,76 +46,184 @@ class _GameTileState extends State<GameTile> {
     final bool isFull = remaining == 0;
     final int waitlistCount = widget.game.waitlist.length;
 
-    return Card(
-      child: ListTile(
-        onTap: () {
-          // Navigate to game details page
-          context.pushNamed('game-details', pathParameters: {'id': widget.game.id});
-        },
-        title: Text(
-          widget.game.title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF243447),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+          width: 1,
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text('${widget.game.hostName} • ${widget.game.location}'),
-            const SizedBox(height: 4),
-            Text(dateText),
-            const SizedBox(height: 4),
-            Text(
-              _capitalize(widget.game.sport),
-              style: const TextStyle(color: Colors.blueGrey),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Capacity: $capacity • Joined: $joined • Remaining: $remaining',
-              style: const TextStyle(fontSize: 12),
-            ),
-            if (isFull) ...[
-              const SizedBox(height: 4),
-              Text(
-                waitlistCount > 0
-                    ? 'Game is full • $waitlistCount on waitlist'
-                    : 'Game is full • Waitlist available',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontStyle: FontStyle.italic,
-                  color: Colors.grey,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            context.pushNamed('game-details', pathParameters: {'id': widget.game.id});
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title and Sport
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.game.title.toUpperCase(),
+                        style: GoogleFonts.teko(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.white,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: kNeonGreen.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: kNeonGreen, width: 1),
+                      ),
+                      child: Text(
+                        _capitalize(widget.game.sport),
+                        style: TextStyle(
+                          color: kNeonGreen,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ],
-        ),
-        trailing: ElevatedButton(
-          onPressed: _isProcessing
-              ? null
-              : canLeave
-                  ? () => _handleLeave(widget.game.id, currentUserId)
-                  : canJoin
-                      ? () => _handleJoin(widget.game.id, currentUserId)
-                      : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: canLeave
-                ? Colors.orange
-                : isOpen
-                    ? Colors.green
-                    : Colors.grey,
-            foregroundColor: Colors.white,
-            disabledBackgroundColor: Colors.grey.shade300,
-            disabledForegroundColor: Colors.grey.shade600,
+
+                const SizedBox(height: 12),
+
+                // Host and Location
+                Row(
+                  children: [
+                    Icon(Icons.person_outline, size: 16, color: Colors.grey[400]),
+                    const SizedBox(width: 6),
+                    Text(
+                      widget.game.hostName,
+                      style: TextStyle(color: Colors.grey[300], fontSize: 14),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(Icons.location_on_outlined, size: 16, color: Colors.grey[400]),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        widget.game.location,
+                        style: TextStyle(color: Colors.grey[300], fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 8),
+
+                // Date
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today_outlined, size: 16, color: Colors.grey[400]),
+                    const SizedBox(width: 6),
+                    Text(
+                      dateText,
+                      style: TextStyle(color: Colors.grey[300], fontSize: 14),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // Capacity Info and Button
+                Row(
+                  children: [
+                    // Capacity
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Icon(Icons.people_outline, size: 18, color: kNeonGreen),
+                          const SizedBox(width: 6),
+                          Text(
+                            '$joined/$capacity',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (isFull) ...[
+                            const SizedBox(width: 8),
+                            Text(
+                              '• $waitlistCount waitlist',
+                              style: TextStyle(
+                                color: Colors.grey[400],
+                                fontSize: 13,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+
+                    // Action Button
+                    SizedBox(
+                      height: 36,
+                      child: ElevatedButton(
+                        onPressed: _isProcessing
+                            ? null
+                            : canLeave
+                                ? () => _handleLeave(widget.game.id, currentUserId)
+                                : canJoin
+                                    ? () => _handleJoin(widget.game.id, currentUserId)
+                                    : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: canLeave
+                              ? Colors.orange
+                              : canJoin
+                                  ? kNeonGreen
+                                  : Colors.grey[700],
+                          foregroundColor: canLeave || !canJoin ? Colors.white : Colors.black,
+                          disabledBackgroundColor: Colors.grey[800],
+                          disabledForegroundColor: Colors.grey[600],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                        child: _isProcessing
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : Text(
+                                canLeave ? 'LEAVE' : isParticipant ? 'JOINED' : 'JOIN',
+                                style: GoogleFonts.teko(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          child: _isProcessing
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : Text(canLeave ? 'Leave' : 'Join'),
         ),
       ),
     );
