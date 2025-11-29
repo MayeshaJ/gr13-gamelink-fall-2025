@@ -10,32 +10,29 @@ class AuthController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
+  // Get the Firebase User (not AppUser - use Firestore for full user data)
+  User? get firebaseUser => _auth.currentUser;
+
+  // Deprecated: Use firebaseUser and fetch from Firestore instead
+  // Keeping for backward compatibility but returning minimal data
   AppUser? get currentUser {
     final user = _auth.currentUser;
     if (user == null) {
       return null;
     }
+    // Return minimal AppUser - full data should come from Firestore
     return AppUser(
       uid: user.uid,
       email: user.email ?? '',
-      name: user.displayName ?? '',
+      firstName: '',
+      lastName: '',
       photoUrl: user.photoURL ?? '',
     );
   }
 
-  Stream<AppUser?> userChanges() {
-    // map firebase user stream to our app user model
-    return _auth.authStateChanges().map((user) {
-      if (user == null) {
-        return null;
-      }
-      return AppUser(
-        uid: user.uid,
-        email: user.email ?? '',
-        name: user.displayName ?? '',
-        photoUrl: user.photoURL ?? '',
-      );
-    });
+  Stream<User?> userChanges() {
+    // Return Firebase User stream - fetch AppUser from Firestore when needed
+    return _auth.authStateChanges();
   }
 
   Future<void> signUp({

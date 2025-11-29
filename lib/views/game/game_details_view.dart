@@ -485,9 +485,20 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
     try {
       final userData = await _userController.getUserDocument(uid: hostId);
-      if (userData != null && userData['name'] != null) {
-        final name = userData['name'] as String;
-        _hostName = name.isNotEmpty ? name : 'Unknown';
+      if (userData != null) {
+        final firstName = userData['firstName'] ?? '';
+        final lastName = userData['lastName'] ?? '';
+        if (firstName.isNotEmpty || lastName.isNotEmpty) {
+          if (firstName.isEmpty) {
+            _hostName = lastName;
+          } else if (lastName.isEmpty) {
+            _hostName = firstName;
+          } else {
+            _hostName = '$firstName $lastName';
+          }
+        } else {
+          _hostName = 'Unknown';
+        }
       } else {
         _hostName = 'Unknown';
       }
@@ -511,9 +522,22 @@ class _GameDetailsViewState extends State<GameDetailsView> {
       idsToFetch.map((userId) async {
         try {
           final userData = await _userController.getUserDocument(uid: userId);
-          if (userData != null && userData['name'] != null) {
-            final name = userData['name'] as String;
-            _participantNames[userId] = name.isNotEmpty ? name : 'Unknown';
+          if (userData != null) {
+            final firstName = userData['firstName'] ?? '';
+            final lastName = userData['lastName'] ?? '';
+            String name;
+            if (firstName.isNotEmpty || lastName.isNotEmpty) {
+              if (firstName.isEmpty) {
+                name = lastName;
+              } else if (lastName.isEmpty) {
+                name = firstName;
+              } else {
+                name = '$firstName $lastName';
+              }
+            } else {
+              name = 'Unknown';
+            }
+            _participantNames[userId] = name;
           } else {
             _participantNames[userId] = 'Unknown';
           }

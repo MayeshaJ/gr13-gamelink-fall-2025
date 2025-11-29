@@ -13,6 +13,8 @@ class SignupView extends StatefulWidget {
 }
 
 class _SignupViewState extends State<SignupView> {
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -21,14 +23,27 @@ class _SignupViewState extends State<SignupView> {
   @override
   void dispose() {
     // clean up controllers when screen is closed
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _handleSignup() async {
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
+
+    if (firstName.isEmpty || lastName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your first name and last name'),
+        ),
+      );
+      return;
+    }
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,7 +70,8 @@ class _SignupViewState extends State<SignupView> {
         await UserController.instance.createUserDocument(
           uid: user.uid,
           email: user.email ?? '',
-          name: user.displayName ?? '',
+          firstName: firstName,
+          lastName: lastName,
           photoUrl: user.photoURL ?? '',
         );
       }
@@ -87,6 +103,23 @@ class _SignupViewState extends State<SignupView> {
     }
   }
 
+  // Helper function to split display name into first and last name
+  Map<String, String> _splitName(String? displayName) {
+    if (displayName == null || displayName.trim().isEmpty) {
+      return {'firstName': '', 'lastName': ''};
+    }
+    
+    final nameParts = displayName.trim().split(' ');
+    if (nameParts.isEmpty) {
+      return {'firstName': '', 'lastName': ''};
+    }
+    
+    final firstName = nameParts.first;
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+    
+    return {'firstName': firstName, 'lastName': lastName};
+  }
+
   Future<void> _handleGoogleSignIn() async {
     setState(() {
       _isGoogleLoading = true;
@@ -110,10 +143,14 @@ class _SignupViewState extends State<SignupView> {
         // Check if user document exists, if not create it
         final userDoc = await UserController.instance.getUserDocument(uid: user.uid);
         if (userDoc == null) {
+          // Extract firstName and lastName from displayName
+          final nameParts = _splitName(user.displayName);
+          
           await UserController.instance.createUserDocument(
             uid: user.uid,
             email: user.email ?? '',
-            name: user.displayName ?? '',
+            firstName: nameParts['firstName'] ?? '',
+            lastName: nameParts['lastName'] ?? '',
             photoUrl: user.photoURL ?? '',
           );
         }
@@ -162,9 +199,28 @@ class _SignupViewState extends State<SignupView> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
+              controller: _firstNameController,
+              decoration: const InputDecoration(
+                labelText: 'First Name',
+                prefixIcon: Icon(Icons.person),
+              ),
+              textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _lastNameController,
+              decoration: const InputDecoration(
+                labelText: 'Last Name',
+                prefixIcon: Icon(Icons.person_outline),
+              ),
+              textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 12),
+            TextField(
               controller: _emailController,
               decoration: const InputDecoration(
                 labelText: 'Email',
+                prefixIcon: Icon(Icons.email),
               ),
               keyboardType: TextInputType.emailAddress,
             ),
@@ -173,6 +229,7 @@ class _SignupViewState extends State<SignupView> {
               controller: _passwordController,
               decoration: const InputDecoration(
                 labelText: 'Password',
+                prefixIcon: Icon(Icons.lock),
               ),
               obscureText: true,
             ),

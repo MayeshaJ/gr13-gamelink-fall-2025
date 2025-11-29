@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/user_controller.dart';
 import '../../models/app_user.dart';
 
 class GameChatView extends StatefulWidget {
@@ -42,7 +43,26 @@ class _GameChatViewState extends State<GameChatView> {
     final AppUser? user = AuthController.instance.currentUser;
     if (user == null) return;
 
-    final senderName = user.name; // FIXED
+    // Fetch full user data to get firstName and lastName
+    String senderName = 'Unknown';
+    try {
+      final userData = await UserController.instance.getUserDocument(uid: user.uid);
+      if (userData != null) {
+        final firstName = userData['firstName'] ?? '';
+        final lastName = userData['lastName'] ?? '';
+        if (firstName.isNotEmpty || lastName.isNotEmpty) {
+          if (firstName.isEmpty) {
+            senderName = lastName;
+          } else if (lastName.isEmpty) {
+            senderName = firstName;
+          } else {
+            senderName = '$firstName $lastName';
+          }
+        }
+      }
+    } catch (_) {
+      // Keep 'Unknown' if fetch fails
+    }
 
     try {
       await _messagesRef.add({

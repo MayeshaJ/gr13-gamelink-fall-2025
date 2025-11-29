@@ -83,6 +83,23 @@ class _LoginViewState extends State<LoginView> {
     context.goNamed('signup');
   }
 
+  // Helper function to split display name into first and last name
+  Map<String, String> _splitName(String? displayName) {
+    if (displayName == null || displayName.trim().isEmpty) {
+      return {'firstName': '', 'lastName': ''};
+    }
+    
+    final nameParts = displayName.trim().split(' ');
+    if (nameParts.isEmpty) {
+      return {'firstName': '', 'lastName': ''};
+    }
+    
+    final firstName = nameParts.first;
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+    
+    return {'firstName': firstName, 'lastName': lastName};
+  }
+
   Future<void> _handleGoogleSignIn() async {
     setState(() {
       _isGoogleLoading = true;
@@ -106,10 +123,14 @@ class _LoginViewState extends State<LoginView> {
         // Check if user document exists, if not create it
         final userDoc = await UserController.instance.getUserDocument(uid: user.uid);
         if (userDoc == null) {
+          // Extract firstName and lastName from displayName
+          final nameParts = _splitName(user.displayName);
+          
           await UserController.instance.createUserDocument(
             uid: user.uid,
             email: user.email ?? '',
-            name: user.displayName ?? '',
+            firstName: nameParts['firstName'] ?? '',
+            lastName: nameParts['lastName'] ?? '',
             photoUrl: user.photoURL ?? '',
           );
         }

@@ -10,7 +10,8 @@ class UserController {
   Future<void> createUserDocument({
     required String uid,
     required String email,
-    String name = '',
+    String firstName = '',
+    String lastName = '',
     String photoUrl = '',
   }) async {
     // create a user document in Firestore
@@ -24,7 +25,8 @@ class UserController {
     await _db.collection('users').doc(uid).set({
       'uid': uid,
       'email': email,
-      'name': name,
+      'firstName': firstName,
+      'lastName': lastName,
       'photoUrl': photoUrl,
       'primarySport': '',
       'skillLevel': '',

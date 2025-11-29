@@ -35,9 +35,20 @@ class GameListController {
     if (currentUser != null && !_hostNameCache.containsKey(currentUser.uid)) {
       // Fetch current user's name asynchronously without blocking
       _userController.getUserDocument(uid: currentUser.uid).then((userData) {
-        if (userData != null && userData['name'] != null) {
-          final name = userData['name'] as String;
-          _hostNameCache[currentUser.uid] = name.isNotEmpty ? name : 'Unknown';
+        if (userData != null) {
+          final firstName = userData['firstName'] ?? '';
+          final lastName = userData['lastName'] ?? '';
+          String name;
+          if (firstName.isEmpty && lastName.isEmpty) {
+            name = 'Unknown';
+          } else if (firstName.isEmpty) {
+            name = lastName;
+          } else if (lastName.isEmpty) {
+            name = firstName;
+          } else {
+            name = '$firstName $lastName';
+          }
+          _hostNameCache[currentUser.uid] = name;
           // If we have current game models, update them with the new name
           if (_currentGameModels != null) {
             _updateGamesWithCachedNames();
@@ -96,9 +107,20 @@ class GameListController {
     if (currentUser != null && !_hostNameCache.containsKey(currentUser.uid)) {
       try {
         final userData = await _userController.getUserDocument(uid: currentUser.uid);
-        if (userData != null && userData['name'] != null) {
-          final name = userData['name'] as String;
-          _hostNameCache[currentUser.uid] = name.isNotEmpty ? name : 'Unknown';
+        if (userData != null) {
+          final firstName = userData['firstName'] ?? '';
+          final lastName = userData['lastName'] ?? '';
+          String name;
+          if (firstName.isEmpty && lastName.isEmpty) {
+            name = 'Unknown';
+          } else if (firstName.isEmpty) {
+            name = lastName;
+          } else if (lastName.isEmpty) {
+            name = firstName;
+          } else {
+            name = '$firstName $lastName';
+          }
+          _hostNameCache[currentUser.uid] = name;
         } else {
           _hostNameCache[currentUser.uid] = 'Unknown';
         }
@@ -298,9 +320,20 @@ class GameListController {
       hostIdsToFetch.map((hostId) async {
         try {
           final userData = await _userController.getUserDocument(uid: hostId);
-          if (userData != null && userData['name'] != null) {
-            final name = userData['name'] as String;
-            _hostNameCache[hostId] = name.isNotEmpty ? name : 'Unknown';
+          if (userData != null) {
+            final firstName = userData['firstName'] ?? '';
+            final lastName = userData['lastName'] ?? '';
+            String name;
+            if (firstName.isEmpty && lastName.isEmpty) {
+              name = 'Unknown';
+            } else if (firstName.isEmpty) {
+              name = lastName;
+            } else if (lastName.isEmpty) {
+              name = firstName;
+            } else {
+              name = '$firstName $lastName';
+            }
+            _hostNameCache[hostId] = name;
           } else {
             _hostNameCache[hostId] = 'Unknown';
           }

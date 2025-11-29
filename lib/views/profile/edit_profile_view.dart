@@ -19,7 +19,8 @@ class EditProfileView extends StatefulWidget {
 }
 
 class _EditProfileViewState extends State<EditProfileView> {
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
   bool _saving = false;
   bool _photoUpdating = false;
@@ -47,7 +48,8 @@ class _EditProfileViewState extends State<EditProfileView> {
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.user.name;
+    _firstNameController.text = widget.user.firstName;
+    _lastNameController.text = widget.user.lastName;
     _bioController.text = widget.user.bio;
     _photoUrl = widget.user.photoUrl;
     _selectedSport = widget.user.primarySport.isNotEmpty
@@ -60,13 +62,15 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _bioController.dispose();
     super.dispose();
   }
 
   Future<void> _saveProfile() async {
-    final newName = _nameController.text.trim();
+    final newFirstName = _firstNameController.text.trim();
+    final newLastName = _lastNameController.text.trim();
     final newBio = _bioController.text.trim();
     final authUser = AuthController.instance.currentUser;
 
@@ -82,7 +86,8 @@ class _EditProfileViewState extends State<EditProfileView> {
       await UserController.instance.updateUserDocument(
         uid: authUser.uid,
         data: {
-          'name': newName,
+          'firstName': newFirstName,
+          'lastName': newLastName,
           'photoUrl': _photoUrl,
           'primarySport': _selectedSport,
           'skillLevel': _selectedSkillLevel,
@@ -270,11 +275,21 @@ class _EditProfileViewState extends State<EditProfileView> {
               ),
               const SizedBox(height: 25),
               TextField(
-                controller: _nameController,
+                controller: _firstNameController,
                 decoration: const InputDecoration(
-                  labelText: 'Name',
-                  prefixIcon: Icon(Icons.badge),
+                  labelText: 'First Name',
+                  prefixIcon: Icon(Icons.person),
                 ),
+                textCapitalization: TextCapitalization.words,
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _lastNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Last Name',
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+                textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 20),
               DropdownButtonFormField<String>(
