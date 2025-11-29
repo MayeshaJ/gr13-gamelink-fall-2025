@@ -10,13 +10,22 @@ class UserController {
   Future<void> createUserDocument({
     required String uid,
     required String email,
+    String name = '',
+    String photoUrl = '',
   }) async {
     // create a user document in Firestore
+    // Check if document already exists to avoid overwriting existing data
+    final doc = await _db.collection('users').doc(uid).get();
+    if (doc.exists) {
+      // Document already exists, don't overwrite
+      return;
+    }
+    
     await _db.collection('users').doc(uid).set({
       'uid': uid,
       'email': email,
-      'name': '',
-      'photoUrl': '',
+      'name': name,
+      'photoUrl': photoUrl,
       'primarySport': '',
       'skillLevel': '',
       'bio': '',

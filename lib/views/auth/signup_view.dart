@@ -16,6 +16,7 @@ class _SignupViewState extends State<SignupView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
 
   @override
   void dispose() {
@@ -54,6 +55,8 @@ class _SignupViewState extends State<SignupView> {
         await UserController.instance.createUserDocument(
           uid: user.uid,
           email: user.email ?? '',
+          name: user.displayName ?? '',
+          photoUrl: user.photoURL ?? '',
         );
       }
 
@@ -79,6 +82,69 @@ class _SignupViewState extends State<SignupView> {
       if (mounted) {
         setState(() {
           _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isGoogleLoading = true;
+    });
+
+    try {
+      final userCredential = await AuthController.instance.signInWithGoogle();
+
+      if (userCredential == null) {
+        // User canceled the sign-in
+        if (mounted) {
+          setState(() {
+            _isGoogleLoading = false;
+          });
+        }
+        return;
+      }
+
+      final user = userCredential.user;
+      if (user != null) {
+        // Check if user document exists, if not create it
+        final userDoc = await UserController.instance.getUserDocument(uid: user.uid);
+        if (userDoc == null) {
+          await UserController.instance.createUserDocument(
+            uid: user.uid,
+            email: user.email ?? '',
+            name: user.displayName ?? '',
+            photoUrl: user.photoURL ?? '',
+          );
+        }
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      // go to home view after successful signup
+      context.goNamed('home');
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? 'Google sign-in failed'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error during Google sign-in: ${e.toString()}'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGoogleLoading = false;
         });
       }
     }
@@ -116,6 +182,28 @@ class _SignupViewState extends State<SignupView> {
                 : ElevatedButton(
                     onPressed: _handleSignup,
                     child: const Text('Create account'),
+                  ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Expanded(child: Divider()),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text('OR'),
+                ),
+                const Expanded(child: Divider()),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _isGoogleLoading
+                ? const CircularProgressIndicator()
+                : OutlinedButton.icon(
+                    onPressed: _handleGoogleSignIn,
+                    icon: const Icon(Icons.g_mobiledata, size: 24),
+                    label: const Text('Continue with Google'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
                   ),
           ],
         ),
