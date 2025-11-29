@@ -182,7 +182,6 @@ class GameController {
   Future<void> leaveGame(String gameId, String userId) async {
     final docRef = gamesRef.doc(gameId);
 
-    String? promotedUserId;
     String? hostId;
     String gameTitle = 'your game';
 
@@ -197,7 +196,6 @@ class GameController {
           List<String>.from(data['participants'] ?? []);
       final List<String> waitlist =
           List<String>.from(data['waitlist'] ?? []);
-      final int maxPlayers = data['maxPlayers'] ?? 0;
 
       hostId = data['hostId'] as String?;
       gameTitle = data['title'] as String? ?? 'your game';
@@ -207,18 +205,12 @@ class GameController {
       }
 
       // Remove user from participants list
+      // No automatic promotion - waitlist users will be notified and can join manually
       participants.remove(userId);
-
-      // If there is now a free spot and a waitlist, promote first waitlisted user
-      if (waitlist.isNotEmpty && participants.length < maxPlayers) {
-        promotedUserId = waitlist.first;
-        participants.add(promotedUserId!);
-        waitlist.removeAt(0);
-      }
 
       transaction.update(docRef, {
         'participants': participants,
-        'waitlist': waitlist,
+        // Waitlist stays unchanged - all waitlisted users will be notified
       });
     });
 
@@ -232,16 +224,8 @@ class GameController {
       );
     }
 
-    // If someone was promoted from the waitlist, notify them
-    if (promotedUserId != null) {
-      await NotificationController.createNotification(
-        toUserId: promotedUserId!,
-        type: 'spot_opened',
-        message:
-            'A spot opened for "$gameTitle" and you have been added to the game.',
-        gameId: gameId,
-      );
-    }
+    // Note: All waitlisted users will be notified via Firebase Cloud Function
+    // when a spot opens. They can then manually join the game.
   }
 
   // ─────────────────────────────────────────────────────────────
