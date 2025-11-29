@@ -138,10 +138,16 @@ class _ProfileViewState extends State<ProfileView> {
                     Text(user.email),
                     const SizedBox(height: 20),
                     Text(
-                      'Name',
+                      'First Name',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    Text(user.name.isEmpty ? 'Not set' : user.name),
+                    Text(user.firstName.isEmpty ? 'Not set' : user.firstName),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Last Name',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(user.lastName.isEmpty ? 'Not set' : user.lastName),
                     const SizedBox(height: 20),
                     Row(
                       children: [

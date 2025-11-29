@@ -8,6 +8,7 @@ admin.initializeApp();
  * Trigger when any game document is written.
  * Detects when a game goes from full -> has open spot,
  * then notifies all users currently on the waitlist.
+ * All waitlisted users get the same notification - first to join gets the spot.
  */
 export const notifyWaitlistOnSpotOpen = onDocumentWritten(
   {
@@ -70,7 +71,7 @@ export const notifyWaitlistOnSpotOpen = onDocumentWritten(
     const message = {
       notification: {
         title: "A spot just opened!",
-        body: `A spot is now available in "${title}".`,
+        body: `A spot is available in "${title}". Join quickly - first come, first served!`,
       },
       data: {
         type: "spot_open",

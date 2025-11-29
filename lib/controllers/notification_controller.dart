@@ -90,7 +90,7 @@ class NotificationController {
       final String gameTitle =
           data['title'] as String? ?? 'one of your games';
       final String inAppMessage =
-          'A spot just opened in "$gameTitle". You can join it from the Games list.';
+          'A spot just opened in "$gameTitle"! Join quickly - first come, first served.';
 
       // Defer to root scaffold messenger for in-app prompt
       NotificationPromptBus.showSpotOpenPrompt(inAppMessage);
