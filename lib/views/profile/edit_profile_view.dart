@@ -3,11 +3,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../controllers/storage_controller.dart';
 import '../../models/app_user.dart';
+
+// Color Palette
+const kDarkNavy = Color(0xFF1A2332);
+const kNeonGreen = Color(0xFF39FF14);
 
 class EditProfileView extends StatefulWidget {
   final AppUser user;
@@ -37,10 +42,8 @@ class _EditProfileViewState extends State<EditProfileView> {
     'Basketball',
     'Tennis',
     'Volleyball',
-    'Cricket',
     'Baseball',
     'Hockey',
-    'Esports',
   ];
 
   final List<String> _skillLevels = const [
@@ -110,6 +113,13 @@ class _EditProfileViewState extends State<EditProfileView> {
         return;
       }
 
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Player card updated!'),
+          backgroundColor: kNeonGreen,
+        ),
+      );
+
       context.pop(true); // Return true to indicate successful save
     } catch (_) {
       if (!mounted) {
@@ -118,6 +128,7 @@ class _EditProfileViewState extends State<EditProfileView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Error saving profile'),
+          backgroundColor: Colors.red,
         ),
       );
     } finally {
@@ -172,6 +183,7 @@ class _EditProfileViewState extends State<EditProfileView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Error uploading profile photo'),
+          backgroundColor: Colors.red,
         ),
       );
     } finally {
@@ -193,94 +205,243 @@ class _EditProfileViewState extends State<EditProfileView> {
     });
   }
 
-  Widget _buildSkillChip(String level, IconData icon) {
-    final bool selected = _selectedSkillLevel == level;
-    return ChoiceChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16),
-          const SizedBox(width: 4),
-          Text(level),
-        ],
-      ),
-      selected: selected,
-      onSelected: (_) {
-        setState(() {
-          _selectedSkillLevel = level;
-        });
-      },
-    );
+  IconData _getSportIcon(String sport) {
+    switch (sport.toLowerCase()) {
+      case 'soccer':
+        return Icons.sports_soccer;
+      case 'basketball':
+        return Icons.sports_basketball;
+      case 'tennis':
+        return Icons.sports_tennis;
+      case 'volleyball':
+        return Icons.sports_volleyball;
+      case 'baseball':
+        return Icons.sports_baseball;
+      case 'hockey':
+        return Icons.sports_hockey;
+      default:
+        return Icons.sports;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kDarkNavy,
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        backgroundColor: kDarkNavy,
+        elevation: 0,
         leading: IconButton(
           onPressed: () {
             context.pop();
           },
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+        ),
+        title: Text(
+          'EDIT PLAYER CARD',
+          style: GoogleFonts.teko(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.italic,
+            color: Colors.white,
+          ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              Center(
-                child: Stack(
+              // Player Photo Editor
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF243447),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: kNeonGreen.withOpacity(0.3),
+                    width: 2,
+                  ),
+                ),
+                child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundImage:
-                          _photoUrl.isNotEmpty ? NetworkImage(_photoUrl) : null,
-                      child: _photoUrl.isEmpty
-                          ? const Icon(
-                              Icons.person,
-                              size: 40,
-                            )
-                          : null,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: InkWell(
-                        onTap: _photoUpdating ? null : _changePhoto,
-                        child: CircleAvatar(
-                          radius: 16,
-                          child: _photoUpdating
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.camera_alt,
-                                  size: 16,
-                                ),
-                        ),
+                    Text(
+                      'PLAYER PHOTO',
+                      style: GoogleFonts.teko(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kNeonGreen,
+                        letterSpacing: 2,
                       ),
                     ),
-                    if (_photoUrl.isNotEmpty)
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: InkWell(
-                          onTap: _photoUpdating ? null : _deletePhoto,
-                          child: const CircleAvatar(
-                            radius: 14,
-                            child: Icon(
-                              Icons.close,
-                              size: 16,
+                    const SizedBox(height: 20),
+                    Stack(
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: kNeonGreen,
+                              width: 3,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: kNeonGreen.withOpacity(0.3),
+                                blurRadius: 15,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: _photoUrl.isNotEmpty
+                                ? Image.network(
+                                    _photoUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: kDarkNavy,
+                                        child: const Icon(
+                                          Icons.person,
+                                          size: 60,
+                                          color: kNeonGreen,
+                                        ),
+                                      );
+                                    },
+                                  )
+                                : Container(
+                                    color: kDarkNavy,
+                                    child: const Icon(
+                                      Icons.person,
+                                      size: 60,
+                                      color: kNeonGreen,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: InkWell(
+                            onTap: _photoUpdating ? null : _changePhoto,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: kNeonGreen,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: kNeonGreen.withOpacity(0.5),
+                                    blurRadius: 8,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                              child: _photoUpdating
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.black,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.camera_alt,
+                                      size: 20,
+                                      color: Colors.black,
+                                    ),
                             ),
                           ),
                         ),
+                        if (_photoUrl.isNotEmpty)
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: InkWell(
+                              onTap: _photoUpdating ? null : _deletePhoto,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Player Info Card
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF243447),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.1),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'PLAYER INFO',
+                      style: GoogleFonts.teko(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kNeonGreen,
+                        letterSpacing: 2,
                       ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Name
+                    Container(
+                      decoration: BoxDecoration(
+                        color: kDarkNavy,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: TextField(
+                        controller: _nameController,
+                        style: const TextStyle(color: Colors.white),
+                        textCapitalization: TextCapitalization.words,
+                        decoration: InputDecoration(
+                          labelText: 'Player Name',
+                          labelStyle: TextStyle(color: Colors.grey[400]),
+                          prefixIcon: const Icon(Icons.person, color: kNeonGreen),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: kNeonGreen,
+                              width: 2,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -330,12 +491,232 @@ class _EditProfileViewState extends State<EditProfileView> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Row(
+              const SizedBox(height: 24),
+              // Sport Selection
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF243447),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.1),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.military_tech),
-                    const SizedBox(width: 8),
                     Text(
-                      'Skill level',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      'FAVORITE SPORT',
+                      style: GoogleFonts.teko(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kNeonGreen,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _sportsOptions.map((sport) {
+                        final isSelected = _selectedSport == sport;
+                        return InkWell(
+                          onTap: () {
+                            setState(() {
+                              _selectedSport = sport;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected ? kNeonGreen : kDarkNavy,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected ? kNeonGreen : Colors.white.withOpacity(0.2),
+                                width: 2,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _getSportIcon(sport),
+                                  size: 20,
+                                  color: isSelected ? Colors.black : kNeonGreen,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  sport,
+                                  style: GoogleFonts.teko(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: isSelected ? Colors.black : Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Skill Level
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF243447),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.1),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.military_tech, color: kNeonGreen),
+                        const SizedBox(width: 8),
+                        Text(
+                          'SKILL LEVEL',
+                          style: GoogleFonts.teko(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: kNeonGreen,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: _skillLevels.map((level) {
+                        final isSelected = _selectedSkillLevel == level;
+                        IconData icon;
+                        switch (level) {
+                          case 'Beginner':
+                            icon = Icons.looks_one;
+                            break;
+                          case 'Intermediate':
+                            icon = Icons.looks_two;
+                            break;
+                          case 'Advanced':
+                            icon = Icons.looks_3;
+                            break;
+                          default:
+                            icon = Icons.star;
+                        }
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _selectedSkillLevel = level;
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? kNeonGreen : kDarkNavy,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isSelected ? kNeonGreen : Colors.white.withOpacity(0.2),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      icon,
+                                      size: 24,
+                                      color: isSelected ? Colors.black : kNeonGreen,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      level,
+                                      style: GoogleFonts.teko(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: isSelected ? Colors.black : Colors.white,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Bio
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF243447),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.1),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ABOUT YOU',
+                      style: GoogleFonts.teko(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kNeonGreen,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: kDarkNavy,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: TextField(
+                        controller: _bioController,
+                        style: const TextStyle(color: Colors.white),
+                        maxLines: 4,
+                        decoration: InputDecoration(
+                          hintText: 'Tell others about yourself...',
+                          hintStyle: TextStyle(color: Colors.grey[500]),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.all(16),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: kNeonGreen,
+                              width: 2,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -399,6 +780,49 @@ class _EditProfileViewState extends State<EditProfileView> {
                       onPressed: _saveProfile,
                       child: const Text('Save'),
                     ),
+              const SizedBox(height: 32),
+              // Save Button
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _saving ? null : _saveProfile,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kNeonGreen,
+                    foregroundColor: Colors.black,
+                    disabledBackgroundColor: kNeonGreen.withOpacity(0.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: _saving
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.save, size: 24),
+                            const SizedBox(width: 12),
+                            Text(
+                              'SAVE PLAYER CARD',
+                              style: GoogleFonts.teko(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
