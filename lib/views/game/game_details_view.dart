@@ -59,6 +59,15 @@ class _GameDetailsViewState extends State<GameDetailsView> {
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () => context.pushNamed('notifications'),
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: kNeonGreen,
+            ),
+          ),
+        ],
       ),
       body: StreamBuilder<GameModel?>(
         stream: _gameController.watchGame(widget.gameId),

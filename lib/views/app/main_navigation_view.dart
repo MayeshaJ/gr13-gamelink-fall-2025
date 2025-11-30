@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../game/game_list_view.dart';
 import '../game/host_games_view.dart';
-import '../notifications/notifications_view.dart';
 import '../profile/profile_view.dart';
 import '../../controllers/notification_controller.dart';
+
+// Color Palette
+const kDarkNavy = Color(0xFF1A2332);
+const kNeonGreen = Color(0xFF39FF14);
 
 /// Main navigation view with bottom navigation bar
 /// Displayed after user logs in
@@ -18,11 +22,10 @@ class MainNavigationView extends StatefulWidget {
 class _MainNavigationViewState extends State<MainNavigationView> with WidgetsBindingObserver {
   int _currentIndex = 0;
 
-  // Define the pages for each tab
+  // Define the pages for each tab (removed notifications)
   final List<Widget> _pages = const [
     GameListView(),
     HostGamesView(),
-    NotificationsView(),
     ProfileView(),
   ];
 
@@ -59,6 +62,7 @@ class _MainNavigationViewState extends State<MainNavigationView> with WidgetsBin
           SnackBar(
             content: Text(message),
             duration: const Duration(seconds: 4),
+            backgroundColor: kNeonGreen,
           ),
         );
       },
@@ -70,37 +74,51 @@ class _MainNavigationViewState extends State<MainNavigationView> with WidgetsBin
         index: _currentIndex,
         children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.grey,
-        elevation: 8,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore),
-            label: 'Browse',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: kNeonGreen.withOpacity(0.3),
+              width: 1,
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle),
-            label: 'Host',
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (int index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: kDarkNavy,
+          selectedItemColor: kNeonGreen,
+          unselectedItemColor: Colors.grey[400],
+          selectedLabelStyle: GoogleFonts.teko(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
+          unselectedLabelStyle: GoogleFonts.teko(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.explore),
+              label: 'BROWSE',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add_circle),
+              label: 'HOST',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'PROFILE',
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-

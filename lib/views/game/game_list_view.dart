@@ -206,6 +206,15 @@ class _GameListViewState extends State<GameListView> {
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () => context.pushNamed('notifications'),
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: kNeonGreen,
+            ),
+          ),
+        ],
       ),
       body: StreamBuilder<List<Game>>(
         stream: GameListController.instance.watchGames(),

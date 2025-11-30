@@ -72,6 +72,15 @@ class _HostGamesViewState extends State<HostGamesView> {
               color: Colors.white,
             ),
           ),
+          actions: [
+            IconButton(
+              onPressed: () => context.pushNamed('notifications'),
+              icon: const Icon(
+                Icons.notifications_outlined,
+                color: kNeonGreen,
+              ),
+            ),
+          ],
         ),
         body: Center(
           child: Text(
@@ -97,6 +106,15 @@ class _HostGamesViewState extends State<HostGamesView> {
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () => context.pushNamed('notifications'),
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: kNeonGreen,
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
