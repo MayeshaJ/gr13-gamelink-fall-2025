@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../controllers/game_controller.dart';
 import '../../models/game.dart';
+import '../../controllers/notification_controller.dart';
+
 
 class EditGameView extends StatefulWidget {
   final GameModel game;
@@ -70,16 +72,68 @@ class _EditGameViewState extends State<EditGameView> {
 
     setState(() => loading = true);
 
+   // Compare against original to see if schedule changed
+    final DateTime oldDate = widget.game.date;
+    final String oldLocation = widget.game.location;
+
+    final DateTime newDate = selectedDate ?? widget.game.date;
+    final String newLocation = locationCtrl.text.trim();
+
+    final bool dateChanged = !oldDate.isAtSameMomentAs(newDate);
+    final bool locationChanged = oldLocation != newLocation;
+
+    final bool scheduleChanged = dateChanged || locationChanged;
+
     try {
       await gameController.updateGame(widget.game.id, {
         'title': titleCtrl.text.trim(),
         'description': descCtrl.text.trim(),
-        'location': locationCtrl.text.trim(),
+        'location': newLocation,
         'maxPlayers': int.tryParse(maxPlayersCtrl.text.trim()) ?? 0,
-        'date': selectedDate,
+        'date': newDate,
       });
 
       setState(() => loading = false);
+
+      // Notify participants if the schedule changed
+      if (scheduleChanged) {
+        final Set<String> recipientIds = {
+          ...widget.game.participants,
+        };
+
+        // notify waitlist
+        recipientIds.addAll(widget.game.waitlist);
+
+        // Host already knows they changed it
+        recipientIds.remove(widget.game.hostId);
+
+        final String formattedDate =
+            newDate.toLocal().toString().substring(0, 16);
+
+        final String baseTitle = widget.game.title;
+
+        for (final uid in recipientIds) {
+          String msg;
+          if (dateChanged && locationChanged) {
+            msg =
+                'The game "$baseTitle" has been rescheduled to $formattedDate at $newLocation.';
+          } else if (dateChanged) {
+            msg = 'The game "$baseTitle" has been rescheduled to $formattedDate.';
+          } else {
+            msg =
+                'The location for "$baseTitle" has changed to $newLocation.';
+          }
+
+          await NotificationController.createNotification(
+            toUserId: uid,
+            type: 'game_rescheduled',
+            message: msg,
+            gameId: widget.game.id,
+            category: 'game_update',
+          );
+        }
+      }
+
 
       if (!mounted) return;
 
