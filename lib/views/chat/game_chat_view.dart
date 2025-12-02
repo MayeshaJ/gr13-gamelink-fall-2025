@@ -47,26 +47,19 @@ class _GameChatViewState extends State<GameChatView> {
     final AppUser? user = AuthController.instance.currentUser;
     if (user == null) return;
 
-    // Fetch full user data to get firstName and lastName
     String senderName = 'Unknown';
+
     try {
-      final userData = await UserController.instance.getUserDocument(uid: user.uid);
+      final userData =
+      await UserController.instance.getUserDocument(uid: user.uid);
       if (userData != null) {
         final firstName = userData['firstName'] ?? '';
         final lastName = userData['lastName'] ?? '';
         if (firstName.isNotEmpty || lastName.isNotEmpty) {
-          if (firstName.isEmpty) {
-            senderName = lastName;
-          } else if (lastName.isEmpty) {
-            senderName = firstName;
-          } else {
-            senderName = '$firstName $lastName';
-          }
+          senderName = "$firstName $lastName".trim();
         }
       }
-    } catch (_) {
-      // Keep 'Unknown' if fetch fails
-    }
+    } catch (_) {}
 
      final text = _msgCtrl.text.trim();
 
@@ -118,7 +111,6 @@ class _GameChatViewState extends State<GameChatView> {
 
       _msgCtrl.clear();
 
-      // Scroll
       Future.delayed(const Duration(milliseconds: 200), () {
         if (_scrollCtrl.hasClients) {
           _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
@@ -138,44 +130,56 @@ class _GameChatViewState extends State<GameChatView> {
     }
   }
 
+  // -------------------------------------------------------
+  // LEFT / RIGHT CHAT BUBBLE BUILDER
+  // -------------------------------------------------------
   Widget _buildMessageItem(Map<String, dynamic> data) {
-    final sender = data['senderName'] ?? 'Unknown';
+    final senderId = data['senderId'] ?? '';
     final text = data['text'] ?? '';
+    final senderName = data['senderName'] ?? 'Unknown';
+
+    final isMe =
+        senderId == AuthController.instance.currentUser?.uid;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const CircleAvatar(child: Icon(Icons.person, size: 18)),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    sender,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    text,
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                ],
-              ),
+      child: Align(
+        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 260),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isMe ? Colors.blue.shade400 : Colors.grey.shade200,
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(12),
+              topRight: const Radius.circular(12),
+              bottomLeft:
+              isMe ? const Radius.circular(12) : const Radius.circular(0),
+              bottomRight:
+              isMe ? const Radius.circular(0) : const Radius.circular(12),
             ),
           ),
-        ],
+          child: Column(
+            crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            children: [
+              if (!isMe)
+                Text(
+                  senderName,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+              if (!isMe) const SizedBox(height: 4),
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: isMe ? Colors.white : Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
