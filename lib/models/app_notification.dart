@@ -8,6 +8,7 @@ class AppNotification {
   final String? gameId;
   final DateTime createdAt;
   final bool read;
+  final String category; // 'game_update', 'chat', 'reminder', etc.
 
   AppNotification({
     required this.id,
@@ -17,6 +18,7 @@ class AppNotification {
     required this.gameId,
     required this.createdAt,
     required this.read,
+    this.category = 'general',
   });
 
   factory AppNotification.fromDoc(DocumentSnapshot doc) {
@@ -29,6 +31,7 @@ class AppNotification {
       gameId: data['gameId'] as String?,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       read: data['read'] as bool? ?? false,
+      category: data['category'] as String? ?? 'general',
     );
   }
 
@@ -40,6 +43,7 @@ class AppNotification {
       'gameId': gameId,
       'createdAt': FieldValue.serverTimestamp(),
       'read': read,
+      'category': category,
     };
   }
 }

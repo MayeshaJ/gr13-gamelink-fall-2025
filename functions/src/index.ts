@@ -108,56 +108,99 @@ export const sendPushNotification = onDocumentCreated(
     document: "notifications/{notificationId}",
     region: "us-east1",
   },
-  async (event:any) => {
+  async (event) => {
     const snap = event.data;
-    if (!snap) return;
+    if (!snap) {
+      console.log("No snapshot data for notification.");
+      return;
+    }
 
     const notif = snap.data() as any;
     const userId: string = notif.userId;
-    const message: string = notif.message ?? "";
-    const type: string = notif.type ?? "";
+    const type: string = notif.type || "";
+    const category: string = notif.category || "general";
+    const message: string = notif.message || "";
     const gameId: string | undefined = notif.gameId;
 
-    console.log(`[sendPushNotification] New notification created for user=${userId}`);
+    if (!userId || !message) {
+      console.log("Missing userId or message in notification doc, skipping.");
+      return;
+    }
 
     const db = admin.firestore();
     const userDoc = await db.collection("users").doc(userId).get();
 
     if (!userDoc.exists) {
-      console.log(`[sendPushNotification] User ${userId} not found.`);
+      console.log(`User document ${userId} not found, skipping push.`);
       return;
     }
 
     const userData = userDoc.data() || {};
     const tokens: string[] = userData.fcmTokens || [];
 
-    if (!tokens.length) {
-      console.log(`[sendPushNotification] User ${userId} has no FCM tokens.`);
+    if (!tokens || tokens.length === 0) {
+      console.log(`No FCM tokens for user ${userId}, skipping push.`);
       return;
     }
 
-    const payload = {
+    // Check user preferences.
+    const notifyGameUpdates =
+      userData.notifyGameUpdates !== false; // default true
+    const notifyChatMessages =
+      userData.notifyChatMessages !== false; // default true
+    const notifyReminders =
+      userData.notifyReminders !== false; // default true
+
+    let allowPush = true;
+
+    if (category === "chat") {
+      allowPush = notifyChatMessages;
+    } else if (category === "reminder") {
+      allowPush = notifyReminders;
+    } else if (
+      category === "game_update" ||
+      type === "player_joined" ||
+      type === "player_left" ||
+      type === "game_cancelled" ||
+      type === "game_rescheduled" ||
+      type === "spot_open"
+    ) {
+      allowPush = notifyGameUpdates;
+    }
+
+    if (!allowPush) {
+      console.log(
+        `User ${userId} opted out of push for category=${category}, type=${type}.`
+      );
+      return;
+    }
+
+    const title = "GameLink Notification";
+
+    const payload: admin.messaging.MulticastMessage = {
       tokens,
       notification: {
-        title: "GameLink",
+        title,
         body: message,
       },
       data: {
         type,
-        gameId: gameId ?? "",
+        category,
+        ...(gameId ? { gameId } : {}),
       },
     };
 
     try {
       const response = await admin.messaging().sendEachForMulticast(payload);
       console.log(
-        `[sendPushNotification] Sent to ${tokens.length} tokens. Success=${response.successCount}, Failure=${response.failureCount}`
+        `Sent push for notification ${snap.id} to ${tokens.length} tokens. Success: ${response.successCount}, Failure: ${response.failureCount}`
       );
     } catch (err) {
-      console.error("[sendPushNotification] Error sending push:", err);
+      console.error("Error sending push notification:", err);
     }
   }
 );
+
 
 /**
  * Scheduled function: send game start reminders ~1 hour before start.

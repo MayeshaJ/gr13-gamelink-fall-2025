@@ -3,6 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../models/app_user.dart';
+import '../../controllers/notification_controller.dart';
+import '../../models/game.dart';
+import '../../controllers/game_controller.dart';
+
 
 class GameChatView extends StatefulWidget {
   final String gameId;
@@ -64,6 +68,8 @@ class _GameChatViewState extends State<GameChatView> {
       // Keep 'Unknown' if fetch fails
     }
 
+     final text = _msgCtrl.text.trim();
+
     try {
       await _messagesRef.add({
         'senderId': user.uid,
@@ -71,6 +77,44 @@ class _GameChatViewState extends State<GameChatView> {
         'text': _msgCtrl.text.trim(),
         'timestamp': FieldValue.serverTimestamp(),
       });
+
+      // Create notifications for all other players in the game
+      try {
+        final gameSnap = await FirebaseFirestore.instance
+            .collection('games')
+            .doc(widget.gameId)
+            .get();
+
+        if (gameSnap.exists) {
+          final gameData = gameSnap.data() as Map<String, dynamic>;
+          final String hostId = gameData['hostId'] as String? ?? '';
+          final List<String> participants =
+              List<String>.from(gameData['participants'] ?? []);
+
+          final Set<String> recipients = {
+            ...participants,
+            if (hostId.isNotEmpty) hostId,
+          };
+
+          // Sender shouldn't get a notification about their own message
+          recipients.remove(user.uid);
+
+          final String shortText =
+              text.length > 80 ? '${text.substring(0, 77)}...' : text;
+
+          for (final uid in recipients) {
+            await NotificationController.createNotification(
+              toUserId: uid,
+              type: 'chat_message',
+              message: '$senderName: $shortText',
+              gameId: widget.gameId,
+              category: 'chat',
+            );
+          }
+        }
+      } catch (_) {
+        // Don't block sending messages if notifications fail
+      }
 
       _msgCtrl.clear();
 

@@ -27,6 +27,10 @@ class _EditProfileViewState extends State<EditProfileView> {
   late String _photoUrl;
   late String _selectedSport;
   late String _selectedSkillLevel;
+  bool _notifyGameUpdates = true;
+  bool _notifyChatMessages = true;
+  bool _notifyReminders = true;
+
 
   final List<String> _sportsOptions = const [
     'Soccer',
@@ -58,6 +62,10 @@ class _EditProfileViewState extends State<EditProfileView> {
     _selectedSkillLevel = widget.user.skillLevel.isNotEmpty
         ? widget.user.skillLevel
         : _skillLevels.first;
+    _notifyGameUpdates = widget.user.notifyGameUpdates;
+    _notifyChatMessages = widget.user.notifyChatMessages;
+    _notifyReminders = widget.user.notifyReminders;
+
   }
 
   @override
@@ -92,6 +100,9 @@ class _EditProfileViewState extends State<EditProfileView> {
           'primarySport': _selectedSport,
           'skillLevel': _selectedSkillLevel,
           'bio': newBio,
+          'notifyGameUpdates': _notifyGameUpdates,
+          'notifyChatMessages': _notifyChatMessages,
+          'notifyReminders': _notifyReminders,
         },
       );
 
@@ -348,6 +359,39 @@ class _EditProfileViewState extends State<EditProfileView> {
                 ),
                 maxLines: 3,
               ),
+              const SizedBox(height: 24),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Notification settings',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                title: const Text(
+                  'Game updates (joins/leaves, reschedules, cancellations)',
+                ),
+                value: _notifyGameUpdates,
+                onChanged: (value) {
+                  setState(() => _notifyGameUpdates = value);
+                },
+              ),
+              SwitchListTile(
+                title: const Text('Chat messages'),
+                value: _notifyChatMessages,
+                onChanged: (value) {
+                  setState(() => _notifyChatMessages = value);
+                },
+              ),
+              SwitchListTile(
+                title: const Text('Game reminders'),
+                value: _notifyReminders,
+                onChanged: (value) {
+                  setState(() => _notifyReminders = value);
+                },
+              ),
+
               const SizedBox(height: 25),
               _saving
                   ? const CircularProgressIndicator()
