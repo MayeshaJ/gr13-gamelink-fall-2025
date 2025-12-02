@@ -7,6 +7,9 @@ class AppUser {
   final String primarySport;
   final String skillLevel;
   final String bio;
+  final bool notifyGameUpdates;   // joins/leaves, reschedules, cancellations
+  final bool notifyChatMessages;  // new chat messages
+  final bool notifyReminders;     // 1-hour before game, etc.
 
   AppUser({
     required this.uid,
@@ -17,6 +20,9 @@ class AppUser {
     this.primarySport = '',
     this.skillLevel = '',
     this.bio = '',
+    this.notifyGameUpdates = true,
+    this.notifyChatMessages = true, 
+    this.notifyReminders = true,  
   });
 
   // Helper getter for full name
@@ -43,6 +49,9 @@ class AppUser {
       'primarySport': primarySport,
       'skillLevel': skillLevel,
       'bio': bio,
+      'notifyGameUpdates': notifyGameUpdates,
+      'notifyChatMessages': notifyChatMessages,
+      'notifyReminders': notifyReminders,
     };
   }
 
@@ -71,6 +80,9 @@ class AppUser {
       primarySport: data['primarySport'] ?? '',
       skillLevel: data['skillLevel'] ?? '',
       bio: data['bio'] ?? '',
+      notifyGameUpdates: data['notifyGameUpdates'] as bool? ?? true,
+      notifyChatMessages: data['notifyChatMessages'] as bool? ?? true,
+      notifyReminders: data['notifyReminders'] as bool? ?? true,
     );
   }
 }
