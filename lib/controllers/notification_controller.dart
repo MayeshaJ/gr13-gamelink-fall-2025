@@ -111,6 +111,7 @@ class NotificationController {
     required String type,
     required String message,
     String? gameId,
+    String category = 'general',
   }) async {
       await FirebaseFirestore.instance.collection('notifications').add({
         'userId': toUserId,
@@ -119,6 +120,7 @@ class NotificationController {
         'gameId': gameId,
         'createdAt': FieldValue.serverTimestamp(),
         'read': false,
+        'category': category,
       });
   }
   
