@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'firebase_options.dart';
 import 'routes/app_router.dart';
 import 'controllers/notification_controller.dart';
+import 'controllers/theme_controller.dart';
+import 'theme/app_theme.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Ensure Firebase is initialized for background handling.
@@ -29,6 +31,9 @@ Future<void> main() async {
   // Initialize notification controller (permissions + FCM token registration)
   await NotificationController.instance.init();
 
+  // Initialize theme controller
+  await ThemeController.instance.init();
+
   runApp(const MyApp());
 }
 
@@ -44,12 +49,20 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp.router(
-          title: 'GameLink',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData.light(),
-          darkTheme: ThemeData.dark(),
-          routerConfig: appRouter,
+        return ListenableBuilder(
+          listenable: ThemeController.instance,
+          builder: (context, child) {
+            return MaterialApp.router(
+              title: 'GameLink',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.lightTheme(),
+              darkTheme: AppTheme.darkTheme(),
+              themeMode: ThemeController.instance.isDarkMode 
+                  ? ThemeMode.dark 
+                  : ThemeMode.light,
+              routerConfig: appRouter,
+            );
+          },
         );
       },
     );

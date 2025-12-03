@@ -6,14 +6,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../controllers/game_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
+import '../../controllers/theme_controller.dart';
+import '../../theme/app_theme.dart';
 import '../../models/game.dart';
 import '../../widgets/loading_indicator.dart';
 import 'edit_game_view.dart';
 import '../chat/game_chat_view.dart';
-
-// Color Palette
-const kDarkNavy = Color(0xFF1A2332);
-const kNeonGreen = Color(0xFF39FF14);
 
 class GameDetailsView extends StatefulWidget {
   final String gameId;
@@ -41,97 +39,108 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = AuthController.instance.currentUser;
-    final currentUserId = currentUser?.uid;
+    return ListenableBuilder(
+      listenable: ThemeController.instance,
+      builder: (context, child) {
+        final isDark = ThemeController.instance.isDarkMode;
+        final accent = AppColors.accent(isDark);
+        final bgColor = AppColors.background(isDark);
+        final cardColor = AppColors.card(isDark);
+        final textPrimary = AppColors.textPrimary(isDark);
+        final textSecondary = AppColors.textSecondary(isDark);
+        final borderColor = AppColors.border(isDark);
 
-    return StreamBuilder<GameModel?>(
-      stream: _gameController.watchGame(widget.gameId),
-      builder: (context, snapshot) {
-        // Build endDrawer only when we have game data
-        Widget? endDrawer;
-        if (snapshot.hasData && snapshot.data != null) {
-          final gameModel = snapshot.data!;
-          endDrawer = _buildParticipantsDrawer(gameModel);
-        }
+        final currentUser = AuthController.instance.currentUser;
+        final currentUserId = currentUser?.uid;
 
-        return Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: kDarkNavy,
-          endDrawer: endDrawer,
-          appBar: AppBar(
-            backgroundColor: kDarkNavy,
-            elevation: 0,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white, size: 22.sp),
-              onPressed: () => context.pop(),
-            ),
-            title: Text(
-              'GAME DETAILS',
-              style: GoogleFonts.teko(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.bold,
-                fontStyle: FontStyle.italic,
-                color: Colors.white,
-              ),
-            ),
-            actions: [
-              // Players icon button
-              if (snapshot.hasData && snapshot.data != null)
-                Padding(
-                  padding: EdgeInsets.only(right: 8.w),
-                  child: GestureDetector(
-                    onTap: () {
-                      _scaffoldKey.currentState?.openEndDrawer();
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(8.w),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(
-                          color: kNeonGreen,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.people_outline,
-                            color: kNeonGreen,
-                            size: 20.sp,
-                          ),
-                          SizedBox(width: 4.w),
-                          Text(
-                            '${snapshot.data!.participants.length}',
-                            style: GoogleFonts.barlowSemiCondensed(
-                              color: kNeonGreen,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+        return StreamBuilder<GameModel?>(
+          stream: _gameController.watchGame(widget.gameId),
+          builder: (context, snapshot) {
+            Widget? endDrawer;
+            if (snapshot.hasData && snapshot.data != null) {
+              final gameModel = snapshot.data!;
+              endDrawer = _buildParticipantsDrawer(gameModel, isDark, accent, cardColor, textPrimary, textSecondary, borderColor);
+            }
+
+            return Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: bgColor,
+              endDrawer: endDrawer,
+              appBar: AppBar(
+                backgroundColor: bgColor,
+                elevation: 0,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back, color: textPrimary, size: 22.sp),
+                  onPressed: () => context.pop(),
+                ),
+                title: Text(
+                  'GAME DETAILS',
+                  style: GoogleFonts.teko(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                    color: textPrimary,
                   ),
                 ),
-              IconButton(
-                onPressed: () => context.pushNamed('notifications'),
-                icon: Icon(
-                  Icons.notifications_outlined,
-                  color: kNeonGreen,
-                  size: 22.sp,
-                ),
+                actions: [
+                  if (snapshot.hasData && snapshot.data != null)
+                    Padding(
+                      padding: EdgeInsets.only(right: 8.w),
+                      child: GestureDetector(
+                        onTap: () {
+                          _scaffoldKey.currentState?.openEndDrawer();
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(8.w),
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(
+                              color: accent,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.people_outline,
+                                color: accent,
+                                size: 20.sp,
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                '${snapshot.data!.participants.length}',
+                                style: GoogleFonts.barlowSemiCondensed(
+                                  color: accent,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  IconButton(
+                    onPressed: () => context.pushNamed('notifications'),
+                    icon: Icon(
+                      Icons.notifications_outlined,
+                      color: accent,
+                      size: 22.sp,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          body: _buildBody(snapshot, currentUserId),
+              body: _buildBody(snapshot, currentUserId, isDark, accent, cardColor, textPrimary, textSecondary, borderColor),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildBody(AsyncSnapshot<GameModel?> snapshot, String? currentUserId) {
+  Widget _buildBody(AsyncSnapshot<GameModel?> snapshot, String? currentUserId, bool isDark, Color accent, Color cardColor, Color textPrimary, Color textSecondary, Color borderColor) {
     if (snapshot.connectionState == ConnectionState.waiting) {
       return const LoadingIndicator(message: 'Loading game details...');
     }
@@ -143,14 +152,14 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Failed to load game details', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, color: Colors.white)),
+              Text('Failed to load game details', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, color: textPrimary)),
               SizedBox(height: 12.h),
               SizedBox(
                 height: 40.h,
                 child: ElevatedButton(
                   onPressed: () => context.pop(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: kNeonGreen,
+                    backgroundColor: accent,
                     foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
                   ),
@@ -171,14 +180,14 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Game not found', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, color: Colors.white)),
+              Text('Game not found', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, color: textPrimary)),
               SizedBox(height: 12.h),
               SizedBox(
                 height: 40.h,
                 child: ElevatedButton(
                   onPressed: () => context.pop(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: kNeonGreen,
+                    backgroundColor: accent,
                     foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
                   ),
@@ -191,7 +200,6 @@ class _GameDetailsViewState extends State<GameDetailsView> {
       );
     }
 
-    // Load participant names and host name
     _loadParticipantNames(gameModel.participants);
     _loadHostName(gameModel.hostId);
 
@@ -221,14 +229,12 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
     return Column(
       children: [
-        // Scrollable content area
         Expanded(
           child: SingleChildScrollView(
             padding: EdgeInsets.all(12.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Cancelled banner
                 if (isCancelled)
                   Container(
                     width: double.infinity,
@@ -251,46 +257,44 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                     ),
                   ),
 
-                // Game Info Card
                 Container(
                   width: double.infinity,
                   padding: EdgeInsets.all(14.w),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF243447),
+                    color: cardColor,
                     borderRadius: BorderRadius.circular(10.r),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.1),
+                      color: borderColor,
                       width: 1,
                     ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Title
                       Text(
                         gameModel.title.toUpperCase(),
                         style: GoogleFonts.teko(
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
                           fontStyle: FontStyle.italic,
-                          color: Colors.white,
+                          color: textPrimary,
                           height: 1,
                         ),
                       ),
 
                       SizedBox(height: 14.h),
 
-                      // Game Info
-                      _buildInfoRow(Icons.person_outline, 'Host', _hostName ?? 'Loading...'),
+                      _buildInfoRow(Icons.person_outline, 'Host', _hostName ?? 'Loading...', accent, textPrimary, textSecondary),
                       SizedBox(height: 10.h),
-                      _buildInfoRow(Icons.location_on_outlined, 'Location', gameModel.location),
+                      _buildInfoRow(Icons.location_on_outlined, 'Location', gameModel.location, accent, textPrimary, textSecondary),
                       SizedBox(height: 10.h),
-                      _buildInfoRow(Icons.calendar_today_outlined, 'Date & Time', dateText),
+                      _buildInfoRow(Icons.calendar_today_outlined, 'Date & Time', dateText, accent, textPrimary, textSecondary),
                       SizedBox(height: 10.h),
                       _buildInfoRow(
                         Icons.people_outline,
                         'Players',
                         '$joined / $capacity  •  $remaining spots left',
+                        accent, textPrimary, textSecondary,
                       ),
                       SizedBox(height: 10.h),
                       _buildInfoRow(
@@ -301,12 +305,12 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                             : isStarted
                             ? 'Closed (game started)'
                             : '$waitlistCount waiting',
+                        accent, textPrimary, textSecondary,
                       ),
 
-                      // Description
                       if (gameModel.description.isNotEmpty) ...[
                         SizedBox(height: 14.h),
-                        Divider(color: Colors.white.withOpacity(0.1)),
+                        Divider(color: borderColor),
                         SizedBox(height: 10.h),
                         Text(
                           'DESCRIPTION',
@@ -314,7 +318,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                             fontSize: 15.sp,
                             fontWeight: FontWeight.bold,
                             fontStyle: FontStyle.italic,
-                            color: kNeonGreen,
+                            color: accent,
                             letterSpacing: 1,
                           ),
                         ),
@@ -322,7 +326,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         Text(
                           gameModel.description,
                           style: GoogleFonts.barlowSemiCondensed(
-                            color: Colors.grey[300],
+                            color: textSecondary,
                             fontSize: 13.sp,
                             height: 1.4,
                           ),
@@ -334,7 +338,6 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
                 SizedBox(height: 14.h),
 
-                // Chat Button (only for host and participants)
                 if (currentUserId != null && (isHost || isParticipant) && !isCancelled)
                   SizedBox(
                     width: double.infinity,
@@ -352,8 +355,8 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         );
                       },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: kNeonGreen,
-                        side: const BorderSide(color: kNeonGreen, width: 1.5),
+                        foregroundColor: accent,
+                        side: BorderSide(color: accent, width: 1.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.r),
                         ),
@@ -374,7 +377,6 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           ),
         ),
 
-        // Bottom Action Buttons
         _buildBottomActions(
           gameModel: gameModel,
           currentUserId: currentUserId,
@@ -385,6 +387,12 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           isStarted: isStarted,
           isCancelled: isCancelled,
           canJoin: canJoin,
+          isDark: isDark,
+          accent: accent,
+          cardColor: cardColor,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          borderColor: borderColor,
         ),
       ],
     );
@@ -400,20 +408,26 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     required bool isStarted,
     required bool isCancelled,
     required bool canJoin,
+    required bool isDark,
+    required Color accent,
+    required Color cardColor,
+    required Color textPrimary,
+    required Color textSecondary,
+    required Color borderColor,
   }) {
     if (currentUserId == null) {
       return Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: const Color(0xFF243447),
+          color: cardColor,
           border: Border(
-            top: BorderSide(color: Colors.white.withOpacity(0.1)),
+            top: BorderSide(color: borderColor),
           ),
         ),
         child: Text(
           'Please sign in to join this game',
           style: GoogleFonts.barlowSemiCondensed(
-            color: Colors.grey[500],
+            color: textSecondary,
             fontSize: 13.sp,
           ),
           textAlign: TextAlign.center,
@@ -425,9 +439,9 @@ class _GameDetailsViewState extends State<GameDetailsView> {
       return Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: const Color(0xFF243447),
+          color: cardColor,
           border: Border(
-            top: BorderSide(color: Colors.white.withOpacity(0.1)),
+            top: BorderSide(color: borderColor),
           ),
         ),
         child: Text(
@@ -445,15 +459,15 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: const Color(0xFF243447),
+        color: cardColor,
         border: Border(
-          top: BorderSide(color: Colors.white.withOpacity(0.1)),
+          top: BorderSide(color: borderColor),
         ),
       ),
       child: SafeArea(
         top: false,
         child: isHost
-            ? _buildHostActions(gameModel, isCancelled)
+            ? _buildHostActions(gameModel, isCancelled, isDark, accent, textSecondary)
             : _buildGuestActions(
                 gameModel: gameModel,
                 currentUserId: currentUserId,
@@ -462,15 +476,17 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                 isFull: isFull,
                 isStarted: isStarted,
                 canJoin: canJoin,
+                isDark: isDark,
+                accent: accent,
+                textSecondary: textSecondary,
               ),
       ),
     );
   }
 
-  Widget _buildHostActions(GameModel gameModel, bool isCancelled) {
+  Widget _buildHostActions(GameModel gameModel, bool isCancelled, bool isDark, Color accent, Color textSecondary) {
     return Row(
       children: [
-        // Edit Button
         Expanded(
           child: SizedBox(
             height: 44.h,
@@ -486,10 +502,10 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                       );
                     },
               style: OutlinedButton.styleFrom(
-                foregroundColor: kNeonGreen,
-                disabledForegroundColor: Colors.grey[600],
+                foregroundColor: accent,
+                disabledForegroundColor: textSecondary,
                 side: BorderSide(
-                  color: isCancelled ? Colors.grey[600]! : kNeonGreen,
+                  color: isCancelled ? textSecondary : accent,
                   width: 1.5,
                 ),
                 shape: RoundedRectangleBorder(
@@ -509,17 +525,16 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           ),
         ),
         SizedBox(width: 10.w),
-        // Cancel/Delete Button
         Expanded(
           child: SizedBox(
             height: 44.h,
             child: ElevatedButton.icon(
-              onPressed: isCancelled ? null : () => _confirmCancel(gameModel.id),
+              onPressed: isCancelled ? null : () => _confirmCancel(gameModel.id, isDark),
               style: ElevatedButton.styleFrom(
-                backgroundColor: isCancelled ? Colors.grey[800] : Colors.red,
+                backgroundColor: isCancelled ? AppColors.disabled(isDark) : Colors.red,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: Colors.grey[800],
-                disabledForegroundColor: Colors.grey[600],
+                disabledBackgroundColor: AppColors.disabled(isDark),
+                disabledForegroundColor: textSecondary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.r),
                 ),
@@ -549,23 +564,25 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     required bool isFull,
     required bool isStarted,
     required bool canJoin,
+    required bool isDark,
+    required Color accent,
+    required Color textSecondary,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Leave Button (shown when user is a participant)
         if (!isStarted && isParticipant)
           SizedBox(
             width: double.infinity,
             height: 44.h,
             child: ElevatedButton.icon(
               onPressed: !_isLeaving
-                  ? () => _handleLeave(gameModel, currentUserId)
+                  ? () => _handleLeave(gameModel, currentUserId, isDark)
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: Colors.grey[800],
+                disabledBackgroundColor: AppColors.disabled(isDark),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.r),
                 ),
@@ -592,7 +609,6 @@ class _GameDetailsViewState extends State<GameDetailsView> {
             ),
           ),
 
-        // Join Button (shown when user is not a participant)
         if (!isParticipant) ...[
           SizedBox(
             width: double.infinity,
@@ -602,10 +618,10 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                   ? () => _handleJoin(gameModel, currentUserId)
                   : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: canJoin ? kNeonGreen : Colors.grey[700],
-                foregroundColor: canJoin ? Colors.black : Colors.grey[500],
-                disabledBackgroundColor: Colors.grey[800],
-                disabledForegroundColor: Colors.grey[600],
+                backgroundColor: canJoin ? accent : AppColors.disabled(isDark),
+                foregroundColor: canJoin ? Colors.black : textSecondary,
+                disabledBackgroundColor: AppColors.disabled(isDark),
+                disabledForegroundColor: textSecondary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.r),
                 ),
@@ -639,7 +655,6 @@ class _GameDetailsViewState extends State<GameDetailsView> {
             ),
           ),
 
-          // Waitlist button (shown when game is full and not started)
           if (!isStarted && isFull) ...[
             SizedBox(height: 10.h),
             SizedBox(
@@ -656,8 +671,8 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         }
                       },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: kNeonGreen,
-                  side: const BorderSide(color: kNeonGreen, width: 1.5),
+                  foregroundColor: accent,
+                  side: BorderSide(color: accent, width: 1.5),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.r),
                   ),
@@ -666,9 +681,9 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                     ? SizedBox(
                         width: 16.w,
                         height: 16.h,
-                        child: const CircularProgressIndicator(
+                        child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(kNeonGreen),
+                          valueColor: AlwaysStoppedAnimation<Color>(accent),
                         ),
                       )
                     : Icon(Icons.hourglass_empty, size: 16.sp),
@@ -688,26 +703,27 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     );
   }
 
-  Widget _buildParticipantsDrawer(GameModel gameModel) {
+  Widget _buildParticipantsDrawer(GameModel gameModel, bool isDark, Color accent, Color cardColor, Color textPrimary, Color textSecondary, Color borderColor) {
+    final bgColor = AppColors.background(isDark);
+    
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.55,
-      backgroundColor: const Color(0xFF243447),
+      backgroundColor: cardColor,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Container(
               padding: EdgeInsets.all(16.w),
               decoration: BoxDecoration(
-                color: kDarkNavy,
+                color: bgColor,
                 border: Border(
-                  bottom: BorderSide(color: Colors.white.withOpacity(0.1)),
+                  bottom: BorderSide(color: borderColor),
                 ),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.people, color: kNeonGreen, size: 22.sp),
+                  Icon(Icons.people, color: accent, size: 22.sp),
                   SizedBox(width: 10.w),
                   Expanded(
                     child: Text(
@@ -716,7 +732,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         fontSize: 18.sp,
                         fontWeight: FontWeight.bold,
                         fontStyle: FontStyle.italic,
-                        color: Colors.white,
+                        color: textPrimary,
                       ),
                     ),
                   ),
@@ -725,14 +741,13 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                     style: GoogleFonts.barlowSemiCondensed(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
-                      color: kNeonGreen,
+                      color: accent,
                     ),
                   ),
                 ],
               ),
             ),
 
-            // Participants List
             Expanded(
               child: gameModel.participants.isEmpty
                   ? Center(
@@ -741,7 +756,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         child: Text(
                           'No players yet',
                           style: GoogleFonts.barlowSemiCondensed(
-                            color: Colors.grey[500],
+                            color: textSecondary,
                             fontSize: 13.sp,
                           ),
                         ),
@@ -763,12 +778,12 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                           ),
                           padding: EdgeInsets.all(10.w),
                           decoration: BoxDecoration(
-                            color: kDarkNavy,
+                            color: bgColor,
                             borderRadius: BorderRadius.circular(8.r),
                             border: Border.all(
                               color: isHostParticipant
-                                  ? kNeonGreen.withOpacity(0.3)
-                                  : Colors.white.withOpacity(0.05),
+                                  ? accent.withOpacity(0.3)
+                                  : borderColor,
                               width: 1,
                             ),
                           ),
@@ -777,14 +792,14 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                               CircleAvatar(
                                 radius: 16.r,
                                 backgroundColor: isHostParticipant
-                                    ? kNeonGreen.withOpacity(0.3)
-                                    : Colors.grey[700],
+                                    ? accent.withOpacity(0.3)
+                                    : AppColors.disabled(isDark),
                                 child: Icon(
                                   Icons.person,
                                   size: 16.sp,
                                   color: isHostParticipant
-                                      ? kNeonGreen
-                                      : Colors.grey[400],
+                                      ? accent
+                                      : textSecondary,
                                 ),
                               ),
                               SizedBox(width: 10.w),
@@ -795,7 +810,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                                     Text(
                                       participantName,
                                       style: GoogleFonts.barlowSemiCondensed(
-                                        color: Colors.white,
+                                        color: textPrimary,
                                         fontSize: 13.sp,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -805,7 +820,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                                       Text(
                                         'HOST',
                                         style: GoogleFonts.barlowSemiCondensed(
-                                          color: kNeonGreen,
+                                          color: accent,
                                           fontSize: 10.sp,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -820,14 +835,13 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                     ),
             ),
 
-            // Waitlist Section (if any)
             if (gameModel.waitlist.isNotEmpty) ...[
               Container(
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: kDarkNavy,
+                  color: bgColor,
                   border: Border(
-                    top: BorderSide(color: Colors.white.withOpacity(0.1)),
+                    top: BorderSide(color: borderColor),
                   ),
                 ),
                 child: Row(
@@ -861,13 +875,11 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     );
   }
 
-  // ——————————————— ADD CONFIRM CANCEL ———————————————
-
-  Future<void> _confirmCancel(String gameId) async {
+  Future<void> _confirmCancel(String gameId, bool isDark) async {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF243447),
+        backgroundColor: AppColors.dialog(isDark),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
         ),
@@ -876,14 +888,14 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           style: GoogleFonts.teko(
             fontSize: 20.sp,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AppColors.textPrimary(isDark),
           ),
         ),
         content: Text(
           'Are you sure you want to cancel this game?\nThis action cannot be undone.',
           style: GoogleFonts.barlowSemiCondensed(
             fontSize: 14.sp,
-            color: Colors.grey[300],
+            color: AppColors.textSecondary(isDark),
           ),
         ),
         actions: [
@@ -891,7 +903,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
             child: Text(
               'No',
               style: GoogleFonts.barlowSemiCondensed(
-                color: Colors.grey[400],
+                color: AppColors.textSecondary(isDark),
                 fontSize: 14.sp,
               ),
             ),
@@ -923,12 +935,10 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     }
   }
 
-  // ————————————————————————————————————————————————
-
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  Widget _buildInfoRow(IconData icon, String label, String value, Color accent, Color textPrimary, Color textSecondary) {
     return Row(
       children: [
-        Icon(icon, size: 18.sp, color: kNeonGreen),
+        Icon(icon, size: 18.sp, color: accent),
         SizedBox(width: 10.w),
         Expanded(
           child: Column(
@@ -938,7 +948,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                 label.toUpperCase(),
                 style: GoogleFonts.barlowSemiCondensed(
                   fontSize: 10.sp,
-                  color: Colors.grey[500],
+                  color: textSecondary,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.5,
                 ),
@@ -949,7 +959,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                 style: GoogleFonts.barlowSemiCondensed(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white,
+                  color: textPrimary,
                 ),
               ),
             ],
@@ -1065,13 +1075,12 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     }
   }
 
-  Future<void> _handleLeave(GameModel game, String userId) async {
-    // Show confirmation dialog
+  Future<void> _handleLeave(GameModel game, String userId, bool isDark) async {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF243447),
+          backgroundColor: AppColors.dialog(isDark),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.r),
           ),
@@ -1080,14 +1089,14 @@ class _GameDetailsViewState extends State<GameDetailsView> {
             style: GoogleFonts.teko(
               fontSize: 20.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: AppColors.textPrimary(isDark),
             ),
           ),
           content: Text(
             'Are you sure you want to leave this game?',
             style: GoogleFonts.barlowSemiCondensed(
               fontSize: 14.sp,
-              color: Colors.grey[300],
+              color: AppColors.textSecondary(isDark),
             ),
           ),
           actions: [
@@ -1096,7 +1105,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
               child: Text(
                 'Cancel',
                 style: GoogleFonts.barlowSemiCondensed(
-                  color: Colors.grey[400],
+                  color: AppColors.textSecondary(isDark),
                   fontSize: 14.sp,
                 ),
               ),
@@ -1254,4 +1263,3 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
   String _two(int n) => n.toString().padLeft(2, '0');
 }
-

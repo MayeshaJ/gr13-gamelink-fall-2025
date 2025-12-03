@@ -5,11 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../models/game.dart';
 import '../../controllers/game_controller.dart';
+import '../../controllers/theme_controller.dart';
+import '../../theme/app_theme.dart';
 import 'edit_game_view.dart';
-
-// Color Palette
-const kDarkNavy = Color(0xFF1A2332);
-const kNeonGreen = Color(0xFF39FF14);
 
 /// A tile widget for displaying a game in the Host Games page.
 /// Shows Edit and Delete buttons. Matches the game_tile.dart style.
@@ -35,6 +33,12 @@ class _GameLogTileState extends State<GameLogTile> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ThemeController.instance.isDarkMode;
+    final accent = AppColors.accent(isDark);
+    final cardColor = AppColors.card(isDark);
+    final textPrimary = AppColors.textPrimary(isDark);
+    final textSecondary = AppColors.textSecondary(isDark);
+
     final DateTime dt = widget.game.date.toLocal();
     final String dateText =
         '${dt.year}-${_two(dt.month)}-${_two(dt.day)} ${_two(dt.hour)}:${_two(dt.minute)}';
@@ -49,13 +53,13 @@ class _GameLogTileState extends State<GameLogTile> {
     return Container(
       decoration: BoxDecoration(
         color: isCancelled 
-            ? const Color(0xFF243447).withOpacity(0.5) 
-            : const Color(0xFF243447),
+            ? cardColor.withOpacity(0.5) 
+            : cardColor,
         borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isCancelled 
               ? Colors.red.withOpacity(0.5) 
-              : kNeonGreen,
+              : accent,
           width: 1.5,
         ),
       ),
@@ -82,7 +86,7 @@ class _GameLogTileState extends State<GameLogTile> {
                           fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
                           fontStyle: FontStyle.italic,
-                          color: isCancelled ? Colors.grey[400] : Colors.white,
+                          color: isCancelled ? textSecondary : textPrimary,
                           height: 1,
                           decoration: isCancelled ? TextDecoration.lineThrough : null,
                         ),
@@ -113,13 +117,13 @@ class _GameLogTileState extends State<GameLogTile> {
                 // Location
                 Row(
                   children: [
-                    Icon(Icons.location_on_outlined, size: 14.sp, color: Colors.grey[400]),
+                    Icon(Icons.location_on_outlined, size: 14.sp, color: textSecondary),
                     SizedBox(width: 4.w),
                     Expanded(
                       child: Text(
                         widget.game.location,
                         style: GoogleFonts.barlowSemiCondensed(
-                          color: isCancelled ? Colors.grey[500] : Colors.grey[300], 
+                          color: isCancelled ? textSecondary : textSecondary, 
                           fontSize: 12.sp,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -133,12 +137,12 @@ class _GameLogTileState extends State<GameLogTile> {
                 // Date
                 Row(
                   children: [
-                    Icon(Icons.calendar_today_outlined, size: 14.sp, color: Colors.grey[400]),
+                    Icon(Icons.calendar_today_outlined, size: 14.sp, color: textSecondary),
                     SizedBox(width: 4.w),
                     Text(
                       dateText,
                       style: GoogleFonts.barlowSemiCondensed(
-                        color: isCancelled ? Colors.grey[500] : Colors.grey[300], 
+                        color: isCancelled ? textSecondary : textSecondary, 
                         fontSize: 12.sp,
                       ),
                     ),
@@ -150,12 +154,12 @@ class _GameLogTileState extends State<GameLogTile> {
                 // Capacity Info
                 Row(
                   children: [
-                    Icon(Icons.people_outline, size: 16.sp, color: isCancelled ? Colors.grey[500] : kNeonGreen),
+                    Icon(Icons.people_outline, size: 16.sp, color: isCancelled ? textSecondary : accent),
                     SizedBox(width: 4.w),
                     Text(
                       '$joined/$capacity',
                       style: GoogleFonts.barlowSemiCondensed(
-                        color: isCancelled ? Colors.grey[500] : Colors.white,
+                        color: isCancelled ? textSecondary : textPrimary,
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
                       ),
@@ -165,7 +169,7 @@ class _GameLogTileState extends State<GameLogTile> {
                       Text(
                         '• $waitlistCount waitlist',
                         style: GoogleFonts.barlowSemiCondensed(
-                          color: Colors.grey[400],
+                          color: textSecondary,
                           fontSize: 11.sp,
                           fontStyle: FontStyle.italic,
                         ),
@@ -194,9 +198,9 @@ class _GameLogTileState extends State<GameLogTile> {
                           ),
                         ),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: isCancelled ? Colors.grey[600] : kNeonGreen,
+                          foregroundColor: isCancelled ? textSecondary : accent,
                           side: BorderSide(
-                            color: isCancelled ? Colors.grey[600]! : kNeonGreen,
+                            color: isCancelled ? textSecondary : accent,
                             width: 1.5,
                           ),
                           shape: RoundedRectangleBorder(
@@ -212,7 +216,7 @@ class _GameLogTileState extends State<GameLogTile> {
                     SizedBox(
                       height: 32.h,
                       child: ElevatedButton.icon(
-                        onPressed: _isDeleting ? null : () => _confirmDelete(context),
+                        onPressed: _isDeleting ? null : () => _confirmDelete(context, isDark, accent),
                         icon: _isDeleting
                             ? SizedBox(
                                 width: 12.w,
@@ -266,12 +270,12 @@ class _GameLogTileState extends State<GameLogTile> {
     }
   }
 
-  Future<void> _confirmDelete(BuildContext context) async {
+  Future<void> _confirmDelete(BuildContext context, bool isDark, Color accent) async {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF243447),
+          backgroundColor: AppColors.dialog(isDark),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.r),
           ),
@@ -280,7 +284,7 @@ class _GameLogTileState extends State<GameLogTile> {
             style: GoogleFonts.teko(
               fontSize: 20.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: AppColors.textPrimary(isDark),
             ),
           ),
           content: Text(
@@ -289,7 +293,7 @@ class _GameLogTileState extends State<GameLogTile> {
                 : 'Are you sure you want to delete "${widget.game.title}"?\n\nAll participants will be notified.',
             style: GoogleFonts.barlowSemiCondensed(
               fontSize: 14.sp,
-              color: Colors.grey[300],
+              color: AppColors.textSecondary(isDark),
             ),
           ),
           actions: [
@@ -299,7 +303,7 @@ class _GameLogTileState extends State<GameLogTile> {
                 'Cancel',
                 style: GoogleFonts.barlowSemiCondensed(
                   fontSize: 14.sp,
-                  color: Colors.grey[400],
+                  color: AppColors.textSecondary(isDark),
                 ),
               ),
             ),
@@ -326,11 +330,11 @@ class _GameLogTileState extends State<GameLogTile> {
     );
 
     if (confirmed == true) {
-      await _deleteGame();
+      await _deleteGame(accent);
     }
   }
 
-  Future<void> _deleteGame() async {
+  Future<void> _deleteGame(Color accent) async {
     setState(() {
       _isDeleting = true;
     });
@@ -346,7 +350,7 @@ class _GameLogTileState extends State<GameLogTile> {
             'Game deleted successfully',
             style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp),
           ),
-          backgroundColor: kNeonGreen,
+          backgroundColor: accent,
         ),
       );
 

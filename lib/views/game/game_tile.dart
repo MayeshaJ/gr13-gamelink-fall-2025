@@ -6,10 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../models/game.dart';
 import '../../controllers/game_controller.dart';
 import '../../controllers/auth_controller.dart';
-
-// Color Palette
-const kDarkNavy = Color(0xFF1A2332);
-const kNeonGreen = Color(0xFF39FF14);
+import '../../controllers/theme_controller.dart';
+import '../../theme/app_theme.dart';
 
 class GameTile extends StatefulWidget {
   final Game game;
@@ -29,6 +27,12 @@ class _GameTileState extends State<GameTile> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ThemeController.instance.isDarkMode;
+    final accent = AppColors.accent(isDark);
+    final cardColor = AppColors.card(isDark);
+    final textPrimary = AppColors.textPrimary(isDark);
+    final textSecondary = AppColors.textSecondary(isDark);
+
     final DateTime dt = widget.game.dateTime.toLocal();
     final String dateText =
         '${dt.year}-${_two(dt.month)}-${_two(dt.day)} ${_two(dt.hour)}:${_two(dt.minute)}';
@@ -49,10 +53,10 @@ class _GameTileState extends State<GameTile> {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF243447),
+        color: cardColor,
         borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: kNeonGreen,
+          color: accent,
           width: 1.5,
         ),
       ),
@@ -78,7 +82,7 @@ class _GameTileState extends State<GameTile> {
                           fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
                           fontStyle: FontStyle.italic,
-                          color: Colors.white,
+                          color: textPrimary,
                           height: 1,
                         ),
                       ),
@@ -86,14 +90,14 @@ class _GameTileState extends State<GameTile> {
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                       decoration: BoxDecoration(
-                        color: kNeonGreen.withOpacity(0.2),
+                        color: accent.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(4.r),
-                        border: Border.all(color: kNeonGreen, width: 1),
+                        border: Border.all(color: accent, width: 1),
                       ),
                       child: Text(
                         _capitalize(widget.game.sport),
                         style: GoogleFonts.barlowSemiCondensed(
-                          color: kNeonGreen,
+                          color: accent,
                           fontSize: 10.sp,
                           fontWeight: FontWeight.w600,
                         ),
@@ -107,19 +111,19 @@ class _GameTileState extends State<GameTile> {
                 // Host and Location
                 Row(
                   children: [
-                    Icon(Icons.person_outline, size: 14.sp, color: Colors.grey[400]),
+                    Icon(Icons.person_outline, size: 14.sp, color: textSecondary),
                     SizedBox(width: 4.w),
                     Text(
                       widget.game.hostName,
-                      style: GoogleFonts.barlowSemiCondensed(color: Colors.grey[300], fontSize: 12.sp),
+                      style: GoogleFonts.barlowSemiCondensed(color: textSecondary, fontSize: 12.sp),
                     ),
                     SizedBox(width: 10.w),
-                    Icon(Icons.location_on_outlined, size: 14.sp, color: Colors.grey[400]),
+                    Icon(Icons.location_on_outlined, size: 14.sp, color: textSecondary),
                     SizedBox(width: 4.w),
                     Expanded(
                       child: Text(
                         widget.game.location,
-                        style: GoogleFonts.barlowSemiCondensed(color: Colors.grey[300], fontSize: 12.sp),
+                        style: GoogleFonts.barlowSemiCondensed(color: textSecondary, fontSize: 12.sp),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -131,11 +135,11 @@ class _GameTileState extends State<GameTile> {
                 // Date
                 Row(
                   children: [
-                    Icon(Icons.calendar_today_outlined, size: 14.sp, color: Colors.grey[400]),
+                    Icon(Icons.calendar_today_outlined, size: 14.sp, color: textSecondary),
                     SizedBox(width: 4.w),
                     Text(
                       dateText,
-                      style: GoogleFonts.barlowSemiCondensed(color: Colors.grey[300], fontSize: 12.sp),
+                      style: GoogleFonts.barlowSemiCondensed(color: textSecondary, fontSize: 12.sp),
                     ),
                   ],
                 ),
@@ -149,12 +153,12 @@ class _GameTileState extends State<GameTile> {
                     Expanded(
                       child: Row(
                         children: [
-                          Icon(Icons.people_outline, size: 16.sp, color: kNeonGreen),
+                          Icon(Icons.people_outline, size: 16.sp, color: accent),
                           SizedBox(width: 4.w),
                           Text(
                             '$joined/$capacity',
                             style: GoogleFonts.barlowSemiCondensed(
-                              color: Colors.white,
+                              color: textPrimary,
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w600,
                             ),
@@ -164,7 +168,7 @@ class _GameTileState extends State<GameTile> {
                             Text(
                               '• $waitlistCount waitlist',
                               style: GoogleFonts.barlowSemiCondensed(
-                                color: Colors.grey[400],
+                                color: textSecondary,
                                 fontSize: 11.sp,
                                 fontStyle: FontStyle.italic,
                               ),
@@ -181,7 +185,7 @@ class _GameTileState extends State<GameTile> {
                         onPressed: _isProcessing
                             ? null
                             : canLeave
-                                ? () => _handleLeave(widget.game.id, currentUserId)
+                                ? () => _handleLeave(widget.game.id, currentUserId, isDark, accent)
                                 : canJoin
                                     ? () => _handleJoin(widget.game.id, currentUserId)
                                     : null,
@@ -189,11 +193,11 @@ class _GameTileState extends State<GameTile> {
                           backgroundColor: canLeave
                               ? Colors.orange
                               : canJoin
-                                  ? kNeonGreen
-                                  : Colors.grey[700],
+                                  ? accent
+                                  : AppColors.disabled(isDark),
                           foregroundColor: canLeave || !canJoin ? Colors.white : Colors.black,
-                          disabledBackgroundColor: Colors.grey[800],
-                          disabledForegroundColor: Colors.grey[600],
+                          disabledBackgroundColor: AppColors.disabled(isDark),
+                          disabledForegroundColor: textSecondary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6.r),
                           ),
@@ -263,26 +267,47 @@ class _GameTileState extends State<GameTile> {
     }
   }
 
-  Future<void> _handleLeave(String gameId, String userId) async {
-    // Show confirmation dialog
+  Future<void> _handleLeave(String gameId, String userId, bool isDark, Color accent) async {
     final bool? confirmed = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Leave Game'),
-          content: const Text('Are you sure you want to leave this game?'),
+          backgroundColor: AppColors.dialog(isDark),
+          title: Text(
+            'Leave Game',
+            style: GoogleFonts.teko(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary(isDark),
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to leave this game?',
+            style: GoogleFonts.barlowSemiCondensed(
+              fontSize: 14.sp,
+              color: AppColors.textSecondary(isDark),
+            ),
+          ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.barlowSemiCondensed(
+                  color: AppColors.textSecondary(isDark),
+                ),
+              ),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Leave'),
+              child: Text(
+                'Leave',
+                style: GoogleFonts.barlowSemiCondensed(fontWeight: FontWeight.w600),
+              ),
             ),
           ],
         );

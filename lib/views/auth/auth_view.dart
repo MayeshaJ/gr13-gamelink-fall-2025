@@ -6,10 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
-
-// Color Palette
-const kDarkNavy = Color(0xFF1A2332);
-const kNeonGreen = Color(0xFF39FF14);
+import '../../controllers/theme_controller.dart';
+import '../../theme/app_theme.dart';
 
 class AuthView extends StatefulWidget {
   const AuthView({super.key});
@@ -197,55 +195,66 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kDarkNavy,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // GAMELINK Logo
-                Row(
+    return ListenableBuilder(
+      listenable: ThemeController.instance,
+      builder: (context, child) {
+        final isDark = ThemeController.instance.isDarkMode;
+        final accent = AppColors.accent(isDark);
+        final bgColor = AppColors.background(isDark);
+        final cardColor = AppColors.card(isDark);
+        final textPrimary = AppColors.textPrimary(isDark);
+        final textSecondary = AppColors.textSecondary(isDark);
+        final borderColor = AppColors.border(isDark);
+
+        return Scaffold(
+          backgroundColor: bgColor,
+          body: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'GAME',
-                      style: GoogleFonts.teko(
-                        fontSize: 40.sp,
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic,
-                        color: Colors.white,
-                        height: 1,
-                      ),
+                    // GAMELINK Logo
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'GAME',
+                          style: GoogleFonts.teko(
+                            fontSize: 40.sp,
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic,
+                            color: textPrimary,
+                            height: 1,
+                          ),
+                        ),
+                        Text(
+                          'LINK',
+                          style: GoogleFonts.teko(
+                            fontSize: 40.sp,
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic,
+                            color: accent,
+                            height: 1,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'LINK',
-                      style: GoogleFonts.teko(
-                        fontSize: 40.sp,
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic,
-                        color: kNeonGreen,
-                        height: 1,
-                      ),
-                    ),
-                  ],
-                ),
 
-                SizedBox(height: 28.h),
+                    SizedBox(height: 28.h),
 
-                // Auth Card
-                Container(
-                  padding: EdgeInsets.all(20.w),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF243447),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.1),
-                      width: 1,
-                    ),
-                  ),
+                    // Auth Card
+                    Container(
+                      padding: EdgeInsets.all(20.w),
+                      decoration: BoxDecoration(
+                        color: cardColor,
+                        borderRadius: BorderRadius.circular(12.r),
+                        border: Border.all(
+                          color: borderColor,
+                          width: 1,
+                        ),
+                      ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -268,14 +277,14 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                           fontSize: 20.sp,
                                           fontWeight: FontWeight.bold,
                                           fontStyle: FontStyle.italic,
-                                          color: isActive ? Colors.white : Colors.grey,
+                                          color: isActive ? textPrimary : textSecondary,
                                         ),
                                       ),
                                       SizedBox(height: 6.h),
                                       Container(
                                         height: 2.h,
                                         decoration: BoxDecoration(
-                                          color: isActive ? kNeonGreen : Colors.transparent,
+                                          color: isActive ? accent : Colors.transparent,
                                           borderRadius: BorderRadius.circular(1.r),
                                         ),
                                       ),
@@ -304,14 +313,14 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                           fontSize: 20.sp,
                                           fontWeight: FontWeight.bold,
                                           fontStyle: FontStyle.italic,
-                                          color: isActive ? Colors.white : Colors.grey,
+                                          color: isActive ? textPrimary : textSecondary,
                                         ),
                                       ),
                                       SizedBox(height: 6.h),
                                       Container(
                                         height: 2.h,
                                         decoration: BoxDecoration(
-                                          color: isActive ? kNeonGreen : Colors.transparent,
+                                          color: isActive ? accent : Colors.transparent,
                                           borderRadius: BorderRadius.circular(1.r),
                                         ),
                                       ),
@@ -340,6 +349,10 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                         controller: _firstNameController,
                                         hintText: 'First Name',
                                         icon: Icons.person_outline,
+                                        isDark: isDark,
+                                        accent: accent,
+                                        textPrimary: textPrimary,
+                                        textSecondary: textSecondary,
                                       ),
                                     ),
                                     SizedBox(width: 10.w),
@@ -348,6 +361,10 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                         controller: _lastNameController,
                                         hintText: 'Last Name',
                                         icon: Icons.person_outline,
+                                        isDark: isDark,
+                                        accent: accent,
+                                        textPrimary: textPrimary,
+                                        textSecondary: textSecondary,
                                       ),
                                     ),
                                   ],
@@ -366,6 +383,10 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         hintText: 'Email Address',
                         icon: Icons.email_outlined,
                         keyboardType: TextInputType.emailAddress,
+                        isDark: isDark,
+                        accent: accent,
+                        textPrimary: textPrimary,
+                        textSecondary: textSecondary,
                       ),
 
                       SizedBox(height: 12.h),
@@ -376,6 +397,10 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         hintText: 'Password',
                         icon: Icons.lock_outline,
                         obscureText: true,
+                        isDark: isDark,
+                        accent: accent,
+                        textPrimary: textPrimary,
+                        textSecondary: textSecondary,
                       ),
 
                       SizedBox(height: 12.h),
@@ -392,6 +417,10 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                   hintText: 'Confirm Password',
                                   icon: Icons.lock_outline,
                                   obscureText: true,
+                                  isDark: isDark,
+                                  accent: accent,
+                                  textPrimary: textPrimary,
+                                  textSecondary: textSecondary,
                                 ),
                                 SizedBox(height: 12.h),
                               ],
@@ -418,7 +447,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                 child: Text(
                                   'Forgot Password?',
                                   style: GoogleFonts.barlowSemiCondensed(
-                                    color: kNeonGreen,
+                                    color: accent,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13.sp,
                                   ),
@@ -447,9 +476,9 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                   }
                                 },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: kNeonGreen,
+                            backgroundColor: accent,
                             foregroundColor: Colors.black,
-                            disabledBackgroundColor: kNeonGreen.withOpacity(0.5),
+                            disabledBackgroundColor: accent.withOpacity(0.5),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.r),
                             ),
@@ -492,7 +521,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         children: [
                           Expanded(
                             child: Divider(
-                              color: Colors.white.withOpacity(0.2),
+                              color: borderColor,
                               thickness: 1,
                             ),
                           ),
@@ -502,14 +531,14 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                               'OR',
                               style: GoogleFonts.barlowSemiCondensed(
                                 fontSize: 13.sp,
-                                color: Colors.grey[500],
+                                color: textSecondary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
                           Expanded(
                             child: Divider(
-                              color: Colors.white.withOpacity(0.2),
+                              color: borderColor,
                               thickness: 1,
                             ),
                           ),
@@ -525,9 +554,9 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         child: OutlinedButton(
                           onPressed: _isLoading || _isGoogleLoading ? null : _handleGoogleSignIn,
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
+                            foregroundColor: textPrimary,
                             side: BorderSide(
-                              color: Colors.white.withOpacity(0.3),
+                              color: borderColor,
                               width: 1,
                             ),
                             shape: RoundedRectangleBorder(
@@ -538,9 +567,9 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                               ? SizedBox(
                                   height: 20.h,
                                   width: 20.w,
-                                  child: const CircularProgressIndicator(
+                                  child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(textPrimary),
                                   ),
                                 )
                               : Row(
@@ -553,7 +582,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                         return Icon(
                                           Icons.g_mobiledata,
                                           size: 22.sp,
-                                          color: Colors.white,
+                                          color: textPrimary,
                                         );
                                       },
                                     ),
@@ -582,12 +611,18 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
         ),
       ),
     );
+      },
+    );
   }
 
   Widget _buildInputField({
     required TextEditingController controller,
     required String hintText,
     required IconData icon,
+    required bool isDark,
+    required Color accent,
+    required Color textPrimary,
+    required Color textSecondary,
     bool obscureText = false,
     TextInputType? keyboardType,
   }) {
@@ -595,16 +630,16 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 15.sp),
+      style: GoogleFonts.barlowSemiCondensed(color: textPrimary, fontSize: 15.sp),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: GoogleFonts.barlowSemiCondensed(
-          color: Colors.grey[500],
+          color: textSecondary,
           fontSize: 14.sp,
         ),
         prefixIcon: Icon(
           icon,
-          color: Colors.grey[600],
+          color: textSecondary,
           size: 20.sp,
         ),
         contentPadding: EdgeInsets.symmetric(
@@ -612,10 +647,10 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
           vertical: 14.h,
         ),
         enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
+          borderSide: BorderSide(color: AppColors.border(isDark), width: 1),
         ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: kNeonGreen, width: 2),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: accent, width: 2),
         ),
       ),
     );
