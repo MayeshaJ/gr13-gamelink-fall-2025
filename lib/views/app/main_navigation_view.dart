@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../game/game_list_view.dart';
 import '../game/host_games_view.dart';
@@ -60,7 +61,7 @@ class _MainNavigationViewState extends State<MainNavigationView> with WidgetsBin
         final messenger = ScaffoldMessenger.of(context);
         messenger.showSnackBar(
           SnackBar(
-            content: Text(message),
+            content: Text(message, style: TextStyle(fontSize: 14.sp)),
             duration: const Duration(seconds: 4),
             backgroundColor: kNeonGreen,
           ),
@@ -94,15 +95,16 @@ class _MainNavigationViewState extends State<MainNavigationView> with WidgetsBin
           backgroundColor: kDarkNavy,
           selectedItemColor: kNeonGreen,
           unselectedItemColor: Colors.grey[400],
-          selectedLabelStyle: GoogleFonts.teko(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
+          selectedLabelStyle: GoogleFonts.barlowSemiCondensed(
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
           ),
-          unselectedLabelStyle: GoogleFonts.teko(
-            fontSize: 13,
+          unselectedLabelStyle: GoogleFonts.barlowSemiCondensed(
+            fontSize: 10.sp,
             fontWeight: FontWeight.w500,
           ),
+          iconSize: 22.sp,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.explore),

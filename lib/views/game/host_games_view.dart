@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../controllers/game_controller.dart';
 import '../../models/game.dart';
@@ -66,7 +67,7 @@ class _HostGamesViewState extends State<HostGamesView> {
           title: Text(
             'HOST GAMES',
             style: GoogleFonts.teko(
-              fontSize: 28,
+              fontSize: 22.sp,
               fontWeight: FontWeight.bold,
               fontStyle: FontStyle.italic,
               color: Colors.white,
@@ -75,9 +76,10 @@ class _HostGamesViewState extends State<HostGamesView> {
           actions: [
             IconButton(
               onPressed: () => context.pushNamed('notifications'),
-              icon: const Icon(
+              icon: Icon(
                 Icons.notifications_outlined,
                 color: kNeonGreen,
+                size: 22.sp,
               ),
             ),
           ],
@@ -85,7 +87,7 @@ class _HostGamesViewState extends State<HostGamesView> {
         body: Center(
           child: Text(
             'Please log in to host games.',
-            style: TextStyle(color: Colors.grey[400]),
+            style: GoogleFonts.barlowSemiCondensed(color: Colors.grey[400], fontSize: 14.sp),
           ),
         ),
       );
@@ -100,7 +102,7 @@ class _HostGamesViewState extends State<HostGamesView> {
         title: Text(
           'HOST GAMES',
           style: GoogleFonts.teko(
-            fontSize: 28,
+            fontSize: 22.sp,
             fontWeight: FontWeight.bold,
             fontStyle: FontStyle.italic,
             color: Colors.white,
@@ -109,9 +111,10 @@ class _HostGamesViewState extends State<HostGamesView> {
         actions: [
           IconButton(
             onPressed: () => context.pushNamed('notifications'),
-            icon: const Icon(
+            icon: Icon(
               Icons.notifications_outlined,
               color: kNeonGreen,
+              size: 22.sp,
             ),
           ),
         ],
@@ -120,31 +123,31 @@ class _HostGamesViewState extends State<HostGamesView> {
         children: [
           // Create Game Button at the top
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(12.w),
             child: SizedBox(
               width: double.infinity,
-              height: 54,
+              height: 46.h,
               child: ElevatedButton(
                 onPressed: () => context.pushNamed('create-game'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kNeonGreen,
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                   elevation: 0,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.add_circle_outline, size: 22),
-                    const SizedBox(width: 10),
+                    Icon(Icons.add_circle_outline, size: 18.sp),
+                    SizedBox(width: 8.w),
                     Text(
                       'CREATE A GAME',
-                      style: GoogleFonts.teko(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
+                      style: GoogleFonts.barlowSemiCondensed(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ],
@@ -169,30 +172,38 @@ class _HostGamesViewState extends State<HostGamesView> {
                 if (snapshot.hasError) {
                   return Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(24),
+                      padding: EdgeInsets.all(20.w),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          const Icon(
+                          Icon(
                             Icons.error_outline,
-                            size: 48,
+                            size: 40.sp,
                             color: Colors.red,
                           ),
-                          const SizedBox(height: 16),
-                          const Text(
+                          SizedBox(height: 12.h),
+                          Text(
                             'Failed to load your games',
-                            style: TextStyle(fontSize: 16),
+                            style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, color: Colors.white),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 6.h),
                           Text(
                             '${snapshot.error}',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.grey),
+                            style: GoogleFonts.barlowSemiCondensed(color: Colors.grey, fontSize: 12.sp),
                           ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _refreshStream,
-                            child: const Text('Retry'),
+                          SizedBox(height: 12.h),
+                          SizedBox(
+                            height: 40.h,
+                            child: ElevatedButton(
+                              onPressed: _refreshStream,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: kNeonGreen,
+                                foregroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                              ),
+                              child: Text('Retry', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, fontWeight: FontWeight.w600)),
+                            ),
                           ),
                         ],
                       ),
@@ -205,31 +216,31 @@ class _HostGamesViewState extends State<HostGamesView> {
                 if (games.isEmpty) {
                   return Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(24),
+                      padding: EdgeInsets.all(20.w),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           Icon(
                             Icons.sports_esports_outlined,
-                            size: 64,
+                            size: 48.sp,
                             color: Colors.grey[600],
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 12.h),
                           Text(
                             'NO HOSTED GAMES YET',
                             style: GoogleFonts.teko(
-                              fontSize: 24,
+                              fontSize: 20.sp,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               color: Colors.grey[400],
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 6.h),
                           Text(
                             'Tap "Create a Game" to get started!',
-                            style: TextStyle(
+                            style: GoogleFonts.barlowSemiCondensed(
                               color: Colors.grey[500],
-                              fontSize: 14,
+                              fontSize: 13.sp,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -249,23 +260,23 @@ class _HostGamesViewState extends State<HostGamesView> {
                   },
                   child: ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(12.w),
                     children: [
                       // Active games section
                       if (activeGames.isNotEmpty) ...[
                         Text(
                           'ACTIVE GAMES (${activeGames.length})',
                           style: GoogleFonts.teko(
-                            fontSize: 22,
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.bold,
                             fontStyle: FontStyle.italic,
                             color: kNeonGreen,
                             letterSpacing: 1,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 10.h),
                         ...activeGames.map((game) => Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
+                              padding: EdgeInsets.only(bottom: 10.h),
                               child: GameLogTile(
                                 game: game,
                                 onGameUpdated: _refreshStream,
@@ -276,20 +287,20 @@ class _HostGamesViewState extends State<HostGamesView> {
 
                       // Cancelled games section
                       if (cancelledGames.isNotEmpty) ...[
-                        if (activeGames.isNotEmpty) const SizedBox(height: 24),
+                        if (activeGames.isNotEmpty) SizedBox(height: 16.h),
                         Text(
                           'CANCELLED GAMES (${cancelledGames.length})',
                           style: GoogleFonts.teko(
-                            fontSize: 22,
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.bold,
                             fontStyle: FontStyle.italic,
                             color: Colors.grey[600],
                             letterSpacing: 1,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 10.h),
                         ...cancelledGames.map((game) => Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
+                              padding: EdgeInsets.only(bottom: 10.h),
                               child: GameLogTile(
                                 game: game,
                                 onGameUpdated: _refreshStream,

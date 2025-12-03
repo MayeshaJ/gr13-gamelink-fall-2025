@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
@@ -20,6 +21,11 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView> {
   AppUser? _userData;
   bool _loading = true;
+  
+  // Notification settings state
+  bool _notifyGameUpdates = true;
+  bool _notifyChatMessages = true;
+  bool _notifyReminders = true;
 
   @override
   void initState() {
@@ -40,14 +46,38 @@ class _ProfileViewState extends State<ProfileView> {
     final data = await UserController.instance.getUserDocument(uid: user.uid);
 
     if (data != null) {
+      final user = AppUser.fromMap(data);
       setState(() {
-        _userData = AppUser.fromMap(data);
+        _userData = user;
+        _notifyGameUpdates = user.notifyGameUpdates;
+        _notifyChatMessages = user.notifyChatMessages;
+        _notifyReminders = user.notifyReminders;
         _loading = false;
       });
     } else {
       setState(() {
         _loading = false;
       });
+    }
+  }
+
+  Future<void> _updateNotificationSetting(String key, bool value) async {
+    final authUser = AuthController.instance.currentUser;
+    if (authUser == null) return;
+
+    try {
+      await UserController.instance.updateUserDocument(
+        uid: authUser.uid,
+        data: {key: value},
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update setting'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -119,23 +149,23 @@ class _ProfileViewState extends State<ProfileView> {
         automaticallyImplyLeading: false,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(12.w),
         child: SingleChildScrollView(
           child: Column(
             children: [
               // FIFA-Style Player Card
               Container(
                 width: double.infinity,
-                constraints: const BoxConstraints(maxWidth: 400),
+                constraints: BoxConstraints(maxWidth: 400.w),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
+                  borderRadius: BorderRadius.circular(16.r),
+                  gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      const Color(0xFF243447),
+                      Color(0xFF243447),
                       kDarkNavy,
-                      const Color(0xFF1a2a3a),
+                      Color(0xFF1a2a3a),
                     ],
                   ),
                   border: Border.all(
@@ -145,8 +175,8 @@ class _ProfileViewState extends State<ProfileView> {
                   boxShadow: [
                     BoxShadow(
                       color: kNeonGreen.withOpacity(0.3),
-                      blurRadius: 20,
-                      spreadRadius: 2,
+                      blurRadius: 15,
+                      spreadRadius: 1,
                     ),
                   ],
                 ),
@@ -155,7 +185,7 @@ class _ProfileViewState extends State<ProfileView> {
                     // Diagonal stripe pattern (FIFA-style)
                     Positioned.fill(
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(14.r),
                         child: CustomPaint(
                           painter: DiagonalStripesPainter(),
                         ),
@@ -163,44 +193,44 @@ class _ProfileViewState extends State<ProfileView> {
                     ),
                     // Edit Button on top right corner
                     Positioned(
-                      top: 12,
-                      right: 12,
+                      top: 10.h,
+                      right: 10.w,
                       child: InkWell(
                         onTap: () async {
-              final result = await context.pushNamed(
-                'edit-profile',
-                extra: user,
-              );
-              if (result == true || context.mounted) {
-                _loadUserData();
-              }
-            },
+                          final result = await context.pushNamed(
+                            'edit-profile',
+                            extra: user,
+                          );
+                          if (result == true || context.mounted) {
+                            _loadUserData();
+                          }
+                        },
                         child: Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: EdgeInsets.all(6.w),
                           decoration: BoxDecoration(
                             color: kNeonGreen,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
                                 color: kNeonGreen.withOpacity(0.5),
-                                blurRadius: 8,
+                                blurRadius: 6,
                                 spreadRadius: 1,
-          ),
-        ],
-      ),
-                          child: const Icon(
+                              ),
+                            ],
+                          ),
+                          child: Icon(
                             Icons.edit,
                             color: Colors.black,
-                            size: 20,
+                            size: 16.sp,
                           ),
                         ),
                       ),
                     ),
                     // Card Content
                     Padding(
-        padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
+                      padding: EdgeInsets.all(16.w),
+                      child: Column(
+                        children: [
                           // Top Section: Rating and Position
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,65 +240,65 @@ class _ProfileViewState extends State<ProfileView> {
                                 children: [
                                   // Overall Rating
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                ),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10.w,
+                                      vertical: 4.h,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: kNeonGreen,
-                                      borderRadius: BorderRadius.circular(8),
+                                      borderRadius: BorderRadius.circular(6.r),
                                     ),
                                     child: Text(
                                       '$overallRating',
                                       style: GoogleFonts.teko(
-                                        fontSize: 36,
+                                        fontSize: 28.sp,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black,
                                         height: 1,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 6),
+                                  SizedBox(height: 4.h),
                                   // Position (Sport)
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                    ),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8.w,
+                                      vertical: 3.h,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(6),
-                    ),
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
                                     child: Icon(
                                       _getSportIcon(user.primarySport),
                                       color: kNeonGreen,
-                                      size: 24,
+                                      size: 20.sp,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(width: 16),
+                              SizedBox(width: 12.w),
                               // Player Photo
                               Expanded(
                                 child: Column(
-                      children: [
+                                  children: [
                                     Container(
-                                      width: 120,
-                                      height: 120,
+                                      width: 90.w,
+                                      height: 90.h,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         border: Border.all(
                                           color: kNeonGreen,
-                                          width: 3,
+                                          width: 2,
                                         ),
                                         boxShadow: [
                                           BoxShadow(
                                             color: kNeonGreen.withOpacity(0.5),
-                                            blurRadius: 15,
-                                            spreadRadius: 2,
-                        ),
-                      ],
-                    ),
+                                            blurRadius: 10,
+                                            spreadRadius: 1,
+                                          ),
+                                        ],
+                                      ),
                                       child: ClipOval(
                                         child: user.photoUrl.isNotEmpty
                                             ? Image.network(
@@ -277,9 +307,9 @@ class _ProfileViewState extends State<ProfileView> {
                                                 errorBuilder: (context, error, stackTrace) {
                                                   return Container(
                                                     color: const Color(0xFF243447),
-                                                    child: const Icon(
+                                                    child: Icon(
                                                       Icons.person,
-                                                      size: 60,
+                                                      size: 40.sp,
                                                       color: kNeonGreen,
                                                     ),
                                                   );
@@ -287,9 +317,9 @@ class _ProfileViewState extends State<ProfileView> {
                                               )
                                             : Container(
                                                 color: const Color(0xFF243447),
-                                                child: const Icon(
+                                                child: Icon(
                                                   Icons.person,
-                                                  size: 60,
+                                                  size: 40.sp,
                                                   color: kNeonGreen,
                                                 ),
                                               ),
@@ -297,34 +327,34 @@ class _ProfileViewState extends State<ProfileView> {
                                     ),
                                   ],
                                 ),
-                        ),
-                      ],
-                    ),
-                          const SizedBox(height: 12),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10.h),
                           // Player Name
                           Text(
                             user.fullName.trim().isNotEmpty
                                 ? user.fullName.toUpperCase()
                                 : 'PLAYER',
                             style: GoogleFonts.teko(
-                              fontSize: 24,
+                              fontSize: 20.sp,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               color: Colors.white,
-                              letterSpacing: 2,
+                              letterSpacing: 1.5,
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 6),
+                          SizedBox(height: 4.h),
                           // Sport Name
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10.w,
+                              vertical: 3.h,
                             ),
                             decoration: BoxDecoration(
                               color: kNeonGreen.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(16.r),
                               border: Border.all(
                                 color: kNeonGreen,
                                 width: 1,
@@ -332,41 +362,41 @@ class _ProfileViewState extends State<ProfileView> {
                             ),
                             child: Text(
                               user.primarySport.toUpperCase(),
-                              style: GoogleFonts.teko(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                              style: GoogleFonts.barlowSemiCondensed(
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600,
                                 color: kNeonGreen,
-                                letterSpacing: 1,
+                                letterSpacing: 0.5,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 10.h),
                           // Stats Section (FIFA-style)
                           Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: EdgeInsets.all(10.w),
                             decoration: BoxDecoration(
                               color: Colors.black.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10.r),
                               border: Border.all(
                                 color: Colors.white.withOpacity(0.1),
                                 width: 1,
                               ),
                             ),
                             child: Column(
-                      children: [
-                        Text(
+                              children: [
+                                Text(
                                   'PLAYER STATS',
                                   style: GoogleFonts.teko(
-                                    fontSize: 14,
+                                    fontSize: 12.sp,
                                     fontWeight: FontWeight.bold,
                                     color: kNeonGreen,
-                                    letterSpacing: 2,
+                                    letterSpacing: 1.5,
                                   ),
-                    ),
-                                const SizedBox(height: 8),
-                    Row(
+                                ),
+                                SizedBox(height: 6.h),
+                                Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
+                                  children: [
                                     _buildStatItem('SKILL', user.skillLevel.toUpperCase()),
                                     _buildStatDivider(),
                                     _buildStatItem('STATUS', 'ACTIVE'),
@@ -375,15 +405,15 @@ class _ProfileViewState extends State<ProfileView> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 10.h),
                           // Bio Section
                           if (user.bio.isNotEmpty) ...[
                             Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.all(12),
+                              padding: EdgeInsets.all(10.w),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.05),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(10.r),
                                 border: Border.all(
                                   color: Colors.white.withOpacity(0.1),
                                   width: 1,
@@ -395,18 +425,18 @@ class _ProfileViewState extends State<ProfileView> {
                                   Text(
                                     'ABOUT',
                                     style: GoogleFonts.teko(
-                                      fontSize: 12,
+                                      fontSize: 11.sp,
                                       fontWeight: FontWeight.bold,
                                       color: kNeonGreen,
-                                      letterSpacing: 1,
+                                      letterSpacing: 0.5,
                                     ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
+                                  ),
+                                  SizedBox(height: 3.h),
+                                  Text(
                                     user.bio,
-                                    style: TextStyle(
+                                    style: GoogleFonts.barlowSemiCondensed(
                                       color: Colors.grey[300],
-                                      fontSize: 12,
+                                      fontSize: 11.sp,
                                       height: 1.3,
                                     ),
                                     maxLines: 2,
@@ -422,14 +452,14 @@ class _ProfileViewState extends State<ProfileView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 12.h),
               // Additional Info Section
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
                   color: const Color(0xFF243447),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(
                     color: Colors.white.withOpacity(0.1),
                     width: 1,
@@ -441,40 +471,107 @@ class _ProfileViewState extends State<ProfileView> {
                     Text(
                       'ACCOUNT INFO',
                       style: GoogleFonts.teko(
-                        fontSize: 16,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
                         fontStyle: FontStyle.italic,
                         color: Colors.white,
-                        letterSpacing: 1,
+                        letterSpacing: 0.5,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 10.h),
                     _buildInfoRow(Icons.email, 'Email', user.email),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 12.h),
+              // Notification Settings Section
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF243447),
+                  borderRadius: BorderRadius.circular(10.r),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.1),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.notifications_outlined, color: kNeonGreen, size: 18.sp),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'NOTIFICATION SETTINGS',
+                          style: GoogleFonts.teko(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12.h),
+                    _buildNotificationToggle(
+                      icon: Icons.sports,
+                      title: 'Game Updates',
+                      subtitle: 'Joins, leaves, reschedules, cancellations',
+                      value: _notifyGameUpdates,
+                      onChanged: (value) {
+                        setState(() => _notifyGameUpdates = value);
+                        _updateNotificationSetting('notifyGameUpdates', value);
+                      },
+                    ),
+                    SizedBox(height: 8.h),
+                    _buildNotificationToggle(
+                      icon: Icons.chat_bubble_outline,
+                      title: 'Chat Messages',
+                      subtitle: 'New messages in game chats',
+                      value: _notifyChatMessages,
+                      onChanged: (value) {
+                        setState(() => _notifyChatMessages = value);
+                        _updateNotificationSetting('notifyChatMessages', value);
+                      },
+                    ),
+                    SizedBox(height: 8.h),
+                    _buildNotificationToggle(
+                      icon: Icons.alarm,
+                      title: 'Game Reminders',
+                      subtitle: '1 hour before game starts',
+                      value: _notifyReminders,
+                      onChanged: (value) {
+                        setState(() => _notifyReminders = value);
+                        _updateNotificationSetting('notifyReminders', value);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 12.h),
               // Sign Out Button
               SizedBox(
                 width: double.infinity,
-                height: 48,
+                height: 42.h,
                 child: ElevatedButton.icon(
                   onPressed: () => _handleLogout(context),
-                  icon: const Icon(Icons.logout, size: 20),
+                  icon: Icon(Icons.logout, size: 18.sp),
                   label: Text(
                     'SIGN OUT',
-                    style: GoogleFonts.teko(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
+                    style: GoogleFonts.barlowSemiCondensed(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
                 ),
@@ -492,15 +589,15 @@ class _ProfileViewState extends State<ProfileView> {
         Text(
           value,
           style: GoogleFonts.teko(
-            fontSize: 18,
+            fontSize: 14.sp,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 10,
+          style: GoogleFonts.barlowSemiCondensed(
+            fontSize: 9.sp,
             color: Colors.grey[400],
             fontWeight: FontWeight.w500,
           ),
@@ -511,7 +608,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   Widget _buildStatDivider() {
     return Container(
-      height: 32,
+      height: 28.h,
       width: 1,
       color: Colors.white.withOpacity(0.2),
     );
@@ -520,30 +617,85 @@ class _ProfileViewState extends State<ProfileView> {
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: kNeonGreen),
-        const SizedBox(width: 10),
+        Icon(icon, size: 16.sp, color: kNeonGreen),
+        SizedBox(width: 8.w),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 11,
+                style: GoogleFonts.barlowSemiCondensed(
+                  fontSize: 10.sp,
                   color: Colors.grey[400],
                 ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: 1.h),
               Text(
                 value,
-                style: const TextStyle(
-                  fontSize: 13,
+                style: GoogleFonts.barlowSemiCondensed(
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w500,
                   color: Colors.white,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNotificationToggle({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(6.w),
+          decoration: BoxDecoration(
+            color: kNeonGreen.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(6.r),
+          ),
+          child: Icon(icon, size: 16.sp, color: kNeonGreen),
+        ),
+        SizedBox(width: 10.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.barlowSemiCondensed(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: GoogleFonts.barlowSemiCondensed(
+                  fontSize: 10.sp,
+                  color: Colors.grey[400],
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 24.h,
+          child: Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: kNeonGreen,
+            activeTrackColor: kNeonGreen.withOpacity(0.3),
+            inactiveThumbColor: Colors.grey[500],
+            inactiveTrackColor: Colors.grey[700],
           ),
         ),
       ],

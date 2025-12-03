@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../models/game.dart';
 import '../../controllers/game_controller.dart';
@@ -47,10 +48,9 @@ class _GameTileState extends State<GameTile> {
     final int waitlistCount = widget.game.waitlist.length;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: const Color(0xFF243447),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8.r),
         border: Border.all(
           color: Colors.white.withOpacity(0.1),
           width: 1,
@@ -59,12 +59,12 @@ class _GameTileState extends State<GameTile> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8.r),
           onTap: () {
             context.pushNamed('game-details', pathParameters: {'id': widget.game.id});
           },
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(12.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -75,7 +75,7 @@ class _GameTileState extends State<GameTile> {
                       child: Text(
                         widget.game.title.toUpperCase(),
                         style: GoogleFonts.teko(
-                          fontSize: 22,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
                           fontStyle: FontStyle.italic,
                           color: Colors.white,
@@ -84,63 +84,63 @@ class _GameTileState extends State<GameTile> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                       decoration: BoxDecoration(
                         color: kNeonGreen.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(4.r),
                         border: Border.all(color: kNeonGreen, width: 1),
                       ),
                       child: Text(
                         _capitalize(widget.game.sport),
-                        style: TextStyle(
+                        style: GoogleFonts.barlowSemiCondensed(
                           color: kNeonGreen,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: 8.h),
 
                 // Host and Location
                 Row(
                   children: [
-                    Icon(Icons.person_outline, size: 16, color: Colors.grey[400]),
-                    const SizedBox(width: 6),
+                    Icon(Icons.person_outline, size: 14.sp, color: Colors.grey[400]),
+                    SizedBox(width: 4.w),
                     Text(
                       widget.game.hostName,
-                      style: TextStyle(color: Colors.grey[300], fontSize: 14),
+                      style: GoogleFonts.barlowSemiCondensed(color: Colors.grey[300], fontSize: 12.sp),
                     ),
-                    const SizedBox(width: 12),
-                    Icon(Icons.location_on_outlined, size: 16, color: Colors.grey[400]),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 10.w),
+                    Icon(Icons.location_on_outlined, size: 14.sp, color: Colors.grey[400]),
+                    SizedBox(width: 4.w),
                     Expanded(
                       child: Text(
                         widget.game.location,
-                        style: TextStyle(color: Colors.grey[300], fontSize: 14),
+                        style: GoogleFonts.barlowSemiCondensed(color: Colors.grey[300], fontSize: 12.sp),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 6.h),
 
                 // Date
                 Row(
                   children: [
-                    Icon(Icons.calendar_today_outlined, size: 16, color: Colors.grey[400]),
-                    const SizedBox(width: 6),
+                    Icon(Icons.calendar_today_outlined, size: 14.sp, color: Colors.grey[400]),
+                    SizedBox(width: 4.w),
                     Text(
                       dateText,
-                      style: TextStyle(color: Colors.grey[300], fontSize: 14),
+                      style: GoogleFonts.barlowSemiCondensed(color: Colors.grey[300], fontSize: 12.sp),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: 10.h),
 
                 // Capacity Info and Button
                 Row(
@@ -149,23 +149,23 @@ class _GameTileState extends State<GameTile> {
                     Expanded(
                       child: Row(
                         children: [
-                          Icon(Icons.people_outline, size: 18, color: kNeonGreen),
-                          const SizedBox(width: 6),
+                          Icon(Icons.people_outline, size: 16.sp, color: kNeonGreen),
+                          SizedBox(width: 4.w),
                           Text(
                             '$joined/$capacity',
-                            style: TextStyle(
+                            style: GoogleFonts.barlowSemiCondensed(
                               color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           if (isFull) ...[
-                            const SizedBox(width: 8),
+                            SizedBox(width: 6.w),
                             Text(
                               '• $waitlistCount waitlist',
-                              style: TextStyle(
+                              style: GoogleFonts.barlowSemiCondensed(
                                 color: Colors.grey[400],
-                                fontSize: 13,
+                                fontSize: 11.sp,
                                 fontStyle: FontStyle.italic,
                               ),
                             ),
@@ -176,7 +176,7 @@ class _GameTileState extends State<GameTile> {
 
                     // Action Button
                     SizedBox(
-                      height: 36,
+                      height: 32.h,
                       child: ElevatedButton(
                         onPressed: _isProcessing
                             ? null
@@ -195,25 +195,25 @@ class _GameTileState extends State<GameTile> {
                           disabledBackgroundColor: Colors.grey[800],
                           disabledForegroundColor: Colors.grey[600],
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6.r),
                           ),
                           elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: EdgeInsets.symmetric(horizontal: 12.w),
                         ),
                         child: _isProcessing
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
+                            ? SizedBox(
+                                width: 14.w,
+                                height: 14.h,
+                                child: const CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               )
                             : Text(
                                 canLeave ? 'LEAVE' : isParticipant ? 'JOINED' : 'JOIN',
-                                style: GoogleFonts.teko(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                style: GoogleFonts.barlowSemiCondensed(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w600,
                                   letterSpacing: 0.5,
                                 ),
                               ),

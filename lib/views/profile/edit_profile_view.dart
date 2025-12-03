@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
@@ -224,12 +225,12 @@ class _EditProfileViewState extends State<EditProfileView> {
           onPressed: () {
             context.pop();
           },
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white, size: 22.sp),
         ),
         title: Text(
           'EDIT PLAYER CARD',
           style: GoogleFonts.teko(
-            fontSize: 24,
+            fontSize: 20.sp,
             fontWeight: FontWeight.bold,
             fontStyle: FontStyle.italic,
             color: Colors.white,
@@ -238,15 +239,15 @@ class _EditProfileViewState extends State<EditProfileView> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-        padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(12.w),
           child: Column(
             children: [
               // Player Photo Editor
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
                   color: const Color(0xFF243447),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(
                     color: kNeonGreen.withOpacity(0.3),
                     width: 2,
@@ -257,29 +258,29 @@ class _EditProfileViewState extends State<EditProfileView> {
                     Text(
                       'PLAYER PHOTO',
                       style: GoogleFonts.teko(
-                        fontSize: 18,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.bold,
                         color: kNeonGreen,
-                        letterSpacing: 2,
+                        letterSpacing: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 14.h),
                     Stack(
                       children: [
                         Container(
-                          width: 120,
-                          height: 120,
+                          width: 90.w,
+                          height: 90.h,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: kNeonGreen,
-                              width: 3,
+                              width: 2,
                             ),
                             boxShadow: [
                               BoxShadow(
                                 color: kNeonGreen.withOpacity(0.3),
-                                blurRadius: 15,
-                                spreadRadius: 2,
+                                blurRadius: 10,
+                                spreadRadius: 1,
                               ),
                             ],
                           ),
@@ -291,9 +292,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                                     errorBuilder: (context, error, stackTrace) {
                                       return Container(
                                         color: kDarkNavy,
-                                        child: const Icon(
+                                        child: Icon(
                                           Icons.person,
-                                          size: 60,
+                                          size: 40.sp,
                                           color: kNeonGreen,
                                         ),
                                       );
@@ -301,81 +302,81 @@ class _EditProfileViewState extends State<EditProfileView> {
                                   )
                                 : Container(
                                     color: kDarkNavy,
-                                    child: const Icon(
-                              Icons.person,
-                                      size: 60,
+                                    child: Icon(
+                                      Icons.person,
+                                      size: 40.sp,
                                       color: kNeonGreen,
                                     ),
                                   ),
                           ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: InkWell(
-                        onTap: _photoUpdating ? null : _changePhoto,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: InkWell(
+                            onTap: _photoUpdating ? null : _changePhoto,
                             child: Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: EdgeInsets.all(6.w),
                               decoration: BoxDecoration(
                                 color: kNeonGreen,
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
                                     color: kNeonGreen.withOpacity(0.5),
-                                    blurRadius: 8,
+                                    blurRadius: 6,
                                     spreadRadius: 1,
                                   ),
                                 ],
                               ),
-                          child: _photoUpdating
-                              ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                              child: _photoUpdating
+                                  ? SizedBox(
+                                      width: 16.w,
+                                      height: 16.h,
+                                      child: const CircularProgressIndicator(
+                                        strokeWidth: 2,
                                         color: Colors.black,
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.camera_alt,
-                                      size: 20,
+                                      ),
+                                    )
+                                  : Icon(
+                                      Icons.camera_alt,
+                                      size: 16.sp,
                                       color: Colors.black,
-                                ),
+                                    ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    if (_photoUrl.isNotEmpty)
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: InkWell(
-                          onTap: _photoUpdating ? null : _deletePhoto,
+                        if (_photoUrl.isNotEmpty)
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: InkWell(
+                              onTap: _photoUpdating ? null : _deletePhoto,
                               child: Container(
-                                padding: const EdgeInsets.all(6),
+                                padding: EdgeInsets.all(4.w),
                                 decoration: const BoxDecoration(
                                   color: Colors.red,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
-                              Icons.close,
-                                  size: 18,
+                                child: Icon(
+                                  Icons.close,
+                                  size: 14.sp,
                                   color: Colors.white,
                                 ),
                               ),
                             ),
                           ),
                       ],
-                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 16.h),
               // Player Info Card
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
                   color: const Color(0xFF243447),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(
                     color: Colors.white.withOpacity(0.1),
                     width: 1,
@@ -387,18 +388,18 @@ class _EditProfileViewState extends State<EditProfileView> {
                     Text(
                       'PLAYER INFO',
                       style: GoogleFonts.teko(
-                        fontSize: 18,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.bold,
                         color: kNeonGreen,
-                        letterSpacing: 2,
+                        letterSpacing: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 14.h),
                     // First Name
                     Container(
                       decoration: BoxDecoration(
                         color: kDarkNavy,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8.r),
                         border: Border.all(
                           color: Colors.white.withOpacity(0.1),
                           width: 1,
@@ -406,37 +407,37 @@ class _EditProfileViewState extends State<EditProfileView> {
                       ),
                       child: TextField(
                         controller: _firstNameController,
-                        style: const TextStyle(color: Colors.white),
+                        style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
                         textCapitalization: TextCapitalization.words,
                         decoration: InputDecoration(
                           labelText: 'First Name',
-                          labelStyle: TextStyle(color: Colors.grey[400]),
-                          prefixIcon: const Icon(Icons.person, color: kNeonGreen),
+                          labelStyle: GoogleFonts.barlowSemiCondensed(color: Colors.grey[400], fontSize: 13.sp),
+                          prefixIcon: Icon(Icons.person, color: kNeonGreen, size: 20.sp),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 12.h,
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8.r),
                             borderSide: const BorderSide(
                               color: kNeonGreen,
                               width: 2,
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8.r),
                             borderSide: BorderSide.none,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 12.h),
                     // Last Name
                     Container(
                       decoration: BoxDecoration(
                         color: kDarkNavy,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8.r),
                         border: Border.all(
                           color: Colors.white.withOpacity(0.1),
                           width: 1,
@@ -444,26 +445,26 @@ class _EditProfileViewState extends State<EditProfileView> {
                       ),
                       child: TextField(
                         controller: _lastNameController,
-                        style: const TextStyle(color: Colors.white),
+                        style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
                         textCapitalization: TextCapitalization.words,
                         decoration: InputDecoration(
                           labelText: 'Last Name',
-                          labelStyle: TextStyle(color: Colors.grey[400]),
-                          prefixIcon: const Icon(Icons.person_outline, color: kNeonGreen),
+                          labelStyle: GoogleFonts.barlowSemiCondensed(color: Colors.grey[400], fontSize: 13.sp),
+                          prefixIcon: Icon(Icons.person_outline, color: kNeonGreen, size: 20.sp),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 12.h,
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8.r),
                             borderSide: const BorderSide(
                               color: kNeonGreen,
                               width: 2,
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8.r),
                             borderSide: BorderSide.none,
                           ),
                         ),
@@ -472,13 +473,13 @@ class _EditProfileViewState extends State<EditProfileView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 16.h),
               // Sport Selection
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
                   color: const Color(0xFF243447),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(
                     color: Colors.white.withOpacity(0.1),
                     width: 1,
@@ -490,35 +491,35 @@ class _EditProfileViewState extends State<EditProfileView> {
                     Text(
                       'FAVORITE SPORT',
                       style: GoogleFonts.teko(
-                        fontSize: 18,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.bold,
                         color: kNeonGreen,
-                        letterSpacing: 2,
+                        letterSpacing: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 12.h),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 6.w,
+                      runSpacing: 6.h,
                       children: _sportsOptions.map((sport) {
                         final isSelected = _selectedSport == sport;
                         return InkWell(
                           onTap: () {
-                  setState(() {
+                            setState(() {
                               _selectedSport = sport;
-                  });
-                },
+                            });
+                          },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.w,
+                              vertical: 8.h,
                             ),
                             decoration: BoxDecoration(
                               color: isSelected ? kNeonGreen : kDarkNavy,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(8.r),
                               border: Border.all(
                                 color: isSelected ? kNeonGreen : Colors.white.withOpacity(0.2),
-                                width: 2,
+                                width: 1.5,
                               ),
                             ),
                             child: Row(
@@ -526,15 +527,15 @@ class _EditProfileViewState extends State<EditProfileView> {
                               children: [
                                 Icon(
                                   _getSportIcon(sport),
-                                  size: 20,
+                                  size: 16.sp,
                                   color: isSelected ? Colors.black : kNeonGreen,
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 6.w),
                                 Text(
                                   sport,
-                                  style: GoogleFonts.teko(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                  style: GoogleFonts.barlowSemiCondensed(
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.w600,
                                     color: isSelected ? Colors.black : Colors.white,
                                   ),
                                 ),
@@ -547,13 +548,13 @@ class _EditProfileViewState extends State<EditProfileView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 16.h),
               // Skill Level
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
                   color: const Color(0xFF243447),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(
                     color: Colors.white.withOpacity(0.1),
                     width: 1,
@@ -564,20 +565,20 @@ class _EditProfileViewState extends State<EditProfileView> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.military_tech, color: kNeonGreen),
-                    const SizedBox(width: 8),
-                    Text(
+                        Icon(Icons.military_tech, color: kNeonGreen, size: 18.sp),
+                        SizedBox(width: 6.w),
+                        Text(
                           'SKILL LEVEL',
                           style: GoogleFonts.teko(
-                            fontSize: 18,
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.bold,
                             color: kNeonGreen,
-                            letterSpacing: 2,
+                            letterSpacing: 1.5,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 12.h),
                     Row(
                       children: _skillLevels.map((level) {
                         final isSelected = _selectedSkillLevel == level;
@@ -597,7 +598,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                         }
                         return Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            padding: EdgeInsets.symmetric(horizontal: 3.w),
                             child: InkWell(
                               onTap: () {
                                 setState(() {
@@ -605,28 +606,28 @@ class _EditProfileViewState extends State<EditProfileView> {
                                 });
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: EdgeInsets.symmetric(vertical: 12.h),
                                 decoration: BoxDecoration(
                                   color: isSelected ? kNeonGreen : kDarkNavy,
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(8.r),
                                   border: Border.all(
                                     color: isSelected ? kNeonGreen : Colors.white.withOpacity(0.2),
-                                    width: 2,
+                                    width: 1.5,
                                   ),
                                 ),
                                 child: Column(
                                   children: [
                                     Icon(
                                       icon,
-                                      size: 24,
+                                      size: 20.sp,
                                       color: isSelected ? Colors.black : kNeonGreen,
                                     ),
-                                    const SizedBox(height: 4),
+                                    SizedBox(height: 3.h),
                                     Text(
                                       level,
-                                      style: GoogleFonts.teko(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
+                                      style: GoogleFonts.barlowSemiCondensed(
+                                        fontSize: 11.sp,
+                                        fontWeight: FontWeight.w600,
                                         color: isSelected ? Colors.black : Colors.white,
                                       ),
                                       textAlign: TextAlign.center,
@@ -642,13 +643,13 @@ class _EditProfileViewState extends State<EditProfileView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 16.h),
               // Bio
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
                   color: const Color(0xFF243447),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(
                     color: Colors.white.withOpacity(0.1),
                     width: 1,
@@ -656,44 +657,44 @@ class _EditProfileViewState extends State<EditProfileView> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                  children: [
                     Text(
                       'ABOUT YOU',
                       style: GoogleFonts.teko(
-                        fontSize: 18,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.bold,
                         color: kNeonGreen,
-                        letterSpacing: 2,
+                        letterSpacing: 1.5,
                       ),
-              ),
-                    const SizedBox(height: 16),
+                    ),
+                    SizedBox(height: 12.h),
                     Container(
                       decoration: BoxDecoration(
                         color: kDarkNavy,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8.r),
                         border: Border.all(
                           color: Colors.white.withOpacity(0.1),
                           width: 1,
                         ),
                       ),
                       child: TextField(
-                controller: _bioController,
-                        style: const TextStyle(color: Colors.white),
-                        maxLines: 4,
+                        controller: _bioController,
+                        style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
+                        maxLines: 3,
                         decoration: InputDecoration(
                           hintText: 'Tell others about yourself...',
-                          hintStyle: TextStyle(color: Colors.grey[500]),
+                          hintStyle: GoogleFonts.barlowSemiCondensed(color: Colors.grey[500], fontSize: 13.sp),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.all(16),
+                          contentPadding: EdgeInsets.all(12.w),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8.r),
                             borderSide: const BorderSide(
                               color: kNeonGreen,
                               width: 2,
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8.r),
                             borderSide: BorderSide.none,
                           ),
                         ),
@@ -702,11 +703,11 @@ class _EditProfileViewState extends State<EditProfileView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 20.h),
               // Save Button
               SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: 46.h,
                 child: ElevatedButton(
                   onPressed: _saving ? null : _saveProfile,
                   style: ElevatedButton.styleFrom(
@@ -714,15 +715,15 @@ class _EditProfileViewState extends State<EditProfileView> {
                     foregroundColor: Colors.black,
                     disabledBackgroundColor: kNeonGreen.withOpacity(0.5),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                     elevation: 0,
                   ),
                   child: _saving
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
+                      ? SizedBox(
+                          height: 18.h,
+                          width: 18.w,
+                          child: const CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                           ),
@@ -730,21 +731,21 @@ class _EditProfileViewState extends State<EditProfileView> {
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.save, size: 24),
-                            const SizedBox(width: 12),
+                            Icon(Icons.save, size: 18.sp),
+                            SizedBox(width: 8.w),
                             Text(
                               'SAVE PLAYER CARD',
-                              style: GoogleFonts.teko(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
+                              style: GoogleFonts.barlowSemiCondensed(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
                               ),
-                    ),
+                            ),
                           ],
                         ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 16.h),
             ],
           ),
         ),

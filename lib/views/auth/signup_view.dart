@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
+
+// Color Palette
+const kDarkNavy = Color(0xFF1A2332);
+const kNeonGreen = Color(0xFF39FF14);
 
 class SignupView extends StatefulWidget {
   const SignupView({super.key});
@@ -201,111 +207,206 @@ class _SignupViewState extends State<SignupView> {
     }
   }
 
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool obscureText = false,
+    bool? obscureValue,
+    VoidCallback? onToggleObscure,
+    TextInputType? keyboardType,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+  }) {
+    final bodyStyle = GoogleFonts.barlowSemiCondensed(
+      fontSize: 15.sp,
+      color: Colors.white,
+    );
+    final labelStyle = GoogleFonts.barlowSemiCondensed(
+      fontSize: 14.sp,
+      color: Colors.grey[400],
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF243447),
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      child: TextField(
+        controller: controller,
+        style: bodyStyle,
+        obscureText: obscureValue ?? obscureText,
+        keyboardType: keyboardType,
+        textCapitalization: textCapitalization,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: labelStyle,
+          prefixIcon: Icon(icon, color: Colors.grey[500], size: 20.sp),
+          suffixIcon: onToggleObscure != null
+              ? IconButton(
+                  icon: Icon(
+                    obscureValue! ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                    color: Colors.grey[500],
+                    size: 20.sp,
+                  ),
+                  onPressed: onToggleObscure,
+                )
+              : null,
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kDarkNavy,
       appBar: AppBar(
-        title: const Text('Sign up'),
+        backgroundColor: kDarkNavy,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          'SIGN UP',
+          style: GoogleFonts.teko(
+            fontSize: 24.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _firstNameController,
-              decoration: const InputDecoration(
-                labelText: 'First Name',
-                prefixIcon: Icon(Icons.person),
-              ),
-              textCapitalization: TextCapitalization.words,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _lastNameController,
-              decoration: const InputDecoration(
-                labelText: 'Last Name',
-                prefixIcon: Icon(Icons.person_outline),
-              ),
-              textCapitalization: TextCapitalization.words,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                prefixIcon: const Icon(Icons.lock),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                ),
-              ),
-              obscureText: _obscurePassword,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _confirmPasswordController,
-              decoration: InputDecoration(
-                labelText: 'Confirm Password',
-                prefixIcon: const Icon(Icons.lock_outline),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscureConfirmPassword = !_obscureConfirmPassword;
-                    });
-                  },
-                ),
-              ),
-              obscureText: _obscureConfirmPassword,
-            ),
-            const SizedBox(height: 24),
-            _isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _handleSignup,
-                    child: const Text('Create account'),
-                  ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Expanded(child: Divider()),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('OR'),
-                ),
-                const Expanded(child: Divider()),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _isGoogleLoading
-                ? const CircularProgressIndicator()
-                : OutlinedButton.icon(
-                    onPressed: _handleGoogleSignIn,
-                    icon: const Icon(Icons.g_mobiledata, size: 24),
-                    label: const Text('Continue with Google'),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 48),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // First Name & Last Name Row
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildInputField(
+                      controller: _firstNameController,
+                      label: 'First Name',
+                      icon: Icons.person_outline,
+                      textCapitalization: TextCapitalization.words,
                     ),
                   ),
-          ],
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: _buildInputField(
+                      controller: _lastNameController,
+                      label: 'Last Name',
+                      icon: Icons.person_outline,
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12.h),
+              _buildInputField(
+                controller: _emailController,
+                label: 'Email',
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              SizedBox(height: 12.h),
+              _buildInputField(
+                controller: _passwordController,
+                label: 'Password',
+                icon: Icons.lock_outline,
+                obscureValue: _obscurePassword,
+                onToggleObscure: () => setState(() => _obscurePassword = !_obscurePassword),
+              ),
+              SizedBox(height: 12.h),
+              _buildInputField(
+                controller: _confirmPasswordController,
+                label: 'Confirm Password',
+                icon: Icons.lock_outline,
+                obscureValue: _obscureConfirmPassword,
+                onToggleObscure: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+              ),
+              SizedBox(height: 20.h),
+              // Create Account Button
+              SizedBox(
+                height: 50.h,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _handleSignup,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kNeonGreen,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 20.h,
+                          width: 20.w,
+                          child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                        )
+                      : Text(
+                          'CREATE ACCOUNT',
+                          style: GoogleFonts.barlowSemiCondensed(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                ),
+              ),
+              SizedBox(height: 16.h),
+              // Divider
+              Row(
+                children: [
+                  Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
+                    child: Text(
+                      'OR',
+                      style: GoogleFonts.barlowSemiCondensed(
+                        fontSize: 13.sp,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                ],
+              ),
+              SizedBox(height: 16.h),
+              // Google Sign-In Button
+              SizedBox(
+                height: 50.h,
+                child: OutlinedButton.icon(
+                  onPressed: _isGoogleLoading ? null : _handleGoogleSignIn,
+                  icon: _isGoogleLoading
+                      ? SizedBox(
+                          height: 18.h,
+                          width: 18.w,
+                          child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : Icon(Icons.g_mobiledata, size: 22.sp, color: Colors.white),
+                  label: Text(
+                    'Continue with Google',
+                    style: GoogleFonts.barlowSemiCondensed(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

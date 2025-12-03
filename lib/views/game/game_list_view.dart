@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../controllers/game_list_controller.dart';
 import '../../controllers/search_controller.dart' as gl;
@@ -200,7 +201,7 @@ class _GameListViewState extends State<GameListView> {
         title: Text(
           'BROWSE GAMES',
           style: GoogleFonts.teko(
-            fontSize: 28,
+            fontSize: 22.sp,
             fontWeight: FontWeight.bold,
             fontStyle: FontStyle.italic,
             color: Colors.white,
@@ -209,9 +210,10 @@ class _GameListViewState extends State<GameListView> {
         actions: [
           IconButton(
             onPressed: () => context.pushNamed('notifications'),
-            icon: const Icon(
+            icon: Icon(
               Icons.notifications_outlined,
               color: kNeonGreen,
+              size: 22.sp,
             ),
           ),
         ],
@@ -229,21 +231,46 @@ class _GameListViewState extends State<GameListView> {
           if (snapshot.hasError) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(20.w),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    const Text('Failed to load games'),
-                    const SizedBox(height: 8),
+                    Text(
+                      'Failed to load games',
+                      style: GoogleFonts.barlowSemiCondensed(
+                        fontSize: 15.sp,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
                     Text(
                       '${snapshot.error}',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.grey),
+                      style: GoogleFonts.barlowSemiCondensed(
+                        color: Colors.grey,
+                        fontSize: 13.sp,
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => GameListController.instance.refresh(),
-                      child: const Text('Retry'),
+                    SizedBox(height: 12.h),
+                    SizedBox(
+                      height: 40.h,
+                      child: ElevatedButton(
+                        onPressed: () => GameListController.instance.refresh(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kNeonGreen,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                        ),
+                        child: Text(
+                          'Retry',
+                          style: GoogleFonts.barlowSemiCondensed(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -317,14 +344,15 @@ class _GameListViewState extends State<GameListView> {
                 child: Column(
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                       child: Row(
                         children: [
                           Expanded(
                             child: Container(
+                              height: 44.h,
                               decoration: BoxDecoration(
                                 color: const Color(0xFF243447),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(8.r),
                                 border: Border.all(
                                   color: Colors.white.withOpacity(0.1),
                                   width: 1,
@@ -333,32 +361,35 @@ class _GameListViewState extends State<GameListView> {
                               child: TextField(
                                 controller: _searchController,
                                 focusNode: _searchFocusNode,
-                                style: const TextStyle(color: Colors.white),
+                                style: GoogleFonts.barlowSemiCondensed(
+                                  color: Colors.white,
+                                  fontSize: 14.sp,
+                                ),
                                 decoration: InputDecoration(
                                   hintText: 'Search by game, location, or sport',
-                                  hintStyle: TextStyle(
+                                  hintStyle: GoogleFonts.barlowSemiCondensed(
                                     color: Colors.grey[500],
-                                    fontSize: 15,
+                                    fontSize: 14.sp,
                                   ),
                                   prefixIcon: Icon(
                                     Icons.search,
                                     color: Colors.grey[600],
-                                    size: 22,
+                                    size: 20.sp,
                                   ),
                                   border: InputBorder.none,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 14,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12.w,
+                                    vertical: 12.h,
                                   ),
                                   focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(8.r),
                                     borderSide: const BorderSide(
                                       color: kNeonGreen,
                                       width: 2,
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(8.r),
                                     borderSide: BorderSide.none,
                                   ),
                                 ),
@@ -369,13 +400,14 @@ class _GameListViewState extends State<GameListView> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8.w),
                           IconButton(
                             icon: Icon(
                               Icons.filter_list,
                               color: _selectedFilter != 'all'
                                   ? kNeonGreen
                                   : Colors.grey[600],
+                              size: 22.sp,
                             ),
                             tooltip: 'Filter games',
                             onPressed: _showFilterDialog,
@@ -391,7 +423,7 @@ class _GameListViewState extends State<GameListView> {
                               physics:
                                   const AlwaysScrollableScrollPhysics(),
                               child: Padding(
-                                padding: const EdgeInsets.only(top: 48),
+                                padding: EdgeInsets.only(top: 32.h),
                                 child: GameListEmpty(
                                   onRefresh: () => GameListController.instance
                                       .refresh(),
@@ -409,10 +441,10 @@ class _GameListViewState extends State<GameListView> {
                               child: ListView.separated(
                                 physics:
                                     const AlwaysScrollableScrollPhysics(),
-                                padding: const EdgeInsets.all(16),
+                                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                                 itemCount: games.length,
                                 separatorBuilder: (_, __) =>
-                                    const SizedBox(height: 12),
+                                    SizedBox(height: 10.h),
                                 itemBuilder:
                                     (BuildContext context, int index) {
                                   final Game game = games[index];

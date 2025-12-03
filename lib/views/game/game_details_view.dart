@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../controllers/game_controller.dart';
 import '../../controllers/auth_controller.dart';
@@ -47,13 +48,13 @@ class _GameDetailsViewState extends State<GameDetailsView> {
         backgroundColor: kDarkNavy,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white, size: 22.sp),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'GAME DETAILS',
           style: GoogleFonts.teko(
-            fontSize: 24,
+            fontSize: 20.sp,
             fontWeight: FontWeight.bold,
             fontStyle: FontStyle.italic,
             color: Colors.white,
@@ -62,9 +63,10 @@ class _GameDetailsViewState extends State<GameDetailsView> {
         actions: [
           IconButton(
             onPressed: () => context.pushNamed('notifications'),
-            icon: const Icon(
+            icon: Icon(
               Icons.notifications_outlined,
               color: kNeonGreen,
+              size: 22.sp,
             ),
           ),
         ],
@@ -79,15 +81,23 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           if (snapshot.hasError) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(20.w),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Failed to load game details'),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => context.pop(),
-                      child: const Text('Go Back'),
+                    Text('Failed to load game details', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, color: Colors.white)),
+                    SizedBox(height: 12.h),
+                    SizedBox(
+                      height: 40.h,
+                      child: ElevatedButton(
+                        onPressed: () => context.pop(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kNeonGreen,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                        ),
+                        child: Text('Go Back', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, fontWeight: FontWeight.w600)),
+                      ),
                     ),
                   ],
                 ),
@@ -99,15 +109,23 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           if (gameModel == null) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(20.w),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Game not found'),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => context.pop(),
-                      child: const Text('Go Back'),
+                    Text('Game not found', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, color: Colors.white)),
+                    SizedBox(height: 12.h),
+                    SizedBox(
+                      height: 40.h,
+                      child: ElevatedButton(
+                        onPressed: () => context.pop(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kNeonGreen,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                        ),
+                        child: Text('Go Back', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, fontWeight: FontWeight.w600)),
+                      ),
                     ),
                   ],
                 ),
@@ -144,7 +162,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
               '${dt.year}-${_two(dt.month)}-${_two(dt.day)} ${_two(dt.hour)}:${_two(dt.minute)}';
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(12.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -152,17 +170,17 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                 if (isCancelled)
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.all(12.w),
+                    margin: EdgeInsets.only(bottom: 12.h),
                     decoration: BoxDecoration(
                       color: Colors.red.shade700,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Text(
                       'GAME CANCELLED',
                       style: GoogleFonts.teko(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
                         fontStyle: FontStyle.italic,
                         letterSpacing: 1,
@@ -174,10 +192,10 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                 // Game Info Card
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(14.w),
                   decoration: BoxDecoration(
                     color: const Color(0xFF243447),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(10.r),
                     border: Border.all(
                       color: Colors.white.withOpacity(0.1),
                       width: 1,
@@ -190,7 +208,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                       Text(
                         gameModel.title.toUpperCase(),
                         style: GoogleFonts.teko(
-                          fontSize: 32,
+                          fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
                           fontStyle: FontStyle.italic,
                           color: Colors.white,
@@ -198,21 +216,21 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 14.h),
 
                       // Game Info
                       _buildInfoRow(Icons.person_outline, 'Host', _hostName ?? 'Loading...'),
-                      const SizedBox(height: 14),
+                      SizedBox(height: 10.h),
                       _buildInfoRow(Icons.location_on_outlined, 'Location', gameModel.location),
-                      const SizedBox(height: 14),
+                      SizedBox(height: 10.h),
                       _buildInfoRow(Icons.calendar_today_outlined, 'Date & Time', dateText),
-                      const SizedBox(height: 14),
+                      SizedBox(height: 10.h),
                       _buildInfoRow(
                         Icons.people_outline,
                         'Players',
                         '$joined / $capacity  •  $remaining spots left',
                       ),
-                      const SizedBox(height: 14),
+                      SizedBox(height: 10.h),
                       _buildInfoRow(
                         Icons.hourglass_empty_outlined,
                         'Waitlist',
@@ -225,26 +243,26 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
                       // Description
                       if (gameModel.description.isNotEmpty) ...[
-                        const SizedBox(height: 20),
+                        SizedBox(height: 14.h),
                         Divider(color: Colors.white.withOpacity(0.1)),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 10.h),
                         Text(
                           'DESCRIPTION',
                           style: GoogleFonts.teko(
-                            fontSize: 18,
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.bold,
                             fontStyle: FontStyle.italic,
                             color: kNeonGreen,
                             letterSpacing: 1,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 6.h),
                         Text(
                           gameModel.description,
-                          style: TextStyle(
+                          style: GoogleFonts.barlowSemiCondensed(
                             color: Colors.grey[300],
-                            fontSize: 15,
-                            height: 1.5,
+                            fontSize: 13.sp,
+                            height: 1.4,
                           ),
                         ),
                       ],
@@ -252,15 +270,15 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 14.h),
 
                 // Participants Section
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(14.w),
                   decoration: BoxDecoration(
                     color: const Color(0xFF243447),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(10.r),
                     border: Border.all(
                       color: Colors.white.withOpacity(0.1),
                       width: 1,
@@ -272,20 +290,20 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                       Text(
                         'PARTICIPANTS (${gameModel.participants.length})',
                         style: GoogleFonts.teko(
-                          fontSize: 20,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                           fontStyle: FontStyle.italic,
                           color: kNeonGreen,
                           letterSpacing: 1,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 10.h),
                       if (gameModel.participants.isEmpty)
                         Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(12.w),
                           child: Text(
                             'No participants yet',
-                            style: TextStyle(color: Colors.grey[500]),
+                            style: GoogleFonts.barlowSemiCondensed(color: Colors.grey[500], fontSize: 13.sp),
                           ),
                         )
                       else
@@ -294,11 +312,11 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                               _participantNames[participantId] ?? 'Loading...';
                           final isHostParticipant = participantId == gameModel.hostId;
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.all(12),
+                            margin: EdgeInsets.only(bottom: 6.h),
+                            padding: EdgeInsets.all(10.w),
                             decoration: BoxDecoration(
                               color: kDarkNavy,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(6.r),
                               border: Border.all(
                                 color: isHostParticipant 
                                     ? kNeonGreen.withOpacity(0.3)
@@ -309,41 +327,41 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                             child: Row(
                               children: [
                                 CircleAvatar(
-                                  radius: 18,
+                                  radius: 14.r,
                                   backgroundColor: isHostParticipant 
                                       ? kNeonGreen.withOpacity(0.3)
                                       : Colors.grey[700],
                                   child: Icon(
                                     Icons.person,
-                                    size: 18,
+                                    size: 14.sp,
                                     color: isHostParticipant ? kNeonGreen : Colors.grey[400],
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 10.w),
                                 Expanded(
                                   child: Text(
                                     participantName,
-                                    style: TextStyle(
+                                    style: GoogleFonts.barlowSemiCondensed(
                                       color: Colors.white,
-                                      fontSize: 15,
+                                      fontSize: 13.sp,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ),
                                 if (isHostParticipant)
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                                     decoration: BoxDecoration(
                                       color: kNeonGreen.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(4),
+                                      borderRadius: BorderRadius.circular(4.r),
                                       border: Border.all(color: kNeonGreen, width: 1),
                                     ),
                                     child: Text(
                                       'HOST',
-                                      style: TextStyle(
+                                      style: GoogleFonts.barlowSemiCondensed(
                                         color: kNeonGreen,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10.sp,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ),
@@ -355,19 +373,19 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 16.h),
 
                 // Action Buttons
                 if (currentUserId != null) ...[
                   if (isCancelled) ...[
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: EdgeInsets.symmetric(vertical: 6.h),
                       child: Text(
                         'This game has been cancelled.',
-                        style: TextStyle(
+                        style: GoogleFonts.barlowSemiCondensed(
                           color: Colors.red[400],
                           fontWeight: FontWeight.w600,
-                          fontSize: 15,
+                          fontSize: 13.sp,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -377,7 +395,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                     if (!isStarted && isParticipant && !isHost) ...[
                       SizedBox(
                         width: double.infinity,
-                        height: 54,
+                        height: 44.h,
                         child: ElevatedButton(
                           onPressed: !_isLeaving
                               ? () => _handleLeave(gameModel, currentUserId)
@@ -387,15 +405,15 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                             foregroundColor: Colors.white,
                             disabledBackgroundColor: Colors.grey[800],
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                             elevation: 0,
                           ),
                           child: _isLeaving
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
+                              ? SizedBox(
+                                  width: 18.w,
+                                  height: 18.h,
+                                  child: const CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
@@ -403,28 +421,28 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                               : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.exit_to_app, size: 20),
-                                    const SizedBox(width: 8),
+                                    Icon(Icons.exit_to_app, size: 18.sp),
+                                    SizedBox(width: 6.w),
                                     Text(
                                       'LEAVE GAME',
-                                      style: GoogleFonts.teko(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1,
+                                      style: GoogleFonts.barlowSemiCondensed(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.5,
                                       ),
                                     ),
                                   ],
                                 ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 10.h),
                     ],
 
                     // Join Button (shown when user is not a participant)
                     if (!isParticipant) ...[
                       SizedBox(
                         width: double.infinity,
-                        height: 54,
+                        height: 44.h,
                         child: ElevatedButton(
                           onPressed: canJoin && !_isJoining
                               ? () => _handleJoin(gameModel, currentUserId)
@@ -435,15 +453,15 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                             disabledBackgroundColor: Colors.grey[800],
                             disabledForegroundColor: Colors.grey[600],
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                             elevation: 0,
                           ),
                           child: _isJoining
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
+                              ? SizedBox(
+                                  width: 18.w,
+                                  height: 18.h,
+                                  child: const CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                                   ),
@@ -457,9 +475,9 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                                           : isStarted || isFull
                                               ? Icons.block
                                               : Icons.person_add,
-                                      size: 20,
+                                      size: 18.sp,
                                     ),
-                                    const SizedBox(width: 8),
+                                    SizedBox(width: 6.w),
                                     Text(
                                       isHost
                                           ? 'YOU ARE HOST'
@@ -468,21 +486,21 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                                               : isFull
                                                   ? 'GAME FULL'
                                                   : 'JOIN GAME',
-                                      style: GoogleFonts.teko(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1,
+                                      style: GoogleFonts.barlowSemiCondensed(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.5,
                                       ),
                                     ),
                                   ],
                                 ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 10.h),
                       if (!isStarted && isFull && !isHost) ...[
                         SizedBox(
                           width: double.infinity,
-                          height: 50,
+                          height: 40.h,
                           child: OutlinedButton(
                             onPressed: _isJoiningWaitlist || _isLeavingWaitlist
                                 ? null
@@ -495,22 +513,22 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                                   },
                             style: OutlinedButton.styleFrom(
                               foregroundColor: kNeonGreen,
-                              side: BorderSide(color: kNeonGreen, width: 2),
+                              side: const BorderSide(color: kNeonGreen, width: 1.5),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(8.r),
                               ),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.hourglass_empty, size: 18),
-                                const SizedBox(width: 8),
+                                Icon(Icons.hourglass_empty, size: 16.sp),
+                                SizedBox(width: 6.w),
                                 Text(
                                   isOnWaitlist ? 'LEAVE WAITLIST' : 'JOIN WAITLIST',
-                                  style: GoogleFonts.teko(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1,
+                                  style: GoogleFonts.barlowSemiCondensed(
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
                                   ),
                                 ),
                               ],
@@ -525,7 +543,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                   if (isHost) ...[
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: 40.h,
                       child: OutlinedButton(
                         onPressed: () {
                           Navigator.push(
@@ -537,32 +555,32 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: kNeonGreen,
-                          side: BorderSide(color: kNeonGreen, width: 2),
+                          side: const BorderSide(color: kNeonGreen, width: 1.5),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8.r),
                           ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.edit, size: 18),
-                            const SizedBox(width: 8),
+                            Icon(Icons.edit, size: 16.sp),
+                            SizedBox(width: 6.w),
                             Text(
                               'EDIT GAME',
-                              style: GoogleFonts.teko(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
+                              style: GoogleFonts.barlowSemiCondensed(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
                               ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 10.h),
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: 40.h,
                       child: ElevatedButton(
                         onPressed: isCancelled ? null : () => _confirmCancel(gameModel.id),
                         style: ElevatedButton.styleFrom(
@@ -571,21 +589,21 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                           disabledBackgroundColor: Colors.grey[800],
                           disabledForegroundColor: Colors.grey[600],
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8.r),
                           ),
                           elevation: 0,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.cancel, size: 18),
-                            const SizedBox(width: 8),
+                            Icon(Icons.cancel, size: 16.sp),
+                            SizedBox(width: 6.w),
                             Text(
                               isCancelled ? 'CANCELLED' : 'CANCEL GAME',
-                              style: GoogleFonts.teko(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
+                              style: GoogleFonts.barlowSemiCondensed(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
                               ),
                             ),
                           ],
@@ -594,12 +612,13 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                     ),
                   ],
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 12.h),
 
                   // Open Chat button (only for host and participants)
                   if (isHost || isParticipant)
                     SizedBox(
                       width: double.infinity,
+                      height: 40.h,
                       child: OutlinedButton.icon(
                         onPressed: () {
                           Navigator.push(
@@ -614,28 +633,27 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: kNeonGreen,
-                          side: const BorderSide(color: kNeonGreen, width: 2),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: const BorderSide(color: kNeonGreen, width: 1.5),
                         ),
-                        icon: const Icon(Icons.chat),
+                        icon: Icon(Icons.chat, size: 16.sp),
                         label: Text(
                           'OPEN CHAT',
-                          style: GoogleFonts.teko(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
+                          style: GoogleFonts.barlowSemiCondensed(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
                           ),
                         ),
                       ),
                     ),
                 ] else
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(12.w),
                     child: Text(
                       'Please sign in to join this game',
-                      style: TextStyle(
+                      style: GoogleFonts.barlowSemiCondensed(
                         color: Colors.grey[500],
-                        fontSize: 15,
+                        fontSize: 13.sp,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -681,26 +699,26 @@ class _GameDetailsViewState extends State<GameDetailsView> {
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: kNeonGreen),
-        const SizedBox(width: 12),
+        Icon(icon, size: 18.sp, color: kNeonGreen),
+        SizedBox(width: 10.w),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 11,
+                style: GoogleFonts.barlowSemiCondensed(
+                  fontSize: 10.sp,
                   color: Colors.grey[500],
                   fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
+                  letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 2.h),
               Text(
                 value,
-                style: const TextStyle(
-                  fontSize: 16,
+                style: GoogleFonts.barlowSemiCondensed(
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w500,
                   color: Colors.white,
                 ),

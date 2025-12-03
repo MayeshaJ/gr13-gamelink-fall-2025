@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
@@ -201,7 +202,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -212,7 +213,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                     Text(
                       'GAME',
                       style: GoogleFonts.teko(
-                        fontSize: 48,
+                        fontSize: 40.sp,
                         fontWeight: FontWeight.bold,
                         fontStyle: FontStyle.italic,
                         color: Colors.white,
@@ -222,7 +223,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                     Text(
                       'LINK',
                       style: GoogleFonts.teko(
-                        fontSize: 48,
+                        fontSize: 40.sp,
                         fontWeight: FontWeight.bold,
                         fontStyle: FontStyle.italic,
                         color: kNeonGreen,
@@ -232,14 +233,14 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                   ],
                 ),
 
-                const SizedBox(height: 48),
+                SizedBox(height: 28.h),
 
                 // Auth Card
                 Container(
-                  padding: const EdgeInsets.all(32),
+                  padding: EdgeInsets.all(20.w),
                   decoration: BoxDecoration(
                     color: const Color(0xFF243447),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(
                       color: Colors.white.withOpacity(0.1),
                       width: 1,
@@ -264,18 +265,18 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                       Text(
                                         'SIGN IN',
                                         style: GoogleFonts.teko(
-                                          fontSize: 24,
+                                          fontSize: 20.sp,
                                           fontWeight: FontWeight.bold,
                                           fontStyle: FontStyle.italic,
                                           color: isActive ? Colors.white : Colors.grey,
                                         ),
                                       ),
-                                      const SizedBox(height: 8),
+                                      SizedBox(height: 6.h),
                                       Container(
-                                        height: 3,
+                                        height: 2.h,
                                         decoration: BoxDecoration(
                                           color: isActive ? kNeonGreen : Colors.transparent,
-                                          borderRadius: BorderRadius.circular(2),
+                                          borderRadius: BorderRadius.circular(1.r),
                                         ),
                                       ),
                                     ],
@@ -285,7 +286,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                             ),
                           ),
 
-                          const SizedBox(width: 16),
+                          SizedBox(width: 12.w),
 
                           // Join Club Tab
                           Expanded(
@@ -300,18 +301,18 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                       Text(
                                         'JOIN CLUB',
                                         style: GoogleFonts.teko(
-                                          fontSize: 24,
+                                          fontSize: 20.sp,
                                           fontWeight: FontWeight.bold,
                                           fontStyle: FontStyle.italic,
                                           color: isActive ? Colors.white : Colors.grey,
                                         ),
                                       ),
-                                      const SizedBox(height: 8),
+                                      SizedBox(height: 6.h),
                                       Container(
-                                        height: 3,
+                                        height: 2.h,
                                         decoration: BoxDecoration(
                                           color: isActive ? kNeonGreen : Colors.transparent,
-                                          borderRadius: BorderRadius.circular(2),
+                                          borderRadius: BorderRadius.circular(1.r),
                                         ),
                                       ),
                                     ],
@@ -323,7 +324,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         ],
                       ),
 
-                      const SizedBox(height: 32),
+                      SizedBox(height: 20.h),
 
                       // First Name and Last Name (only for Sign Up)
                       AnimatedBuilder(
@@ -341,7 +342,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                         icon: Icons.person_outline,
                                       ),
                                     ),
-                                    const SizedBox(width: 16),
+                                    SizedBox(width: 10.w),
                                     Expanded(
                                       child: _buildInputField(
                                         controller: _lastNameController,
@@ -351,7 +352,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: 12.h),
                               ],
                             );
                           }
@@ -367,7 +368,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         keyboardType: TextInputType.emailAddress,
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: 12.h),
 
                       // Password Field
                       _buildInputField(
@@ -377,7 +378,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         obscureText: true,
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: 12.h),
 
                       // Confirm Password (only for Sign Up)
                       AnimatedBuilder(
@@ -392,7 +393,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                   icon: Icons.lock_outline,
                                   obscureText: true,
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: 12.h),
                               ],
                             );
                           }
@@ -409,11 +410,17 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                               alignment: Alignment.centerRight,
                               child: TextButton(
                                 onPressed: () => context.pushNamed('forgot-password'),
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
                                 child: Text(
                                   'Forgot Password?',
-                                  style: TextStyle(
+                                  style: GoogleFonts.barlowSemiCondensed(
                                     color: kNeonGreen,
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 13.sp,
                                   ),
                                 ),
                               ),
@@ -423,12 +430,12 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         },
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16.h),
 
                       // Submit Button
                       SizedBox(
                         width: double.infinity,
-                        height: 56,
+                        height: 48.h,
                         child: ElevatedButton(
                           onPressed: _isLoading || _isGoogleLoading
                               ? null
@@ -444,15 +451,15 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                             foregroundColor: Colors.black,
                             disabledBackgroundColor: kNeonGreen.withOpacity(0.5),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                             elevation: 0,
                           ),
                           child: _isLoading
-                              ? const SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
+                              ? SizedBox(
+                                  height: 20.h,
+                                  width: 20.w,
+                                  child: const CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                                   ),
@@ -460,22 +467,25 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                               : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      _tabController.index == 0 ? 'ENTER GAME' : 'CREATE ACCOUNT',
-                                      style: GoogleFonts.teko(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1,
+                                    Flexible(
+                                      child: Text(
+                                        _tabController.index == 0 ? 'ENTER GAME' : 'CREATE ACCOUNT',
+                                        style: GoogleFonts.barlowSemiCondensed(
+                                          fontSize: 15.sp,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.5,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    const Icon(Icons.arrow_forward, size: 20),
+                                    SizedBox(width: 6.w),
+                                    Icon(Icons.arrow_forward, size: 18.sp),
                                   ],
                                 ),
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 16.h),
 
                       // Divider with "OR"
                       Row(
@@ -487,13 +497,13 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: EdgeInsets.symmetric(horizontal: 12.w),
                             child: Text(
                               'OR',
-                              style: GoogleFonts.teko(
-                                fontSize: 16,
-                                color: Colors.grey[400],
-                                fontWeight: FontWeight.bold,
+                              style: GoogleFonts.barlowSemiCondensed(
+                                fontSize: 13.sp,
+                                color: Colors.grey[500],
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -506,29 +516,29 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         ],
                       ),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 16.h),
 
                       // Google Sign-In Button
                       SizedBox(
                         width: double.infinity,
-                        height: 56,
+                        height: 48.h,
                         child: OutlinedButton(
                           onPressed: _isLoading || _isGoogleLoading ? null : _handleGoogleSignIn,
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.white,
                             side: BorderSide(
                               color: Colors.white.withOpacity(0.3),
-                              width: 2,
+                              width: 1,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                           ),
                           child: _isGoogleLoading
-                              ? const SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
+                              ? SizedBox(
+                                  height: 20.h,
+                                  width: 20.w,
+                                  child: const CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
@@ -538,22 +548,25 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                   children: [
                                     Image.asset(
                                       'assets/google_logo.png',
-                                      height: 24,
+                                      height: 20.h,
                                       errorBuilder: (context, error, stackTrace) {
-                                        return const Icon(
+                                        return Icon(
                                           Icons.g_mobiledata,
-                                          size: 32,
+                                          size: 22.sp,
                                           color: Colors.white,
                                         );
                                       },
                                     ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'CONTINUE WITH GOOGLE',
-                                      style: GoogleFonts.teko(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1,
+                                    SizedBox(width: 8.w),
+                                    Flexible(
+                                      child: Text(
+                                        'CONTINUE WITH GOOGLE',
+                                        style: GoogleFonts.barlowSemiCondensed(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.5,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
@@ -581,7 +594,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF1A2332),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8.r),
         border: Border.all(
           color: Colors.white.withOpacity(0.1),
           width: 1,
@@ -591,32 +604,32 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
-        style: const TextStyle(color: Colors.white),
+        style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 15.sp),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(
+          hintStyle: GoogleFonts.barlowSemiCondensed(
             color: Colors.grey[500],
-            fontSize: 16,
+            fontSize: 14.sp,
           ),
           prefixIcon: Icon(
             icon,
             color: Colors.grey[600],
-            size: 22,
+            size: 20.sp,
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: 14.h,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: const BorderSide(
               color: kNeonGreen,
               width: 2,
             ),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8.r),
             borderSide: BorderSide.none,
           ),
         ),
