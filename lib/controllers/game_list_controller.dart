@@ -68,10 +68,19 @@ class GameListController {
     
     final currentUser = AuthController.instance.currentUser;
     final String? currentUserId = currentUser?.uid;
+    final DateTime now = DateTime.now();
+    final Duration oneHour = const Duration(hours: 1);
     
-    // Filter out cancelled games AND games hosted by current user
+    // Filter out cancelled games, games hosted by current user, and games 1+ hours past start time
     final List<GameModel> activeGames = _currentGameModels!
-        .where((model) => !model.isCancelled && model.hostId != currentUserId)
+        .where((model) {
+          if (model.isCancelled || model.hostId == currentUserId) {
+            return false;
+          }
+          final DateTime gameStartTime = model.date;
+          final Duration timeSinceStart = now.difference(gameStartTime);
+          return timeSinceStart < oneHour;
+        })
         .toList();
     
     final List<Game> updatedGames = activeGames.map((model) {
@@ -257,15 +266,26 @@ class GameListController {
   /// Returns games immediately with cached/placeholder host names,
   /// then updates asynchronously as host names are fetched.
   /// Filters out games hosted by the current user (they appear in Game Logs instead).
+  /// Also filters out games that are more than 1 hour past their start time.
   Future<List<Game>> _convertGameModelsToGames(
     List<GameModel> gameModels,
   ) async {
     final currentUser = AuthController.instance.currentUser;
     final String? currentUserId = currentUser?.uid;
+    final DateTime now = DateTime.now();
+    final Duration oneHour = const Duration(hours: 1);
     
-    // Filter out cancelled games AND games hosted by current user
+    // Filter out cancelled games, games hosted by current user, and games that are 1+ hours past start time
     final List<GameModel> activeGames = gameModels
-        .where((model) => !model.isCancelled && model.hostId != currentUserId)
+        .where((model) {
+          if (model.isCancelled || model.hostId == currentUserId) {
+            return false;
+          }
+          // Filter out games that started more than 1 hour ago
+          final DateTime gameStartTime = model.date;
+          final Duration timeSinceStart = now.difference(gameStartTime);
+          return timeSinceStart < oneHour;
+        })
         .toList();
 
     // Convert GameModel to Game immediately using cached host names or placeholder
@@ -348,10 +368,19 @@ class GameListController {
       
       final currentUser = AuthController.instance.currentUser;
       final String? currentUserId = currentUser?.uid;
+      final DateTime now = DateTime.now();
+      final Duration oneHour = const Duration(hours: 1);
       
-      // Filter out cancelled games AND games hosted by current user
+      // Filter out cancelled games, games hosted by current user, and games 1+ hours past start time
       final List<GameModel> activeGames = _currentGameModels!
-          .where((model) => !model.isCancelled && model.hostId != currentUserId)
+          .where((model) {
+            if (model.isCancelled || model.hostId == currentUserId) {
+              return false;
+            }
+            final DateTime gameStartTime = model.date;
+            final Duration timeSinceStart = now.difference(gameStartTime);
+            return timeSinceStart < oneHour;
+          })
           .toList();
       
       final List<Game> updatedGames = activeGames.map((model) {
@@ -388,10 +417,19 @@ class GameListController {
       
       final currentUser = AuthController.instance.currentUser;
       final String? currentUserId = currentUser?.uid;
+      final DateTime now = DateTime.now();
+      final Duration oneHour = const Duration(hours: 1);
       
-      // Filter out cancelled games AND games hosted by current user
+      // Filter out cancelled games, games hosted by current user, and games 1+ hours past start time
       final List<GameModel> activeGames = _currentGameModels!
-          .where((model) => !model.isCancelled && model.hostId != currentUserId)
+          .where((model) {
+            if (model.isCancelled || model.hostId == currentUserId) {
+              return false;
+            }
+            final DateTime gameStartTime = model.date;
+            final Duration timeSinceStart = now.difference(gameStartTime);
+            return timeSinceStart < oneHour;
+          })
           .toList();
       
       final List<Game> updatedGames = activeGames.map((model) {

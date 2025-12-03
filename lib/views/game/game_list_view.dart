@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../controllers/game_list_controller.dart';
 import '../../controllers/search_controller.dart' as gl;
+import '../../controllers/auth_controller.dart';
 import '../../models/game.dart';
 import 'game_tile.dart';
 import '../../widgets/loading_indicator.dart';
@@ -22,6 +23,7 @@ class _GameListViewState extends State<GameListView> {
   late final FocusNode _searchFocusNode;
   bool _suppressSearchListener = false;
   String _syncedQuery = '';
+  String _selectedFilter = 'all'; // all, joined, available, waitlist
 
   @override
   void initState() {
@@ -83,9 +85,108 @@ class _GameListViewState extends State<GameListView> {
     context.goNamed('games', queryParameters: params);
   }
 
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Filter Games'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('All Games'),
+                leading: Radio<String>(
+                  value: 'all',
+                  groupValue: _selectedFilter,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedFilter = value ?? 'all';
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                onTap: () {
+                  setState(() {
+                    _selectedFilter = 'all';
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Joined Games'),
+                leading: Radio<String>(
+                  value: 'joined',
+                  groupValue: _selectedFilter,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedFilter = value ?? 'all';
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                onTap: () {
+                  setState(() {
+                    _selectedFilter = 'joined';
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Available Games'),
+                leading: Radio<String>(
+                  value: 'available',
+                  groupValue: _selectedFilter,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedFilter = value ?? 'all';
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                onTap: () {
+                  setState(() {
+                    _selectedFilter = 'available';
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Waitlist Games'),
+                leading: Radio<String>(
+                  value: 'waitlist',
+                  groupValue: _selectedFilter,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedFilter = value ?? 'all';
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                onTap: () {
+                  setState(() {
+                    _selectedFilter = 'waitlist';
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Browse Games'),
         automaticallyImplyLeading: false,
@@ -140,18 +241,37 @@ class _GameListViewState extends State<GameListView> {
 
               // Apply filters
               final String q = search.query.trim().toLowerCase();
+              final String? currentUserId = AuthController.instance.currentUser?.uid;
+              
               bool matches(Game g) {
-                if (q.isEmpty) {
-                  return true;
+                // Search filter
+                if (q.isNotEmpty) {
+                  final String sport = g.sport.toLowerCase();
+                  final String host = g.hostName.toLowerCase();
+                  final String title = g.title.toLowerCase();
+                  final String location = g.location.toLowerCase();
+                  if (!sport.contains(q) &&
+                      !host.contains(q) &&
+                      !title.contains(q) &&
+                      !location.contains(q)) {
+                    return false;
+                  }
                 }
-                final String sport = g.sport.toLowerCase();
-                final String host = g.hostName.toLowerCase();
-                final String title = g.title.toLowerCase();
-                final String location = g.location.toLowerCase();
-                return sport.contains(q) ||
-                    host.contains(q) ||
-                    title.contains(q) ||
-                    location.contains(q);
+                
+                // Status filter
+                if (_selectedFilter != 'all' && currentUserId != null) {
+                  switch (_selectedFilter) {
+                    case 'joined':
+                      return g.participantIds.contains(currentUserId);
+                    case 'available':
+                      return !g.participantIds.contains(currentUserId) &&
+                             !g.waitlist.contains(currentUserId);
+                    case 'waitlist':
+                      return g.waitlist.contains(currentUserId);
+                  }
+                }
+                
+                return true;
               }
 
               final List<Game> games =
@@ -164,23 +284,49 @@ class _GameListViewState extends State<GameListView> {
                 );
               }
 
-              return Column(
-                children: <Widget>[
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: TextField(
-                      controller: _searchController,
-                      focusNode: _searchFocusNode,
-                      decoration: const InputDecoration(
-                        labelText: 'Search by game, location, or sport',
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(),
+              return GestureDetector(
+                onTap: () {
+                  // Dismiss keyboard when tapping outside
+                  FocusScope.of(context).unfocus();
+                },
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              focusNode: _searchFocusNode,
+                              decoration: const InputDecoration(
+                                labelText: 'Search by game, location, or sport',
+                                prefixIcon: Icon(Icons.search),
+                                border: OutlineInputBorder(),
+                              ),
+                              onSubmitted: (_) {
+                                // Dismiss keyboard when user presses done
+                                _searchFocusNode.unfocus();
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: Icon(
+                              Icons.filter_list,
+                              color: _selectedFilter != 'all'
+                                  ? Theme.of(context).primaryColor
+                                  : null,
+                            ),
+                            tooltip: 'Filter games',
+                            onPressed: _showFilterDialog,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: RefreshIndicator(
+                    Expanded(
+                      child: RefreshIndicator(
                       onRefresh: () => GameListController.instance.refresh(),
                       child: games.isEmpty
                           ? SingleChildScrollView(
@@ -194,22 +340,32 @@ class _GameListViewState extends State<GameListView> {
                                 ),
                               ),
                             )
-                          : ListView.separated(
-                              physics:
-                                  const AlwaysScrollableScrollPhysics(),
-                              padding: const EdgeInsets.all(16),
-                              itemCount: games.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 12),
-                              itemBuilder:
-                                  (BuildContext context, int index) {
-                                final Game game = games[index];
-                                return GameTile(game: game);
+                          : NotificationListener<ScrollNotification>(
+                              onNotification: (notification) {
+                                // Dismiss keyboard when user starts scrolling
+                                if (notification is ScrollStartNotification) {
+                                  _searchFocusNode.unfocus();
+                                }
+                                return false;
                               },
+                              child: ListView.separated(
+                                physics:
+                                    const AlwaysScrollableScrollPhysics(),
+                                padding: const EdgeInsets.all(16),
+                                itemCount: games.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 12),
+                                itemBuilder:
+                                    (BuildContext context, int index) {
+                                  final Game game = games[index];
+                                  return GameTile(game: game);
+                                },
+                              ),
                             ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           );
