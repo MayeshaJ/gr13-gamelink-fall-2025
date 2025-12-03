@@ -117,121 +117,6 @@ class _ProfileViewState extends State<ProfileView> {
         backgroundColor: kDarkNavy,
         elevation: 0,
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            onPressed: () async {
-              // Navigate to edit profile with user data
-              final result = await context.pushNamed(
-                'edit-profile',
-                extra: user,
-              );
-              if (result == true || context.mounted) {
-                _loadUserData();
-              }
-            },
-            icon: const Icon(Icons.edit),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Center(
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundImage:
-                      user.photoUrl.isNotEmpty ? NetworkImage(user.photoUrl) : null,
-                  child: user.photoUrl.isEmpty
-                      ? const Icon(
-                          Icons.person,
-                          size: 40,
-                        )
-                      : null,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Email',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Text(user.email),
-                    const SizedBox(height: 20),
-                    Text(
-                      'First Name',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Text(user.firstName.isEmpty ? 'Not set' : user.firstName),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Last Name',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Text(user.lastName.isEmpty ? 'Not set' : user.lastName),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        const Icon(Icons.sports_soccer, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Favorite sport',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      user.primarySport.isEmpty
-                          ? 'No sport selected'
-                          : user.primarySport,
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        const Icon(Icons.military_tech, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Skill level',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(
-                          user.skillLevel.isEmpty ? 'Not set' : user.skillLevel,
-                        ),
-                        const SizedBox(width: 8),
-                        ..._buildSkillIcons(user.skillLevel.isEmpty
-                            ? 'Beginner'
-                            : user.skillLevel),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        const Icon(Icons.info_outline, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          'About',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      user.bio.isEmpty
-                          ? 'Tell others a little about yourself'
-                          : user.bio,
-                    ),
-                    const SizedBox(height: 20),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -282,14 +167,14 @@ class _ProfileViewState extends State<ProfileView> {
                       right: 12,
                       child: InkWell(
                         onTap: () async {
-                          final result = await context.pushNamed(
-                            'edit-profile',
-                            extra: user,
-                          );
-                          if (result == true || context.mounted) {
-                            _loadUserData();
-                          }
-                        },
+              final result = await context.pushNamed(
+                'edit-profile',
+                extra: user,
+              );
+              if (result == true || context.mounted) {
+                _loadUserData();
+              }
+            },
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
@@ -300,9 +185,9 @@ class _ProfileViewState extends State<ProfileView> {
                                 color: kNeonGreen.withOpacity(0.5),
                                 blurRadius: 8,
                                 spreadRadius: 1,
-                              ),
-                            ],
-                          ),
+          ),
+        ],
+      ),
                           child: const Icon(
                             Icons.edit,
                             color: Colors.black,
@@ -313,9 +198,9 @@ class _ProfileViewState extends State<ProfileView> {
                     ),
                     // Card Content
                     Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        children: [
+        padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
                           // Top Section: Rating and Position
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -328,7 +213,7 @@ class _ProfileViewState extends State<ProfileView> {
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 12,
                                       vertical: 6,
-                                    ),
+                ),
                                     decoration: BoxDecoration(
                                       color: kNeonGreen,
                                       borderRadius: BorderRadius.circular(8),
@@ -349,11 +234,11 @@ class _ProfileViewState extends State<ProfileView> {
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 10,
                                       vertical: 4,
-                                    ),
+                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(0.2),
                                       borderRadius: BorderRadius.circular(6),
-                                    ),
+                    ),
                                     child: Icon(
                                       _getSportIcon(user.primarySport),
                                       color: kNeonGreen,
@@ -366,7 +251,7 @@ class _ProfileViewState extends State<ProfileView> {
                               // Player Photo
                               Expanded(
                                 child: Column(
-                                  children: [
+                      children: [
                                     Container(
                                       width: 120,
                                       height: 120,
@@ -381,9 +266,9 @@ class _ProfileViewState extends State<ProfileView> {
                                             color: kNeonGreen.withOpacity(0.5),
                                             blurRadius: 15,
                                             spreadRadius: 2,
-                                          ),
-                                        ],
-                                      ),
+                        ),
+                      ],
+                    ),
                                       child: ClipOval(
                                         child: user.photoUrl.isNotEmpty
                                             ? Image.network(
@@ -412,14 +297,14 @@ class _ProfileViewState extends State<ProfileView> {
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
+                        ),
+                      ],
+                    ),
                           const SizedBox(height: 12),
                           // Player Name
                           Text(
-                            user.name.trim().isNotEmpty
-                                ? user.name.toUpperCase()
+                            user.fullName.trim().isNotEmpty
+                                ? user.fullName.toUpperCase()
                                 : 'PLAYER',
                             style: GoogleFonts.teko(
                               fontSize: 24,
@@ -468,8 +353,8 @@ class _ProfileViewState extends State<ProfileView> {
                               ),
                             ),
                             child: Column(
-                              children: [
-                                Text(
+                      children: [
+                        Text(
                                   'PLAYER STATS',
                                   style: GoogleFonts.teko(
                                     fontSize: 14,
@@ -477,11 +362,11 @@ class _ProfileViewState extends State<ProfileView> {
                                     color: kNeonGreen,
                                     letterSpacing: 2,
                                   ),
-                                ),
+                    ),
                                 const SizedBox(height: 8),
-                                Row(
+                    Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
+                      children: [
                                     _buildStatItem('SKILL', user.skillLevel.toUpperCase()),
                                     _buildStatDivider(),
                                     _buildStatItem('STATUS', 'ACTIVE'),
@@ -515,9 +400,9 @@ class _ProfileViewState extends State<ProfileView> {
                                       color: kNeonGreen,
                                       letterSpacing: 1,
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
                                     user.bio,
                                     style: TextStyle(
                                       color: Colors.grey[300],

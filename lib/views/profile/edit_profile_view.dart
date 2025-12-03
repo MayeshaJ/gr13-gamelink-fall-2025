@@ -32,10 +32,6 @@ class _EditProfileViewState extends State<EditProfileView> {
   late String _photoUrl;
   late String _selectedSport;
   late String _selectedSkillLevel;
-  bool _notifyGameUpdates = true;
-  bool _notifyChatMessages = true;
-  bool _notifyReminders = true;
-
 
   final List<String> _sportsOptions = const [
     'Soccer',
@@ -65,10 +61,6 @@ class _EditProfileViewState extends State<EditProfileView> {
     _selectedSkillLevel = widget.user.skillLevel.isNotEmpty
         ? widget.user.skillLevel
         : _skillLevels.first;
-    _notifyGameUpdates = widget.user.notifyGameUpdates;
-    _notifyChatMessages = widget.user.notifyChatMessages;
-    _notifyReminders = widget.user.notifyReminders;
-
   }
 
   @override
@@ -103,9 +95,6 @@ class _EditProfileViewState extends State<EditProfileView> {
           'primarySport': _selectedSport,
           'skillLevel': _selectedSkillLevel,
           'bio': newBio,
-          'notifyGameUpdates': _notifyGameUpdates,
-          'notifyChatMessages': _notifyChatMessages,
-          'notifyReminders': _notifyReminders,
         },
       );
 
@@ -249,7 +238,7 @@ class _EditProfileViewState extends State<EditProfileView> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               // Player Photo Editor
@@ -313,18 +302,18 @@ class _EditProfileViewState extends State<EditProfileView> {
                                 : Container(
                                     color: kDarkNavy,
                                     child: const Icon(
-                                      Icons.person,
+                              Icons.person,
                                       size: 60,
                                       color: kNeonGreen,
                                     ),
                                   ),
                           ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: InkWell(
-                            onTap: _photoUpdating ? null : _changePhoto,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: InkWell(
+                        onTap: _photoUpdating ? null : _changePhoto,
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
@@ -338,29 +327,29 @@ class _EditProfileViewState extends State<EditProfileView> {
                                   ),
                                 ],
                               ),
-                              child: _photoUpdating
-                                  ? const SizedBox(
+                          child: _photoUpdating
+                              ? const SizedBox(
                                       width: 20,
                                       height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
                                         color: Colors.black,
-                                      ),
-                                    )
-                                  : const Icon(
-                                      Icons.camera_alt,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.camera_alt,
                                       size: 20,
                                       color: Colors.black,
-                                    ),
-                            ),
-                          ),
+                                ),
                         ),
-                        if (_photoUrl.isNotEmpty)
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: InkWell(
-                              onTap: _photoUpdating ? null : _deletePhoto,
+                      ),
+                    ),
+                    if (_photoUrl.isNotEmpty)
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: InkWell(
+                          onTap: _photoUpdating ? null : _deletePhoto,
                               child: Container(
                                 padding: const EdgeInsets.all(6),
                                 decoration: const BoxDecoration(
@@ -368,7 +357,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
-                                  Icons.close,
+                              Icons.close,
                                   size: 18,
                                   color: Colors.white,
                                 ),
@@ -376,7 +365,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                             ),
                           ),
                       ],
-                    ),
+                      ),
                   ],
                 ),
               ),
@@ -405,7 +394,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Name
+                    // First Name
                     Container(
                       decoration: BoxDecoration(
                         color: kDarkNavy,
@@ -416,13 +405,51 @@ class _EditProfileViewState extends State<EditProfileView> {
                         ),
                       ),
                       child: TextField(
-                        controller: _nameController,
+                        controller: _firstNameController,
                         style: const TextStyle(color: Colors.white),
                         textCapitalization: TextCapitalization.words,
                         decoration: InputDecoration(
-                          labelText: 'Player Name',
+                          labelText: 'First Name',
                           labelStyle: TextStyle(color: Colors.grey[400]),
                           prefixIcon: const Icon(Icons.person, color: kNeonGreen),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: kNeonGreen,
+                              width: 2,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Last Name
+                    Container(
+                      decoration: BoxDecoration(
+                        color: kDarkNavy,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: TextField(
+                        controller: _lastNameController,
+                        style: const TextStyle(color: Colors.white),
+                        textCapitalization: TextCapitalization.words,
+                        decoration: InputDecoration(
+                          labelText: 'Last Name',
+                          labelStyle: TextStyle(color: Colors.grey[400]),
+                          prefixIcon: const Icon(Icons.person_outline, color: kNeonGreen),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -445,52 +472,6 @@ class _EditProfileViewState extends State<EditProfileView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 25),
-              TextField(
-                controller: _firstNameController,
-                decoration: const InputDecoration(
-                  labelText: 'First Name',
-                  prefixIcon: Icon(Icons.person),
-                ),
-                textCapitalization: TextCapitalization.words,
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _lastNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Last Name',
-                  prefixIcon: Icon(Icons.person_outline),
-                ),
-                textCapitalization: TextCapitalization.words,
-              ),
-              const SizedBox(height: 20),
-              DropdownButtonFormField<String>(
-                value: _selectedSport,
-                decoration: const InputDecoration(
-                  labelText: 'Favorite sport',
-                  prefixIcon: Icon(Icons.sports),
-                ),
-                items: _sportsOptions
-                    .map(
-                      (sport) => DropdownMenuItem(
-                        value: sport,
-                        child: Text(sport),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  if (value == null) {
-                    return;
-                  }
-                  setState(() {
-                    _selectedSport = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Row(
               const SizedBox(height: 24),
               // Sport Selection
               Container(
@@ -523,10 +504,10 @@ class _EditProfileViewState extends State<EditProfileView> {
                         final isSelected = _selectedSport == sport;
                         return InkWell(
                           onTap: () {
-                            setState(() {
+                  setState(() {
                               _selectedSport = sport;
-                            });
-                          },
+                  });
+                },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
@@ -584,8 +565,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                     Row(
                       children: [
                         const Icon(Icons.military_tech, color: kNeonGreen),
-                        const SizedBox(width: 8),
-                        Text(
+                    const SizedBox(width: 8),
+                    Text(
                           'SKILL LEVEL',
                           style: GoogleFonts.teko(
                             fontSize: 18,
@@ -675,7 +656,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                children: [
                     Text(
                       'ABOUT YOU',
                       style: GoogleFonts.teko(
@@ -684,7 +665,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                         color: kNeonGreen,
                         letterSpacing: 2,
                       ),
-                    ),
+              ),
                     const SizedBox(height: 16),
                     Container(
                       decoration: BoxDecoration(
@@ -696,7 +677,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                         ),
                       ),
                       child: TextField(
-                        controller: _bioController,
+                controller: _bioController,
                         style: const TextStyle(color: Colors.white),
                         maxLines: 4,
                         decoration: InputDecoration(
@@ -721,65 +702,6 @@ class _EditProfileViewState extends State<EditProfileView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: [
-                  _buildSkillChip('Beginner', Icons.looks_one),
-                  _buildSkillChip('Intermediate', Icons.looks_two),
-                  _buildSkillChip('Advanced', Icons.looks_3),
-                ],
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _bioController,
-                decoration: const InputDecoration(
-                  labelText: 'About you',
-                  alignLabelWithHint: true,
-                  prefixIcon: Icon(Icons.info_outline),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 24),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Notification settings',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              const SizedBox(height: 8),
-              SwitchListTile(
-                title: const Text(
-                  'Game updates (joins/leaves, reschedules, cancellations)',
-                ),
-                value: _notifyGameUpdates,
-                onChanged: (value) {
-                  setState(() => _notifyGameUpdates = value);
-                },
-              ),
-              SwitchListTile(
-                title: const Text('Chat messages'),
-                value: _notifyChatMessages,
-                onChanged: (value) {
-                  setState(() => _notifyChatMessages = value);
-                },
-              ),
-              SwitchListTile(
-                title: const Text('Game reminders'),
-                value: _notifyReminders,
-                onChanged: (value) {
-                  setState(() => _notifyReminders = value);
-                },
-              ),
-
-              const SizedBox(height: 25),
-              _saving
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _saveProfile,
-                      child: const Text('Save'),
-                    ),
               const SizedBox(height: 32),
               // Save Button
               SizedBox(
@@ -817,7 +739,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1,
                               ),
-                            ),
+                    ),
                           ],
                         ),
                 ),

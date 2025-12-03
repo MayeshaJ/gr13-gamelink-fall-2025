@@ -21,7 +21,11 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
   late TabController _tabController;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
 
   @override
   void initState() {
@@ -34,6 +38,9 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
     _tabController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -70,9 +77,22 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
   Future<void> _handleSignup() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
-      _showError('Please enter email and password');
+    if (email.isEmpty || password.isEmpty || firstName.isEmpty || lastName.isEmpty) {
+      _showError('Please fill in all fields');
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      _showError('Password must be at least 6 characters');
       return;
     }
 
@@ -89,6 +109,8 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
         await UserController.instance.createUserDocument(
           uid: user.uid,
           email: user.email ?? '',
+          firstName: firstName,
+          lastName: lastName,
         );
       }
 
@@ -103,6 +125,63 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isGoogleLoading = true);
+
+    try {
+      final userCredential = await AuthController.instance.signInWithGoogle();
+
+      if (userCredential == null) {
+        if (mounted) {
+          setState(() => _isGoogleLoading = false);
+        }
+        return;
+      }
+
+      final user = userCredential.user;
+      if (user != null) {
+        final userDoc = await UserController.instance.getUserDocument(uid: user.uid);
+        if (userDoc == null) {
+          final nameParts = _splitName(user.displayName);
+          await UserController.instance.createUserDocument(
+            uid: user.uid,
+            email: user.email ?? '',
+            firstName: nameParts['firstName'] ?? '',
+            lastName: nameParts['lastName'] ?? '',
+            photoUrl: user.photoURL ?? '',
+          );
+        }
+      }
+
+      if (!mounted) return;
+      context.goNamed('home');
+    } on FirebaseAuthException catch (e) {
+      _showError(e.message ?? 'Google sign-in failed');
+    } catch (e) {
+      _showError('Unexpected error during Google sign-in');
+    } finally {
+      if (mounted) {
+        setState(() => _isGoogleLoading = false);
+      }
+    }
+  }
+
+  Map<String, String> _splitName(String? displayName) {
+    if (displayName == null || displayName.trim().isEmpty) {
+      return {'firstName': '', 'lastName': ''};
+    }
+    
+    final nameParts = displayName.trim().split(' ');
+    if (nameParts.isEmpty) {
+      return {'firstName': '', 'lastName': ''};
+    }
+    
+    final firstName = nameParts.first;
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+    
+    return {'firstName': firstName, 'lastName': lastName};
   }
 
   void _showError(String message) {
@@ -246,6 +325,40 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
 
                       const SizedBox(height: 32),
 
+                      // First Name and Last Name (only for Sign Up)
+                      AnimatedBuilder(
+                        animation: _tabController,
+                        builder: (context, child) {
+                          if (_tabController.index == 1) {
+                            return Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _buildInputField(
+                                        controller: _firstNameController,
+                                        hintText: 'First Name',
+                                        icon: Icons.person_outline,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: _buildInputField(
+                                        controller: _lastNameController,
+                                        hintText: 'Last Name',
+                                        icon: Icons.person_outline,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+
                       // Email Field
                       _buildInputField(
                         controller: _emailController,
@@ -262,6 +375,29 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         hintText: 'Password',
                         icon: Icons.lock_outline,
                         obscureText: true,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Confirm Password (only for Sign Up)
+                      AnimatedBuilder(
+                        animation: _tabController,
+                        builder: (context, child) {
+                          if (_tabController.index == 1) {
+                            return Column(
+                              children: [
+                                _buildInputField(
+                                  controller: _confirmPasswordController,
+                                  hintText: 'Confirm Password',
+                                  icon: Icons.lock_outline,
+                                  obscureText: true,
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
                       ),
 
                       // Forgot Password (only for Sign In)
@@ -283,7 +419,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                               ),
                             );
                           }
-                          return const SizedBox(height: 16);
+                          return const SizedBox.shrink();
                         },
                       ),
 
@@ -294,7 +430,7 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         width: double.infinity,
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: _isLoading
+                          onPressed: _isLoading || _isGoogleLoading
                               ? null
                               : () {
                                   if (_tabController.index == 0) {
@@ -334,6 +470,92 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                     ),
                                     const SizedBox(width: 8),
                                     const Icon(Icons.arrow_forward, size: 20),
+                                  ],
+                                ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Divider with "OR"
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              color: Colors.white.withOpacity(0.2),
+                              thickness: 1,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              'OR',
+                              style: GoogleFonts.teko(
+                                fontSize: 16,
+                                color: Colors.grey[400],
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              color: Colors.white.withOpacity(0.2),
+                              thickness: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Google Sign-In Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: OutlinedButton(
+                          onPressed: _isLoading || _isGoogleLoading ? null : _handleGoogleSignIn,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: BorderSide(
+                              color: Colors.white.withOpacity(0.3),
+                              width: 2,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: _isGoogleLoading
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/google_logo.png',
+                                      height: 24,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return const Icon(
+                                          Icons.g_mobiledata,
+                                          size: 32,
+                                          color: Colors.white,
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'CONTINUE WITH GOOGLE',
+                                      style: GoogleFonts.teko(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1,
+                                      ),
+                                    ),
                                   ],
                                 ),
                         ),

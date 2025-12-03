@@ -596,26 +596,38 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
                   const SizedBox(height: 16),
 
-                  // Open Chat button (everyone who is logged in can see for now;
-                  // we will restrict to host/participants in Iteration 5).
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => GameChatView(
-                              gameId: gameModel.id,
-                              gameTitle: gameModel.title,
+                  // Open Chat button (only for host and participants)
+                  if (isHost || isParticipant)
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => GameChatView(
+                                gameId: gameModel.id,
+                                gameTitle: gameModel.title,
+                              ),
                             ),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: kNeonGreen,
+                          side: const BorderSide(color: kNeonGreen, width: 2),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        icon: const Icon(Icons.chat),
+                        label: Text(
+                          'OPEN CHAT',
+                          style: GoogleFonts.teko(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.chat),
-                      label: const Text('Open Chat'),
+                        ),
+                      ),
                     ),
-                  ),
                 ] else
                   Padding(
                     padding: const EdgeInsets.all(16),
