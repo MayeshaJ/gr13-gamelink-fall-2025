@@ -30,6 +30,8 @@ class GameDetailsView extends StatefulWidget {
 class _GameDetailsViewState extends State<GameDetailsView> {
   final GameController _gameController = GameController();
   final UserController _userController = UserController.instance;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  
   bool _isJoining = false;
   bool _isLeaving = false;
   bool _isJoiningWaitlist = false;
@@ -42,126 +44,186 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     final currentUser = AuthController.instance.currentUser;
     final currentUserId = currentUser?.uid;
 
-    return Scaffold(
-      backgroundColor: kDarkNavy,
-      appBar: AppBar(
-        backgroundColor: kDarkNavy,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white, size: 22.sp),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'GAME DETAILS',
-          style: GoogleFonts.teko(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.bold,
-            fontStyle: FontStyle.italic,
-            color: Colors.white,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => context.pushNamed('notifications'),
-            icon: Icon(
-              Icons.notifications_outlined,
-              color: kNeonGreen,
-              size: 22.sp,
+    return StreamBuilder<GameModel?>(
+      stream: _gameController.watchGame(widget.gameId),
+      builder: (context, snapshot) {
+        // Build endDrawer only when we have game data
+        Widget? endDrawer;
+        if (snapshot.hasData && snapshot.data != null) {
+          final gameModel = snapshot.data!;
+          endDrawer = _buildParticipantsDrawer(gameModel);
+        }
+
+        return Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: kDarkNavy,
+          endDrawer: endDrawer,
+          appBar: AppBar(
+            backgroundColor: kDarkNavy,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white, size: 22.sp),
+              onPressed: () => context.pop(),
             ),
+            title: Text(
+              'GAME DETAILS',
+              style: GoogleFonts.teko(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                fontStyle: FontStyle.italic,
+                color: Colors.white,
+              ),
+            ),
+            actions: [
+              // Players icon button
+              if (snapshot.hasData && snapshot.data != null)
+                Padding(
+                  padding: EdgeInsets.only(right: 8.w),
+                  child: GestureDetector(
+                    onTap: () {
+                      _scaffoldKey.currentState?.openEndDrawer();
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(8.w),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(
+                          color: kNeonGreen,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.people_outline,
+                            color: kNeonGreen,
+                            size: 20.sp,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            '${snapshot.data!.participants.length}',
+                            style: GoogleFonts.barlowSemiCondensed(
+                              color: kNeonGreen,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              IconButton(
+                onPressed: () => context.pushNamed('notifications'),
+                icon: Icon(
+                  Icons.notifications_outlined,
+                  color: kNeonGreen,
+                  size: 22.sp,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: StreamBuilder<GameModel?>(
-        stream: _gameController.watchGame(widget.gameId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingIndicator(message: 'Loading game details...');
-          }
+          body: _buildBody(snapshot, currentUserId),
+        );
+      },
+    );
+  }
 
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: EdgeInsets.all(20.w),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Failed to load game details', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, color: Colors.white)),
-                    SizedBox(height: 12.h),
-                    SizedBox(
-                      height: 40.h,
-                      child: ElevatedButton(
-                        onPressed: () => context.pop(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: kNeonGreen,
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                        ),
-                        child: Text('Go Back', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, fontWeight: FontWeight.w600)),
-                      ),
-                    ),
-                  ],
+  Widget _buildBody(AsyncSnapshot<GameModel?> snapshot, String? currentUserId) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const LoadingIndicator(message: 'Loading game details...');
+    }
+
+    if (snapshot.hasError) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Failed to load game details', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, color: Colors.white)),
+              SizedBox(height: 12.h),
+              SizedBox(
+                height: 40.h,
+                child: ElevatedButton(
+                  onPressed: () => context.pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kNeonGreen,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                  ),
+                  child: Text('Go Back', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, fontWeight: FontWeight.w600)),
                 ),
               ),
-            );
-          }
+            ],
+          ),
+        ),
+      );
+    }
 
-          final gameModel = snapshot.data;
-          if (gameModel == null) {
-            return Center(
-              child: Padding(
-                padding: EdgeInsets.all(20.w),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Game not found', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, color: Colors.white)),
-                    SizedBox(height: 12.h),
-                    SizedBox(
-                      height: 40.h,
-                      child: ElevatedButton(
-                        onPressed: () => context.pop(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: kNeonGreen,
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                        ),
-                        child: Text('Go Back', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, fontWeight: FontWeight.w600)),
-                      ),
-                    ),
-                  ],
+    final gameModel = snapshot.data;
+    if (gameModel == null) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Game not found', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, color: Colors.white)),
+              SizedBox(height: 12.h),
+              SizedBox(
+                height: 40.h,
+                child: ElevatedButton(
+                  onPressed: () => context.pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kNeonGreen,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                  ),
+                  child: Text('Go Back', style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp, fontWeight: FontWeight.w600)),
                 ),
               ),
-            );
-          }
+            ],
+          ),
+        ),
+      );
+    }
 
-          // Load participant names and host name
-          _loadParticipantNames(gameModel.participants);
-          _loadHostName(gameModel.hostId);
+    // Load participant names and host name
+    _loadParticipantNames(gameModel.participants);
+    _loadHostName(gameModel.hostId);
 
-          final int capacity = gameModel.maxPlayers;
-          final int joined = gameModel.participants.length;
-          final int remaining = capacity > joined ? capacity - joined : 0;
-          final int waitlistCount = gameModel.waitlist.length;
+    final int capacity = gameModel.maxPlayers;
+    final int joined = gameModel.participants.length;
+    final int remaining = capacity > joined ? capacity - joined : 0;
+    final int waitlistCount = gameModel.waitlist.length;
 
-          final bool isFull = joined >= capacity;
-          final bool isStarted = DateTime.now().isAfter(gameModel.date);
-          final bool isCancelled = gameModel.isCancelled;
-          final bool isParticipant = currentUserId != null &&
-              gameModel.participants.contains(currentUserId);
-          final bool isHost = currentUserId == gameModel.hostId;
-          final bool isOnWaitlist = currentUserId != null &&
-              gameModel.waitlist.contains(currentUserId);
-          final bool canJoin = !isFull &&
-              !isParticipant &&
-              !isHost &&
-              currentUserId != null &&
-              !isStarted &&
-              !isCancelled;
+    final bool isFull = joined >= capacity;
+    final bool isStarted = DateTime.now().isAfter(gameModel.date);
+    final bool isCancelled = gameModel.isCancelled;
+    final bool isParticipant = currentUserId != null &&
+        gameModel.participants.contains(currentUserId);
+    final bool isHost = currentUserId == gameModel.hostId;
+    final bool isOnWaitlist = currentUserId != null &&
+        gameModel.waitlist.contains(currentUserId);
+    final bool canJoin = !isFull &&
+        !isParticipant &&
+        !isHost &&
+        currentUserId != null &&
+        !isStarted &&
+        !isCancelled;
 
-          final DateTime dt = gameModel.date.toLocal();
-          final String dateText =
-              '${dt.year}-${_two(dt.month)}-${_two(dt.day)} ${_two(dt.hour)}:${_two(dt.minute)}';
+    final DateTime dt = gameModel.date.toLocal();
+    final String dateText =
+        '${dt.year}-${_two(dt.month)}-${_two(dt.day)} ${_two(dt.hour)}:${_two(dt.minute)}';
 
-          return SingleChildScrollView(
+    return Column(
+      children: [
+        // Scrollable content area
+        Expanded(
+          child: SingleChildScrollView(
             padding: EdgeInsets.all(12.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,396 +334,529 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
                 SizedBox(height: 14.h),
 
-                // Participants Section
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(14.w),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF243447),
-                    borderRadius: BorderRadius.circular(10.r),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.1),
-                      width: 1,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'PARTICIPANTS (${gameModel.participants.length})',
-                        style: GoogleFonts.teko(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic,
-                          color: kNeonGreen,
-                          letterSpacing: 1,
+                // Chat Button (only for host and participants)
+                if (currentUserId != null && (isHost || isParticipant) && !isCancelled)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44.h,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => GameChatView(
+                              gameId: gameModel.id,
+                              gameTitle: gameModel.title,
+                            ),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: kNeonGreen,
+                        side: const BorderSide(color: kNeonGreen, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
                         ),
                       ),
-                      SizedBox(height: 10.h),
-                      if (gameModel.participants.isEmpty)
-                        Padding(
-                          padding: EdgeInsets.all(12.w),
-                          child: Text(
-                            'No participants yet',
-                            style: GoogleFonts.barlowSemiCondensed(color: Colors.grey[500], fontSize: 13.sp),
-                          ),
-                        )
-                      else
-                        ...gameModel.participants.map((participantId) {
-                          final participantName =
-                              _participantNames[participantId] ?? 'Loading...';
-                          final isHostParticipant = participantId == gameModel.hostId;
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 6.h),
-                            padding: EdgeInsets.all(10.w),
-                            decoration: BoxDecoration(
-                              color: kDarkNavy,
-                              borderRadius: BorderRadius.circular(6.r),
-                              border: Border.all(
-                                color: isHostParticipant 
-                                    ? kNeonGreen.withOpacity(0.3)
-                                    : Colors.white.withOpacity(0.05),
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 14.r,
-                                  backgroundColor: isHostParticipant 
-                                      ? kNeonGreen.withOpacity(0.3)
-                                      : Colors.grey[700],
-                                  child: Icon(
-                                    Icons.person,
-                                    size: 14.sp,
-                                    color: isHostParticipant ? kNeonGreen : Colors.grey[400],
-                                  ),
-                                ),
-                                SizedBox(width: 10.w),
-                                Expanded(
-                                  child: Text(
-                                    participantName,
-                                    style: GoogleFonts.barlowSemiCondensed(
-                                      color: Colors.white,
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                if (isHostParticipant)
-                                  Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                                    decoration: BoxDecoration(
-                                      color: kNeonGreen.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(4.r),
-                                      border: Border.all(color: kNeonGreen, width: 1),
-                                    ),
-                                    child: Text(
-                                      'HOST',
-                                      style: GoogleFonts.barlowSemiCondensed(
-                                        color: kNeonGreen,
-                                        fontSize: 10.sp,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          );
-                        }),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 16.h),
-
-                // Action Buttons
-                if (currentUserId != null) ...[
-                  if (isCancelled) ...[
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 6.h),
-                      child: Text(
-                        'This game has been cancelled.',
+                      icon: Icon(Icons.chat, size: 18.sp),
+                      label: Text(
+                        'OPEN GAME CHAT',
                         style: GoogleFonts.barlowSemiCondensed(
-                          color: Colors.red[400],
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
-                          fontSize: 13.sp,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ] else ...[
-                    // Leave Button (shown when user is a participant but not host)
-                    if (!isStarted && isParticipant && !isHost) ...[
-                      SizedBox(
-                        width: double.infinity,
-                        height: 44.h,
-                        child: ElevatedButton(
-                          onPressed: !_isLeaving
-                              ? () => _handleLeave(gameModel, currentUserId)
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
-                            foregroundColor: Colors.white,
-                            disabledBackgroundColor: Colors.grey[800],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: _isLeaving
-                              ? SizedBox(
-                                  width: 18.w,
-                                  height: 18.h,
-                                  child: const CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.exit_to_app, size: 18.sp),
-                                    SizedBox(width: 6.w),
-                                    Text(
-                                      'LEAVE GAME',
-                                      style: GoogleFonts.barlowSemiCondensed(
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          letterSpacing: 0.5,
                         ),
                       ),
-                      SizedBox(height: 10.h),
-                    ],
-
-                    // Join Button (shown when user is not a participant)
-                    if (!isParticipant) ...[
-                      SizedBox(
-                        width: double.infinity,
-                        height: 44.h,
-                        child: ElevatedButton(
-                          onPressed: canJoin && !_isJoining
-                              ? () => _handleJoin(gameModel, currentUserId)
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: canJoin ? kNeonGreen : Colors.grey[700],
-                            foregroundColor: canJoin ? Colors.black : Colors.grey[500],
-                            disabledBackgroundColor: Colors.grey[800],
-                            disabledForegroundColor: Colors.grey[600],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: _isJoining
-                              ? SizedBox(
-                                  width: 18.w,
-                                  height: 18.h,
-                                  child: const CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                                  ),
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      isHost
-                                          ? Icons.person
-                                          : isStarted || isFull
-                                              ? Icons.block
-                                              : Icons.person_add,
-                                      size: 18.sp,
-                                    ),
-                                    SizedBox(width: 6.w),
-                                    Text(
-                                      isHost
-                                          ? 'YOU ARE HOST'
-                                          : isStarted
-                                              ? 'GAME STARTED'
-                                              : isFull
-                                                  ? 'GAME FULL'
-                                                  : 'JOIN GAME',
-                                      style: GoogleFonts.barlowSemiCondensed(
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                      ),
-                      SizedBox(height: 10.h),
-                      if (!isStarted && isFull && !isHost) ...[
-                        SizedBox(
-                          width: double.infinity,
-                          height: 40.h,
-                          child: OutlinedButton(
-                            onPressed: _isJoiningWaitlist || _isLeavingWaitlist
-                                ? null
-                                : () {
-                                    if (isOnWaitlist) {
-                                      _handleLeaveWaitlist(gameModel, currentUserId);
-                                    } else {
-                                      _handleJoinWaitlist(gameModel, currentUserId);
-                                    }
-                                  },
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: kNeonGreen,
-                              side: const BorderSide(color: kNeonGreen, width: 1.5),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.hourglass_empty, size: 16.sp),
-                                SizedBox(width: 6.w),
-                                Text(
-                                  isOnWaitlist ? 'LEAVE WAITLIST' : 'JOIN WAITLIST',
-                                  style: GoogleFonts.barlowSemiCondensed(
-                                    fontSize: 13.sp,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ],
-
-                  // Host area (info + edit + cancel)
-                  if (isHost) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      height: 40.h,
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => EditGameView(game: gameModel),
-                            ),
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: kNeonGreen,
-                          side: const BorderSide(color: kNeonGreen, width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.edit, size: 16.sp),
-                            SizedBox(width: 6.w),
-                            Text(
-                              'EDIT GAME',
-                              style: GoogleFonts.barlowSemiCondensed(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10.h),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 40.h,
-                      child: ElevatedButton(
-                        onPressed: isCancelled ? null : () => _confirmCancel(gameModel.id),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isCancelled ? Colors.grey[800] : Colors.red,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: Colors.grey[800],
-                          disabledForegroundColor: Colors.grey[600],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.cancel, size: 16.sp),
-                            SizedBox(width: 6.w),
-                            Text(
-                              isCancelled ? 'CANCELLED' : 'CANCEL GAME',
-                              style: GoogleFonts.barlowSemiCondensed(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-
-                  SizedBox(height: 12.h),
-
-                  // Open Chat button (only for host and participants)
-                  if (isHost || isParticipant)
-                    SizedBox(
-                      width: double.infinity,
-                      height: 40.h,
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => GameChatView(
-                                gameId: gameModel.id,
-                                gameTitle: gameModel.title,
-                              ),
-                            ),
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: kNeonGreen,
-                          side: const BorderSide(color: kNeonGreen, width: 1.5),
-                        ),
-                        icon: Icon(Icons.chat, size: 16.sp),
-                        label: Text(
-                          'OPEN CHAT',
-                          style: GoogleFonts.barlowSemiCondensed(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                ] else
-                  Padding(
-                    padding: EdgeInsets.all(12.w),
-                    child: Text(
-                      'Please sign in to join this game',
-                      style: GoogleFonts.barlowSemiCondensed(
-                        color: Colors.grey[500],
-                        fontSize: 13.sp,
-                      ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
               ],
             ),
-          );
-        },
+          ),
+        ),
+
+        // Bottom Action Buttons
+        _buildBottomActions(
+          gameModel: gameModel,
+          currentUserId: currentUserId,
+          isHost: isHost,
+          isParticipant: isParticipant,
+          isOnWaitlist: isOnWaitlist,
+          isFull: isFull,
+          isStarted: isStarted,
+          isCancelled: isCancelled,
+          canJoin: canJoin,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomActions({
+    required GameModel gameModel,
+    required String? currentUserId,
+    required bool isHost,
+    required bool isParticipant,
+    required bool isOnWaitlist,
+    required bool isFull,
+    required bool isStarted,
+    required bool isCancelled,
+    required bool canJoin,
+  }) {
+    if (currentUserId == null) {
+      return Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: const Color(0xFF243447),
+          border: Border(
+            top: BorderSide(color: Colors.white.withOpacity(0.1)),
+          ),
+        ),
+        child: Text(
+          'Please sign in to join this game',
+          style: GoogleFonts.barlowSemiCondensed(
+            color: Colors.grey[500],
+            fontSize: 13.sp,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
+    if (isCancelled && !isHost) {
+      return Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: const Color(0xFF243447),
+          border: Border(
+            top: BorderSide(color: Colors.white.withOpacity(0.1)),
+          ),
+        ),
+        child: Text(
+          'This game has been cancelled.',
+          style: GoogleFonts.barlowSemiCondensed(
+            color: Colors.red[400],
+            fontWeight: FontWeight.w600,
+            fontSize: 13.sp,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF243447),
+        border: Border(
+          top: BorderSide(color: Colors.white.withOpacity(0.1)),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: isHost
+            ? _buildHostActions(gameModel, isCancelled)
+            : _buildGuestActions(
+                gameModel: gameModel,
+                currentUserId: currentUserId,
+                isParticipant: isParticipant,
+                isOnWaitlist: isOnWaitlist,
+                isFull: isFull,
+                isStarted: isStarted,
+                canJoin: canJoin,
+              ),
+      ),
+    );
+  }
+
+  Widget _buildHostActions(GameModel gameModel, bool isCancelled) {
+    return Row(
+      children: [
+        // Edit Button
+        Expanded(
+          child: SizedBox(
+            height: 44.h,
+            child: OutlinedButton.icon(
+              onPressed: isCancelled
+                  ? null
+                  : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EditGameView(game: gameModel),
+                        ),
+                      );
+                    },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: kNeonGreen,
+                disabledForegroundColor: Colors.grey[600],
+                side: BorderSide(
+                  color: isCancelled ? Colors.grey[600]! : kNeonGreen,
+                  width: 1.5,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+              ),
+              icon: Icon(Icons.edit, size: 18.sp),
+              label: Text(
+                'EDIT',
+                style: GoogleFonts.barlowSemiCondensed(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 10.w),
+        // Cancel/Delete Button
+        Expanded(
+          child: SizedBox(
+            height: 44.h,
+            child: ElevatedButton.icon(
+              onPressed: isCancelled ? null : () => _confirmCancel(gameModel.id),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isCancelled ? Colors.grey[800] : Colors.red,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.grey[800],
+                disabledForegroundColor: Colors.grey[600],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                elevation: 0,
+              ),
+              icon: Icon(Icons.cancel, size: 18.sp),
+              label: Text(
+                isCancelled ? 'CANCELLED' : 'CANCEL',
+                style: GoogleFonts.barlowSemiCondensed(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGuestActions({
+    required GameModel gameModel,
+    required String currentUserId,
+    required bool isParticipant,
+    required bool isOnWaitlist,
+    required bool isFull,
+    required bool isStarted,
+    required bool canJoin,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Leave Button (shown when user is a participant)
+        if (!isStarted && isParticipant)
+          SizedBox(
+            width: double.infinity,
+            height: 44.h,
+            child: ElevatedButton.icon(
+              onPressed: !_isLeaving
+                  ? () => _handleLeave(gameModel, currentUserId)
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.grey[800],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                elevation: 0,
+              ),
+              icon: _isLeaving
+                  ? SizedBox(
+                      width: 18.w,
+                      height: 18.h,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Icon(Icons.exit_to_app, size: 18.sp),
+              label: Text(
+                'LEAVE GAME',
+                style: GoogleFonts.barlowSemiCondensed(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ),
+
+        // Join Button (shown when user is not a participant)
+        if (!isParticipant) ...[
+          SizedBox(
+            width: double.infinity,
+            height: 44.h,
+            child: ElevatedButton.icon(
+              onPressed: canJoin && !_isJoining
+                  ? () => _handleJoin(gameModel, currentUserId)
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: canJoin ? kNeonGreen : Colors.grey[700],
+                foregroundColor: canJoin ? Colors.black : Colors.grey[500],
+                disabledBackgroundColor: Colors.grey[800],
+                disabledForegroundColor: Colors.grey[600],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                elevation: 0,
+              ),
+              icon: _isJoining
+                  ? SizedBox(
+                      width: 18.w,
+                      height: 18.h,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                      ),
+                    )
+                  : Icon(
+                      isStarted || isFull ? Icons.block : Icons.person_add,
+                      size: 18.sp,
+                    ),
+              label: Text(
+                isStarted
+                    ? 'GAME STARTED'
+                    : isFull
+                        ? 'GAME FULL'
+                        : 'JOIN GAME',
+                style: GoogleFonts.barlowSemiCondensed(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ),
+
+          // Waitlist button (shown when game is full and not started)
+          if (!isStarted && isFull) ...[
+            SizedBox(height: 10.h),
+            SizedBox(
+              width: double.infinity,
+              height: 40.h,
+              child: OutlinedButton.icon(
+                onPressed: _isJoiningWaitlist || _isLeavingWaitlist
+                    ? null
+                    : () {
+                        if (isOnWaitlist) {
+                          _handleLeaveWaitlist(gameModel, currentUserId);
+                        } else {
+                          _handleJoinWaitlist(gameModel, currentUserId);
+                        }
+                      },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: kNeonGreen,
+                  side: const BorderSide(color: kNeonGreen, width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+                icon: (_isJoiningWaitlist || _isLeavingWaitlist)
+                    ? SizedBox(
+                        width: 16.w,
+                        height: 16.h,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(kNeonGreen),
+                        ),
+                      )
+                    : Icon(Icons.hourglass_empty, size: 16.sp),
+                label: Text(
+                  isOnWaitlist ? 'LEAVE WAITLIST' : 'JOIN WAITLIST',
+                  style: GoogleFonts.barlowSemiCondensed(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ],
+    );
+  }
+
+  Widget _buildParticipantsDrawer(GameModel gameModel) {
+    return Drawer(
+      width: MediaQuery.of(context).size.width * 0.55,
+      backgroundColor: const Color(0xFF243447),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Container(
+              padding: EdgeInsets.all(16.w),
+              decoration: BoxDecoration(
+                color: kDarkNavy,
+                border: Border(
+                  bottom: BorderSide(color: Colors.white.withOpacity(0.1)),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.people, color: kNeonGreen, size: 22.sp),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: Text(
+                      'PLAYERS',
+                      style: GoogleFonts.teko(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${gameModel.participants.length}/${gameModel.maxPlayers}',
+                    style: GoogleFonts.barlowSemiCondensed(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: kNeonGreen,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Participants List
+            Expanded(
+              child: gameModel.participants.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.w),
+                        child: Text(
+                          'No players yet',
+                          style: GoogleFonts.barlowSemiCondensed(
+                            color: Colors.grey[500],
+                            fontSize: 13.sp,
+                          ),
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      itemCount: gameModel.participants.length,
+                      itemBuilder: (context, index) {
+                        final participantId = gameModel.participants[index];
+                        final participantName =
+                            _participantNames[participantId] ?? 'Loading...';
+                        final isHostParticipant = participantId == gameModel.hostId;
+
+                        return Container(
+                          margin: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 4.h,
+                          ),
+                          padding: EdgeInsets.all(10.w),
+                          decoration: BoxDecoration(
+                            color: kDarkNavy,
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(
+                              color: isHostParticipant
+                                  ? kNeonGreen.withOpacity(0.3)
+                                  : Colors.white.withOpacity(0.05),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 16.r,
+                                backgroundColor: isHostParticipant
+                                    ? kNeonGreen.withOpacity(0.3)
+                                    : Colors.grey[700],
+                                child: Icon(
+                                  Icons.person,
+                                  size: 16.sp,
+                                  color: isHostParticipant
+                                      ? kNeonGreen
+                                      : Colors.grey[400],
+                                ),
+                              ),
+                              SizedBox(width: 10.w),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      participantName,
+                                      style: GoogleFonts.barlowSemiCondensed(
+                                        color: Colors.white,
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    if (isHostParticipant)
+                                      Text(
+                                        'HOST',
+                                        style: GoogleFonts.barlowSemiCondensed(
+                                          color: kNeonGreen,
+                                          fontSize: 10.sp,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+
+            // Waitlist Section (if any)
+            if (gameModel.waitlist.isNotEmpty) ...[
+              Container(
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: kDarkNavy,
+                  border: Border(
+                    top: BorderSide(color: Colors.white.withOpacity(0.1)),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.hourglass_empty, color: Colors.orange, size: 16.sp),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'WAITLIST',
+                      style: GoogleFonts.teko(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${gameModel.waitlist.length}',
+                      style: GoogleFonts.barlowSemiCondensed(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -672,17 +867,51 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Cancel Game'),
-        content: const Text(
+        backgroundColor: const Color(0xFF243447),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        title: Text(
+          'Cancel Game',
+          style: GoogleFonts.teko(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        content: Text(
           'Are you sure you want to cancel this game?\nThis action cannot be undone.',
+          style: GoogleFonts.barlowSemiCondensed(
+            fontSize: 14.sp,
+            color: Colors.grey[300],
+          ),
         ),
         actions: [
           TextButton(
-            child: const Text('No'),
+            child: Text(
+              'No',
+              style: GoogleFonts.barlowSemiCondensed(
+                color: Colors.grey[400],
+                fontSize: 14.sp,
+              ),
+            ),
             onPressed: () => Navigator.pop(context, false),
           ),
-          TextButton(
-            child: const Text('Yes, cancel'),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6.r),
+              ),
+            ),
+            child: Text(
+              'Yes, cancel',
+              style: GoogleFonts.barlowSemiCondensed(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             onPressed: () => Navigator.pop(context, true),
           ),
         ],
@@ -840,22 +1069,54 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     // Show confirmation dialog
     final bool? confirmed = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Leave Game'),
-          content: const Text('Are you sure you want to leave this game?'),
+          backgroundColor: const Color(0xFF243447),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          title: Text(
+            'Leave Game',
+            style: GoogleFonts.teko(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to leave this game?',
+            style: GoogleFonts.barlowSemiCondensed(
+              fontSize: 14.sp,
+              color: Colors.grey[300],
+            ),
+          ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.barlowSemiCondensed(
+                  color: Colors.grey[400],
+                  fontSize: 14.sp,
+                ),
+              ),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
                 foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
               ),
-              child: const Text('Leave'),
+              child: Text(
+                'Leave',
+                style: GoogleFonts.barlowSemiCondensed(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         );
@@ -993,3 +1254,4 @@ class _GameDetailsViewState extends State<GameDetailsView> {
 
   String _two(int n) => n.toString().padLeft(2, '0');
 }
+

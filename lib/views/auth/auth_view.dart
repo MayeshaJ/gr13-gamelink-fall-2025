@@ -591,50 +591,35 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
     bool obscureText = false,
     TextInputType? keyboardType,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A2332),
-        borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 15.sp),
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: GoogleFonts.barlowSemiCondensed(
+          color: Colors.grey[500],
+          fontSize: 14.sp,
         ),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 15.sp),
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: GoogleFonts.barlowSemiCondensed(
-            color: Colors.grey[500],
-            fontSize: 14.sp,
-          ),
-          prefixIcon: Icon(
-            icon,
-            color: Colors.grey[600],
-            size: 20.sp,
-          ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 16.w,
-            vertical: 14.h,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.r),
-            borderSide: const BorderSide(
-              color: kNeonGreen,
-              width: 2,
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.r),
-            borderSide: BorderSide.none,
-          ),
+        prefixIcon: Icon(
+          icon,
+          color: Colors.grey[600],
+          size: 20.sp,
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 16.w,
+          vertical: 14.h,
+        ),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: kNeonGreen, width: 2),
         ),
       ),
     );
   }
 }
+
 

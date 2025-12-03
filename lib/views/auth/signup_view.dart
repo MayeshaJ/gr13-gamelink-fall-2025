@@ -226,35 +226,33 @@ class _SignupViewState extends State<SignupView> {
       color: Colors.grey[400],
     );
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF243447),
-        borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
-      ),
-      child: TextField(
-        controller: controller,
-        style: bodyStyle,
-        obscureText: obscureValue ?? obscureText,
-        keyboardType: keyboardType,
-        textCapitalization: textCapitalization,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: labelStyle,
-          prefixIcon: Icon(icon, color: Colors.grey[500], size: 20.sp),
-          suffixIcon: onToggleObscure != null
-              ? IconButton(
-                  icon: Icon(
-                    obscureValue! ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                    color: Colors.grey[500],
-                    size: 20.sp,
-                  ),
-                  onPressed: onToggleObscure,
-                )
-              : null,
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+    return TextField(
+      controller: controller,
+      style: bodyStyle,
+      obscureText: obscureValue ?? obscureText,
+      keyboardType: keyboardType,
+      textCapitalization: textCapitalization,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: labelStyle,
+        prefixIcon: Icon(icon, color: Colors.grey[500], size: 20.sp),
+        suffixIcon: onToggleObscure != null
+            ? IconButton(
+                icon: Icon(
+                  obscureValue! ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  color: Colors.grey[500],
+                  size: 20.sp,
+                ),
+                onPressed: onToggleObscure,
+              )
+            : null,
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
         ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: kNeonGreen, width: 2),
+        ),
+        contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
       ),
     );
   }

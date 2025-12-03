@@ -50,16 +50,16 @@ class _GameTileState extends State<GameTile> {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF243447),
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
+          color: kNeonGreen,
+          width: 1.5,
         ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: BorderRadius.zero,
           onTap: () {
             context.pushNamed('game-details', pathParameters: {'id': widget.game.id});
           },

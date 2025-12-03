@@ -51,18 +51,18 @@ class _GameLogTileState extends State<GameLogTile> {
         color: isCancelled 
             ? const Color(0xFF243447).withOpacity(0.5) 
             : const Color(0xFF243447),
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isCancelled 
-              ? Colors.red.withOpacity(0.3) 
-              : Colors.white.withOpacity(0.1),
-          width: 1,
+              ? Colors.red.withOpacity(0.5) 
+              : kNeonGreen,
+          width: 1.5,
         ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: BorderRadius.zero,
           onTap: () {
             // Navigate to game details
             context.pushNamed('game-details', pathParameters: {'id': widget.game.id});

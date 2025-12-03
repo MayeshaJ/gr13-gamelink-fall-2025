@@ -396,77 +396,45 @@ class _EditProfileViewState extends State<EditProfileView> {
                     ),
                     SizedBox(height: 14.h),
                     // First Name
-                    Container(
-                      decoration: BoxDecoration(
-                        color: kDarkNavy,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.1),
-                          width: 1,
+                    TextField(
+                      controller: _firstNameController,
+                      style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: 'First Name',
+                        labelStyle: GoogleFonts.barlowSemiCondensed(color: Colors.grey[400], fontSize: 13.sp),
+                        prefixIcon: Icon(Icons.person, color: kNeonGreen, size: 20.sp),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 12.h,
                         ),
-                      ),
-                      child: TextField(
-                        controller: _firstNameController,
-                        style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
-                        textCapitalization: TextCapitalization.words,
-                        decoration: InputDecoration(
-                          labelText: 'First Name',
-                          labelStyle: GoogleFonts.barlowSemiCondensed(color: Colors.grey[400], fontSize: 13.sp),
-                          prefixIcon: Icon(Icons.person, color: kNeonGreen, size: 20.sp),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12.w,
-                            vertical: 12.h,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                            borderSide: const BorderSide(
-                              color: kNeonGreen,
-                              width: 2,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                            borderSide: BorderSide.none,
-                          ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
+                        ),
+                        focusedBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: kNeonGreen, width: 2),
                         ),
                       ),
                     ),
                     SizedBox(height: 12.h),
                     // Last Name
-                    Container(
-                      decoration: BoxDecoration(
-                        color: kDarkNavy,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.1),
-                          width: 1,
+                    TextField(
+                      controller: _lastNameController,
+                      style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: 'Last Name',
+                        labelStyle: GoogleFonts.barlowSemiCondensed(color: Colors.grey[400], fontSize: 13.sp),
+                        prefixIcon: Icon(Icons.person_outline, color: kNeonGreen, size: 20.sp),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 12.h,
                         ),
-                      ),
-                      child: TextField(
-                        controller: _lastNameController,
-                        style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
-                        textCapitalization: TextCapitalization.words,
-                        decoration: InputDecoration(
-                          labelText: 'Last Name',
-                          labelStyle: GoogleFonts.barlowSemiCondensed(color: Colors.grey[400], fontSize: 13.sp),
-                          prefixIcon: Icon(Icons.person_outline, color: kNeonGreen, size: 20.sp),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12.w,
-                            vertical: 12.h,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                            borderSide: const BorderSide(
-                              color: kNeonGreen,
-                              width: 2,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                            borderSide: BorderSide.none,
-                          ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
+                        ),
+                        focusedBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: kNeonGreen, width: 2),
                         ),
                       ),
                     ),
@@ -476,6 +444,7 @@ class _EditProfileViewState extends State<EditProfileView> {
               SizedBox(height: 16.h),
               // Sport Selection
               Container(
+                width: double.infinity,
                 padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
                   color: const Color(0xFF243447),
@@ -501,6 +470,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                     Wrap(
                       spacing: 6.w,
                       runSpacing: 6.h,
+                      alignment: WrapAlignment.start,
                       children: _sportsOptions.map((sport) {
                         final isSelected = _selectedSport == sport;
                         return InkWell(
@@ -668,35 +638,19 @@ class _EditProfileViewState extends State<EditProfileView> {
                       ),
                     ),
                     SizedBox(height: 12.h),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: kDarkNavy,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.1),
-                          width: 1,
+                    TextField(
+                      controller: _bioController,
+                      style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Tell others about yourself...',
+                        hintStyle: GoogleFonts.barlowSemiCondensed(color: Colors.grey[500], fontSize: 13.sp),
+                        contentPadding: EdgeInsets.all(12.w),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
                         ),
-                      ),
-                      child: TextField(
-                        controller: _bioController,
-                        style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          hintText: 'Tell others about yourself...',
-                          hintStyle: GoogleFonts.barlowSemiCondensed(color: Colors.grey[500], fontSize: 13.sp),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(12.w),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                            borderSide: const BorderSide(
-                              color: kNeonGreen,
-                              width: 2,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                            borderSide: BorderSide.none,
-                          ),
+                        focusedBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: kNeonGreen, width: 2),
                         ),
                       ),
                     ),

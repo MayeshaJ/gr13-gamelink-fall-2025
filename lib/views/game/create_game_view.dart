@@ -273,48 +273,38 @@ class _CreateGameViewState extends State<CreateGameView> {
     int maxLines = 1,
     TextInputType? keyboardType,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF243447),
-        borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
+      validator: (v) => v == null || v.isEmpty ? "Required" : null,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.barlowSemiCondensed(
+          color: Colors.grey[500],
+          fontSize: 13.sp,
         ),
-      ),
-      child: TextFormField(
-        controller: controller,
-        maxLines: maxLines,
-        keyboardType: keyboardType,
-        style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
-        validator: (v) => v == null || v.isEmpty ? "Required" : null,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: GoogleFonts.barlowSemiCondensed(
-            color: Colors.grey[500],
-            fontSize: 13.sp,
-          ),
-          prefixIcon: Icon(
-            icon,
-            color: Colors.grey[600],
-            size: 20.sp,
-          ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 12.w,
-            vertical: 12.h,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.r),
-            borderSide: const BorderSide(
-              color: kNeonGreen,
-              width: 2,
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.r),
-            borderSide: BorderSide.none,
-          ),
+        prefixIcon: Icon(
+          icon,
+          color: Colors.grey[600],
+          size: 20.sp,
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 12.w,
+          vertical: 12.h,
+        ),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: kNeonGreen, width: 2),
+        ),
+        errorBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.red, width: 1),
+        ),
+        focusedErrorBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.red, width: 2),
         ),
       ),
     );

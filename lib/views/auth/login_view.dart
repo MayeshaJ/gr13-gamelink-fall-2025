@@ -209,52 +209,48 @@ class _LoginViewState extends State<LoginView> {
             children: [
               SizedBox(height: 20.h),
               // Email Field
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF243447),
-                  borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
-                ),
-                child: TextField(
-                  controller: _emailController,
-                  style: bodyStyle,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: labelStyle,
-                    prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[500], size: 20.sp),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+              TextField(
+                controller: _emailController,
+                style: bodyStyle,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: labelStyle,
+                  prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[500], size: 20.sp),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
                   ),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: kNeonGreen, width: 2),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
                 ),
               ),
               SizedBox(height: 12.h),
               // Password Field
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF243447),
-                  borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
-                ),
-                child: TextField(
-                  controller: _passwordController,
-                  style: bodyStyle,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    labelStyle: labelStyle,
-                    prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[500], size: 20.sp),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        color: Colors.grey[500],
-                        size: 20.sp,
-                      ),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+              TextField(
+                controller: _passwordController,
+                style: bodyStyle,
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: labelStyle,
+                  prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[500], size: 20.sp),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      color: Colors.grey[500],
+                      size: 20.sp,
                     ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                   ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
+                  ),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: kNeonGreen, width: 2),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
                 ),
               ),
               SizedBox(height: 20.h),
