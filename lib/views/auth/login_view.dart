@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
+
+// Color Palette
+const kDarkNavy = Color(0xFF1A2332);
+const kNeonGreen = Color(0xFF39FF14);
 
 
 class LoginView extends StatefulWidget {
@@ -170,80 +176,187 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
+    // Body text style using Barlow Semi Condensed
+    final bodyStyle = GoogleFonts.barlowSemiCondensed(
+      fontSize: 15.sp,
+      color: Colors.white,
+    );
+    
+    final labelStyle = GoogleFonts.barlowSemiCondensed(
+      fontSize: 14.sp,
+      color: Colors.grey[400],
+    );
+
     return Scaffold(
+      backgroundColor: kDarkNavy,
       appBar: AppBar(
-        title: const Text('Login'),
+        backgroundColor: kDarkNavy,
+        elevation: 0,
+        title: Text(
+          'LOGIN',
+          style: GoogleFonts.teko(
+            fontSize: 24.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                prefixIcon: const Icon(Icons.lock),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 20.h),
+              // Email Field
+              TextField(
+                controller: _emailController,
+                style: bodyStyle,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: labelStyle,
+                  prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[500], size: 20.sp),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: kNeonGreen, width: 2),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
                 ),
               ),
-              obscureText: _obscurePassword,
-            ),
-            const SizedBox(height: 24),
-            _isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _handleLogin,
-                    child: const Text('Log in'),
+              SizedBox(height: 12.h),
+              // Password Field
+              TextField(
+                controller: _passwordController,
+                style: bodyStyle,
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: labelStyle,
+                  prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[500], size: 20.sp),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      color: Colors.grey[500],
+                      size: 20.sp,
+                    ),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                   ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Expanded(child: Divider()),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('OR'),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
+                  ),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: kNeonGreen, width: 2),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
                 ),
-                const Expanded(child: Divider()),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _isGoogleLoading
-                ? const CircularProgressIndicator()
-                : OutlinedButton.icon(
-                    onPressed: _handleGoogleSignIn,
-                    icon: const Icon(Icons.g_mobiledata, size: 24),
-                    label: const Text('Continue with Google'),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 48),
+              ),
+              SizedBox(height: 20.h),
+              // Login Button
+              SizedBox(
+                height: 50.h,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _handleLogin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kNeonGreen,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 20.h,
+                          width: 20.w,
+                          child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                        )
+                      : Text(
+                          'LOG IN',
+                          style: GoogleFonts.barlowSemiCondensed(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                ),
+              ),
+              SizedBox(height: 16.h),
+              // Divider
+              Row(
+                children: [
+                  Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
+                    child: Text(
+                      'OR',
+                      style: GoogleFonts.barlowSemiCondensed(
+                        fontSize: 13.sp,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: _goToSignup,
-              child: const Text('Create an account'),
-            ),
-            TextButton(
-              onPressed: () => context.pushNamed('forgot-password'),
-              child: const Text('Forgot password'),
-            ),
-          ],
+                  Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                ],
+              ),
+              SizedBox(height: 16.h),
+              // Google Sign-In Button
+              SizedBox(
+                height: 50.h,
+                child: OutlinedButton.icon(
+                  onPressed: _isGoogleLoading ? null : _handleGoogleSignIn,
+                  icon: _isGoogleLoading
+                      ? SizedBox(
+                          height: 18.h,
+                          width: 18.w,
+                          child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : Icon(Icons.g_mobiledata, size: 22.sp, color: Colors.white),
+                  label: Text(
+                    'Continue with Google',
+                    style: GoogleFonts.barlowSemiCondensed(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              // Create Account Link
+              TextButton(
+                onPressed: _goToSignup,
+                child: Text(
+                  'Create an account',
+                  style: GoogleFonts.barlowSemiCondensed(
+                    fontSize: 14.sp,
+                    color: kNeonGreen,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              // Forgot Password Link
+              TextButton(
+                onPressed: () => context.pushNamed('forgot-password'),
+                child: Text(
+                  'Forgot password?',
+                  style: GoogleFonts.barlowSemiCondensed(
+                    fontSize: 14.sp,
+                    color: Colors.grey[400],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

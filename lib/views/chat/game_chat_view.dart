@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
-import '../../models/app_user.dart';
 import '../../controllers/notification_controller.dart';
-import '../../models/game.dart';
-import '../../controllers/game_controller.dart';
+
+// Color Palette
+const kDarkNavy = Color(0xFF1A2332);
+const kNeonGreen = Color(0xFF39FF14);
 
 
 class GameChatView extends StatefulWidget {
@@ -26,11 +28,62 @@ class _GameChatViewState extends State<GameChatView> {
   final TextEditingController _msgCtrl = TextEditingController();
   final ScrollController _scrollCtrl = ScrollController();
   bool _sending = false;
+  bool _isLoading = true;
+  bool _hasAccess = false;
 
   CollectionReference get _messagesRef => FirebaseFirestore.instance
       .collection('games')
       .doc(widget.gameId)
       .collection('messages');
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAccess();
+  }
+
+  Future<void> _checkAccess() async {
+    final currentUser = AuthController.instance.currentUser;
+    if (currentUser == null) {
+      setState(() {
+        _isLoading = false;
+        _hasAccess = false;
+      });
+      return;
+    }
+
+    try {
+      final gameDoc = await FirebaseFirestore.instance
+          .collection('games')
+          .doc(widget.gameId)
+          .get();
+
+      if (!gameDoc.exists) {
+        setState(() {
+          _isLoading = false;
+          _hasAccess = false;
+        });
+        return;
+      }
+
+      final gameData = gameDoc.data() as Map<String, dynamic>;
+      final hostId = gameData['hostId'] as String? ?? '';
+      final participants = List<String>.from(gameData['participants'] ?? []);
+
+      final isHost = currentUser.uid == hostId;
+      final isParticipant = participants.contains(currentUser.uid);
+
+      setState(() {
+        _isLoading = false;
+        _hasAccess = isHost || isParticipant;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasAccess = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -44,8 +97,13 @@ class _GameChatViewState extends State<GameChatView> {
 
     setState(() => _sending = true);
 
-    final AppUser? user = AuthController.instance.currentUser;
-    if (user == null) return;
+    final user = AuthController.instance.currentUser;
+    if (user == null) {
+      if (mounted) {
+        setState(() => _sending = false);
+      }
+      return;
+    }
 
     String senderName = 'Unknown';
 
@@ -149,7 +207,7 @@ class _GameChatViewState extends State<GameChatView> {
           constraints: const BoxConstraints(maxWidth: 260),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isMe ? Colors.blue.shade400 : Colors.grey.shade200,
+            color: isMe ? const Color(0xFF2196F3) : kNeonGreen,
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(12),
               topRight: const Radius.circular(12),
@@ -167,7 +225,10 @@ class _GameChatViewState extends State<GameChatView> {
                 Text(
                   senderName,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 12),
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 12,
+                      color: Colors.black,
+                  ),
                 ),
               if (!isMe) const SizedBox(height: 4),
               Text(
@@ -187,17 +248,95 @@ class _GameChatViewState extends State<GameChatView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kDarkNavy,
       appBar: AppBar(
-        title: Text("Chat – ${widget.gameTitle}"),
+        backgroundColor: kDarkNavy,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          "CHAT – ${widget.gameTitle.toUpperCase()}",
+          style: GoogleFonts.teko(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.italic,
+            color: Colors.white,
+          ),
+        ),
       ),
-      body: Column(
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: kNeonGreen,
+              ),
+            )
+          : !_hasAccess
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.lock_outline,
+                          size: 80,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'ACCESS RESTRICTED',
+                          style: GoogleFonts.teko(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Only the host and participants can access this chat.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kNeonGreen,
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 12,
+                            ),
+                          ),
+                          child: Text(
+                            'GO BACK',
+                            style: GoogleFonts.teko(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : Column(
         children: [
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _messagesRef.orderBy('timestamp').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: kNeonGreen,
+                    ),
+                  );
                 }
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -232,31 +371,69 @@ class _GameChatViewState extends State<GameChatView> {
           // MESSAGE INPUT
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            color: Colors.grey.shade100,
+            decoration: BoxDecoration(
+              color: const Color(0xFF243447),
+              border: Border(
+                top: BorderSide(
+                  color: Colors.white.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
+            ),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _msgCtrl,
+                    style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: "Type a message...",
+                      hintStyle: TextStyle(color: Colors.grey[500]),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: kDarkNavy,
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 12),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade400),
+                        borderSide: BorderSide(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(
+                          color: kNeonGreen,
+                          width: 2,
+                        ),
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 10),
-                IconButton(
-                  onPressed: _sending ? null : _sendMessage,
-                  icon: _sending
-                      ? const CircularProgressIndicator(strokeWidth: 2)
-                      : const Icon(Icons.send, color: Colors.blue),
+                Container(
+                  decoration: BoxDecoration(
+                    color: kNeonGreen,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    onPressed: _sending ? null : _sendMessage,
+                    icon: _sending
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                            ),
+                          )
+                        : const Icon(Icons.send, color: Colors.black),
+                  ),
                 ),
               ],
             ),

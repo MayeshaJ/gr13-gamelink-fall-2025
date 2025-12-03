@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../controllers/game_controller.dart';
 import '../../models/game.dart';
 import '../../controllers/notification_controller.dart';
 
+// Color Palette
+const kDarkNavy = Color(0xFF1A2332);
+const kNeonGreen = Color(0xFF39FF14);
 
 class EditGameView extends StatefulWidget {
   final GameModel game;
@@ -37,6 +42,15 @@ class _EditGameViewState extends State<EditGameView> {
         TextEditingController(text: widget.game.maxPlayers.toString());
 
     selectedDate = widget.game.date;
+  }
+
+  @override
+  void dispose() {
+    titleCtrl.dispose();
+    descCtrl.dispose();
+    locationCtrl.dispose();
+    maxPlayersCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _pickDate() async {
@@ -138,9 +152,12 @@ class _EditGameViewState extends State<EditGameView> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Game updated!"),
-          backgroundColor: Colors.green,
+        SnackBar(
+          content: Text(
+            "Game updated!",
+            style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp),
+          ),
+          backgroundColor: kNeonGreen,
         ),
       );
 
@@ -153,69 +170,218 @@ class _EditGameViewState extends State<EditGameView> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Failed to update game: ${e.toString().replaceFirst('Exception: ', '')}"),
+          content: Text(
+            "Failed to update game: ${e.toString().replaceFirst('Exception: ', '')}",
+            style: GoogleFonts.barlowSemiCondensed(fontSize: 14.sp),
+          ),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
+  String _two(int n) => n.toString().padLeft(2, '0');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Game")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: titleCtrl,
-                decoration: const InputDecoration(labelText: "Title"),
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
-              TextFormField(
-                controller: descCtrl,
-                decoration: const InputDecoration(labelText: "Description"),
-                maxLines: 2,
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
-              TextFormField(
-                controller: locationCtrl,
-                decoration: const InputDecoration(labelText: "Location"),
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
-              TextFormField(
-                controller: maxPlayersCtrl,
-                decoration: const InputDecoration(labelText: "Max Players"),
-                keyboardType: TextInputType.number,
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
-
-              const SizedBox(height: 20),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(selectedDate!.toString()),
-                  ElevatedButton(
-                    onPressed: _pickDate,
-                    child: const Text("Pick Date & Time"),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 30),
-
-              ElevatedButton(
-                onPressed: loading ? null : _updateGame,
-                child: loading
-                    ? const CircularProgressIndicator()
-                    : const Text("Save Changes"),
-              ),
-            ],
+      backgroundColor: kDarkNavy,
+      appBar: AppBar(
+        backgroundColor: kDarkNavy,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white, size: 22.sp),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'EDIT GAME',
+          style: GoogleFonts.teko(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.italic,
+            color: Colors.white,
           ),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(12.w),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                _buildTextField(
+                  controller: titleCtrl,
+                  label: "Game Title",
+                  icon: Icons.sports_esports_outlined,
+                ),
+                SizedBox(height: 12.h),
+                _buildTextField(
+                  controller: descCtrl,
+                  label: "Description",
+                  icon: Icons.description_outlined,
+                  maxLines: 3,
+                ),
+                SizedBox(height: 12.h),
+                _buildTextField(
+                  controller: locationCtrl,
+                  label: "Location",
+                  icon: Icons.location_on_outlined,
+                ),
+                SizedBox(height: 12.h),
+                _buildTextField(
+                  controller: maxPlayersCtrl,
+                  label: "Max Players",
+                  icon: Icons.people_outline,
+                  keyboardType: TextInputType.number,
+                ),
+
+                SizedBox(height: 16.h),
+
+                // Date Picker
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF243447),
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.1),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today_outlined, color: kNeonGreen, size: 18.sp),
+                          SizedBox(width: 10.w),
+                          Text(
+                            selectedDate == null
+                                ? "No date selected"
+                                : "${selectedDate!.year}-${_two(selectedDate!.month)}-${_two(selectedDate!.day)} ${_two(selectedDate!.hour)}:${_two(selectedDate!.minute)}",
+                            style: GoogleFonts.barlowSemiCondensed(
+                              color: selectedDate == null ? Colors.grey[500] : Colors.white,
+                              fontSize: 13.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 32.h,
+                        child: OutlinedButton(
+                          onPressed: _pickDate,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: kNeonGreen,
+                            side: const BorderSide(color: kNeonGreen, width: 1.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6.r),
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 12.w),
+                          ),
+                          child: Text(
+                            'CHANGE',
+                            style: GoogleFonts.barlowSemiCondensed(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 20.h),
+
+                // Save Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 46.h,
+                  child: ElevatedButton(
+                    onPressed: loading ? null : _updateGame,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kNeonGreen,
+                      foregroundColor: Colors.black,
+                      disabledBackgroundColor: kNeonGreen.withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: loading
+                        ? SizedBox(
+                            height: 18.h,
+                            width: 18.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.save, size: 18.sp),
+                              SizedBox(width: 8.w),
+                              Text(
+                                'SAVE CHANGES',
+                                style: GoogleFonts.barlowSemiCondensed(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      style: GoogleFonts.barlowSemiCondensed(color: Colors.white, fontSize: 14.sp),
+      validator: (v) => v == null || v.isEmpty ? "Required" : null,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.barlowSemiCondensed(
+          color: Colors.grey[500],
+          fontSize: 13.sp,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: Colors.grey[600],
+          size: 20.sp,
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 12.w,
+          vertical: 12.h,
+        ),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: kNeonGreen, width: 2),
+        ),
+        errorBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.red, width: 1),
+        ),
+        focusedErrorBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.red, width: 2),
         ),
       ),
     );

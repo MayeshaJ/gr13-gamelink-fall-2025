@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../controllers/game_controller.dart';
 import '../../controllers/game_list_controller.dart';
+import '../../controllers/theme_controller.dart';
+import '../../theme/app_theme.dart';
 import '../../models/game.dart';
 
 class CreateGameView extends StatefulWidget {
@@ -83,7 +87,6 @@ class _CreateGameViewState extends State<CreateGameView> {
 
     final newId = await gameController.createGame(game);
 
-    // Ensure current user's name is cached for immediate display in game list
     await GameListController.instance.ensureCurrentUserNameCached();
 
     setState(() => loading = false);
@@ -99,62 +102,239 @@ class _CreateGameViewState extends State<CreateGameView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Create Game")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: titleCtrl,
-                decoration: const InputDecoration(labelText: "Game Title"),
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
-              TextFormField(
-                controller: descCtrl,
-                decoration: const InputDecoration(labelText: "Description"),
-                maxLines: 2,
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
-              TextFormField(
-                controller: locationCtrl,
-                decoration: const InputDecoration(labelText: "Location"),
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
-              TextFormField(
-                controller: maxPlayersCtrl,
-                decoration: const InputDecoration(labelText: "Max Players"),
-                keyboardType: TextInputType.number,
-                validator: (v) => v!.isEmpty ? "Required" : null,
-              ),
+    return ListenableBuilder(
+      listenable: ThemeController.instance,
+      builder: (context, child) {
+        final isDark = ThemeController.instance.isDarkMode;
+        final accent = AppColors.accent(isDark);
+        final bgColor = AppColors.background(isDark);
+        final cardColor = AppColors.card(isDark);
+        final textPrimary = AppColors.textPrimary(isDark);
+        final textSecondary = AppColors.textSecondary(isDark);
+        final borderColor = AppColors.border(isDark);
 
-              const SizedBox(height: 20),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(selectedDate == null
-                      ? "No date selected"
-                      : selectedDate.toString()),
-                  ElevatedButton(
-                    onPressed: _pickDate,
-                    child: const Text("Pick Date & Time"),
-                  ),
-                ],
+        return Scaffold(
+          backgroundColor: bgColor,
+          appBar: AppBar(
+            backgroundColor: bgColor,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: textPrimary, size: 22.sp),
+              onPressed: () => context.pop(),
+            ),
+            title: Text(
+              'CREATE GAME',
+              style: GoogleFonts.teko(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                fontStyle: FontStyle.italic,
+                color: textPrimary,
               ),
-
-              const SizedBox(height: 30),
-
-              ElevatedButton(
-                onPressed: loading ? null : _createGame,
-                child: loading
-                    ? const CircularProgressIndicator()
-                    : const Text("Create Game"),
-              ),
-            ],
+            ),
           ),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(12.w),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    _buildTextField(
+                      controller: titleCtrl,
+                      label: "Game Title",
+                      icon: Icons.sports_esports_outlined,
+                      isDark: isDark,
+                      accent: accent,
+                      textPrimary: textPrimary,
+                      textSecondary: textSecondary,
+                    ),
+                    SizedBox(height: 12.h),
+                    _buildTextField(
+                      controller: descCtrl,
+                      label: "Description",
+                      icon: Icons.description_outlined,
+                      maxLines: 3,
+                      isDark: isDark,
+                      accent: accent,
+                      textPrimary: textPrimary,
+                      textSecondary: textSecondary,
+                    ),
+                    SizedBox(height: 12.h),
+                    _buildTextField(
+                      controller: locationCtrl,
+                      label: "Location",
+                      icon: Icons.location_on_outlined,
+                      isDark: isDark,
+                      accent: accent,
+                      textPrimary: textPrimary,
+                      textSecondary: textSecondary,
+                    ),
+                    SizedBox(height: 12.h),
+                    _buildTextField(
+                      controller: maxPlayersCtrl,
+                      label: "Max Players",
+                      icon: Icons.people_outline,
+                      keyboardType: TextInputType.number,
+                      isDark: isDark,
+                      accent: accent,
+                      textPrimary: textPrimary,
+                      textSecondary: textSecondary,
+                    ),
+
+                    SizedBox(height: 16.h),
+
+                    // Date Picker
+                    Container(
+                      padding: EdgeInsets.all(12.w),
+                      decoration: BoxDecoration(
+                        color: cardColor,
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(
+                          color: borderColor,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.calendar_today_outlined, color: accent, size: 18.sp),
+                              SizedBox(width: 10.w),
+                              Text(
+                                selectedDate == null
+                                    ? "No date selected"
+                                    : "${selectedDate!.year}-${_two(selectedDate!.month)}-${_two(selectedDate!.day)} ${_two(selectedDate!.hour)}:${_two(selectedDate!.minute)}",
+                                style: GoogleFonts.barlowSemiCondensed(
+                                  color: selectedDate == null ? textSecondary : textPrimary,
+                                  fontSize: 13.sp,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 32.h,
+                            child: OutlinedButton(
+                              onPressed: _pickDate,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: accent,
+                                side: BorderSide(color: accent, width: 1.5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6.r),
+                                ),
+                                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                              ),
+                              child: Text(
+                                'PICK',
+                                style: GoogleFonts.barlowSemiCondensed(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 20.h),
+
+                    // Create Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 46.h,
+                      child: ElevatedButton(
+                        onPressed: loading ? null : _createGame,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: accent,
+                          foregroundColor: Colors.black,
+                          disabledBackgroundColor: accent.withOpacity(0.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: loading
+                            ? SizedBox(
+                                height: 18.h,
+                                width: 18.w,
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add_circle_outline, size: 18.sp),
+                                  SizedBox(width: 8.w),
+                                  Text(
+                                    'CREATE GAME',
+                                    style: GoogleFonts.barlowSemiCondensed(
+                                      fontSize: 15.sp,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _two(int n) => n.toString().padLeft(2, '0');
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required bool isDark,
+    required Color accent,
+    required Color textPrimary,
+    required Color textSecondary,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      style: GoogleFonts.barlowSemiCondensed(color: textPrimary, fontSize: 14.sp),
+      validator: (v) => v == null || v.isEmpty ? "Required" : null,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.barlowSemiCondensed(
+          color: textSecondary,
+          fontSize: 13.sp,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: textSecondary,
+          size: 20.sp,
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 12.w,
+          vertical: 12.h,
+        ),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColors.border(isDark), width: 1),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: accent, width: 2),
+        ),
+        errorBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.red, width: 1),
+        ),
+        focusedErrorBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.red, width: 2),
         ),
       ),
     );
