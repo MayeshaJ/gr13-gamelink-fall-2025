@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../controllers/game_controller.dart';
 import '../../controllers/auth_controller.dart';
@@ -337,6 +338,33 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                 ),
 
                 SizedBox(height: 14.h),
+
+                // Get Directions Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 44.h,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _openMap(gameModel.location),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: accent,
+                      side: BorderSide(color: accent, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                    icon: Icon(Icons.directions, size: 18.sp),
+                    label: Text(
+                      'GET DIRECTIONS',
+                      style: GoogleFonts.barlowSemiCondensed(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 12.h),
 
                 if (currentUserId != null && (isHost || isParticipant) && !isCancelled)
                   SizedBox(
@@ -967,6 +995,35 @@ class _GameDetailsViewState extends State<GameDetailsView> {
         ),
       ],
     );
+  }
+
+  /// Opens Google Maps with directions to the specified location
+  /// Uses the search endpoint for better compatibility - falls back to browser if Maps app isn't available
+  Future<void> _openMap(String location) async {
+    final encodedLocation = Uri.encodeComponent(location);
+    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$encodedLocation');
+    
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open maps'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error opening maps: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   Future<void> _loadHostName(String hostId) async {
