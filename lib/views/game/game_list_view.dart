@@ -39,6 +39,15 @@ class _GameListViewState extends State<GameListView> {
     gl.SearchController.instance.updateQuery(initialQuery);
     _searchController.addListener(_handleSearchChanged);
     _searchFocusNode = FocusNode();
+    
+    // Refresh games list when view is initialized with authenticated user
+    // This ensures games load immediately after login
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final currentUser = AuthController.instance.currentUser;
+      if (currentUser != null) {
+        GameListController.instance.refresh();
+      }
+    });
   }
 
   @override

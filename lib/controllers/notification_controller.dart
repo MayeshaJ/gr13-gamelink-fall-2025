@@ -131,16 +131,14 @@ class NotificationController {
       return const Stream<QuerySnapshot>.empty();
     }
 
-    return FirebaseFirestore.instance
-        .collection('notifications')
+    return _notificationsRef
         .where('userId', isEqualTo: user.uid)
         .orderBy('createdAt', descending: true)
         .snapshots();
   }
 
   Future<void> markAsRead(String notificationId) async {
-    await FirebaseFirestore.instance
-        .collection('notifications')
+    await _notificationsRef
         .doc(notificationId)
         .update({'read': true});
   }

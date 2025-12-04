@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:game_link_group13/models/game.dart';
 import 'package:game_link_group13/controllers/game_controller.dart';
 import 'package:game_link_group13/controllers/user_controller.dart';
@@ -11,6 +12,7 @@ class GameListController {
   GameListController._internal() {
     _preloadCurrentUser();
     _initialize();
+    _listenToAuthChanges();
   }
 
   static final GameListController instance = GameListController._internal();
@@ -19,6 +21,7 @@ class GameListController {
   final UserController _userController = UserController.instance;
   
   StreamSubscription<List<Game>>? _gamesSubscription;
+  StreamSubscription<User?>? _authSubscription;
   final StreamController<List<Game>> _gamesStreamController =
       StreamController<List<Game>>.broadcast();
   
@@ -27,6 +30,9 @@ class GameListController {
   
   // Track current game models for async host name updates
   List<GameModel>? _currentGameModels;
+  
+  // Track previous auth state to detect login
+  User? _previousAuthUser;
   
   /// Pre-load current user's name into cache to avoid delays when viewing own games
   /// This is called during initialization to ensure current user's name is available
@@ -497,8 +503,23 @@ class GameListController {
     _initialize();
   }
 
+  /// Listen to auth state changes and refresh games when user logs in
+  void _listenToAuthChanges() {
+    _previousAuthUser = AuthController.instance.firebaseUser;
+    _authSubscription = AuthController.instance.userChanges().listen((User? user) {
+      // If user just logged in (was null, now not null)
+      if (_previousAuthUser == null && user != null) {
+        print('GameListController: User logged in, refreshing games list...');
+        _preloadCurrentUser();
+        refresh();
+      }
+      _previousAuthUser = user;
+    });
+  }
+
   void dispose() {
     _gamesSubscription?.cancel();
+    _authSubscription?.cancel();
     _gamesStreamController.close();
   }
 }
