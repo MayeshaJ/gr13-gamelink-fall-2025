@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -40,48 +41,48 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCYe-k7-t6JqeLqFEZw0wI2AkrAMjiHErA',
-    appId: '1:525274573346:web:0a2fd4abf3c77d80cf387b',
-    messagingSenderId: '525274573346',
-    projectId: 'gr13-gamelink-fall25',
-    authDomain: 'gr13-gamelink-fall25.firebaseapp.com',
-    storageBucket: 'gr13-gamelink-fall25.firebasestorage.app',
+  static FirebaseOptions get web => FirebaseOptions(
+    apiKey: dotenv.env['WEB_API_KEY'] ?? '',
+    appId: dotenv.env['WEB_APP_ID'] ?? '',
+    messagingSenderId: dotenv.env['WEB_MESSAGING_SENDER_ID'] ?? dotenv.env['MESSAGING_SENDER_ID'] ?? '',
+    projectId: dotenv.env['WEB_PROJECT_ID'] ?? dotenv.env['PROJECT_ID'] ?? '',
+    authDomain: dotenv.env['WEB_AUTH_DOMAIN'] ?? dotenv.env['AUTH_DOMAIN'] ?? '',
+    storageBucket: dotenv.env['WEB_STORAGE_BUCKET'] ?? dotenv.env['STORAGE_BUCKET'] ?? '',
   );
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDH2ZGZoCAHlK6lzQZ9zr7oiOUKETERjLY',
-    appId: '1:525274573346:android:37a4586935a162cbcf387b',
-    messagingSenderId: '525274573346',
-    projectId: 'gr13-gamelink-fall25',
-    storageBucket: 'gr13-gamelink-fall25.firebasestorage.app',
+  static FirebaseOptions get android => FirebaseOptions(
+    apiKey: dotenv.env['ANDROID_API_KEY'] ?? '',
+    appId: dotenv.env['ANDROID_APP_ID'] ?? '',
+    messagingSenderId: dotenv.env['ANDROID_MESSAGING_SENDER_ID'] ?? dotenv.env['MESSAGING_SENDER_ID'] ?? '',
+    projectId: dotenv.env['ANDROID_PROJECT_ID'] ?? dotenv.env['PROJECT_ID'] ?? '',
+    storageBucket: dotenv.env['ANDROID_STORAGE_BUCKET'] ?? dotenv.env['STORAGE_BUCKET'] ?? '',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyACkV5zP0IFIP-_ezBKCyzzymGc6IMO5fU',
-    appId: '1:525274573346:ios:2f672eb50d6f1f5bcf387b',
-    messagingSenderId: '525274573346',
-    projectId: 'gr13-gamelink-fall25',
-    storageBucket: 'gr13-gamelink-fall25.firebasestorage.app',
-    iosBundleId: 'com.example.gameLinkGroup13',
+  static FirebaseOptions get macos => FirebaseOptions(
+    apiKey: dotenv.env['MACOS_API_KEY'] ?? '',
+    appId: dotenv.env['MACOS_APP_ID'] ?? '',
+    messagingSenderId: dotenv.env['MACOS_MESSAGING_SENDER_ID'] ?? dotenv.env['MESSAGING_SENDER_ID'] ?? '',
+    projectId: dotenv.env['MACOS_PROJECT_ID'] ?? dotenv.env['PROJECT_ID'] ?? '',
+    storageBucket: dotenv.env['MACOS_STORAGE_BUCKET'] ?? dotenv.env['STORAGE_BUCKET'] ?? '',
+    iosBundleId: dotenv.env['MACOS_BUNDLE_ID'] ?? '',
   );
 
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCYe-k7-t6JqeLqFEZw0wI2AkrAMjiHErA',
-    appId: '1:525274573346:web:a984d48be7a365c9cf387b',
-    messagingSenderId: '525274573346',
-    projectId: 'gr13-gamelink-fall25',
-    authDomain: 'gr13-gamelink-fall25.firebaseapp.com',
-    storageBucket: 'gr13-gamelink-fall25.firebasestorage.app',
+  static FirebaseOptions get windows => FirebaseOptions(
+    apiKey: dotenv.env['WINDOWS_API_KEY'] ?? '',
+    appId: dotenv.env['WINDOWS_APP_ID'] ?? '',
+    messagingSenderId: dotenv.env['WINDOWS_MESSAGING_SENDER_ID'] ?? dotenv.env['MESSAGING_SENDER_ID'] ?? '',
+    projectId: dotenv.env['WINDOWS_PROJECT_ID'] ?? dotenv.env['PROJECT_ID'] ?? '',
+    authDomain: dotenv.env['WINDOWS_AUTH_DOMAIN'] ?? dotenv.env['AUTH_DOMAIN'] ?? '',
+    storageBucket: dotenv.env['WINDOWS_STORAGE_BUCKET'] ?? dotenv.env['STORAGE_BUCKET'] ?? '',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyACkV5zP0IFIP-_ezBKCyzzymGc6IMO5fU',
-    appId: '1:525274573346:ios:2f672eb50d6f1f5bcf387b',
-    messagingSenderId: '525274573346',
-    projectId: 'gr13-gamelink-fall25',
-    storageBucket: 'gr13-gamelink-fall25.firebasestorage.app',
-    iosBundleId: 'com.example.gameLinkGroup13',
+  static FirebaseOptions get ios => FirebaseOptions(
+    apiKey: dotenv.env['IOS_API_KEY'] ?? '',
+    appId: dotenv.env['IOS_APP_ID'] ?? '',
+    messagingSenderId: dotenv.env['IOS_MESSAGING_SENDER_ID'] ?? dotenv.env['MESSAGING_SENDER_ID'] ?? '',
+    projectId: dotenv.env['IOS_PROJECT_ID'] ?? dotenv.env['PROJECT_ID'] ?? '',
+    storageBucket: dotenv.env['IOS_STORAGE_BUCKET'] ?? dotenv.env['STORAGE_BUCKET'] ?? '',
+    iosBundleId: dotenv.env['IOS_BUNDLE_ID'] ?? '',
   );
 
 }

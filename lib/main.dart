@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'firebase_options.dart';
 import 'routes/app_router.dart';
@@ -10,6 +11,8 @@ import 'controllers/theme_controller.dart';
 import 'theme/app_theme.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Load environment variables for background handler
+  await dotenv.load(fileName: ".env");
   // Ensure Firebase is initialized for background handling.
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -19,6 +22,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables before initializing Firebase
+  await dotenv.load(fileName: ".env");
 
   // firebase must be initialized before running the app
   await Firebase.initializeApp(
