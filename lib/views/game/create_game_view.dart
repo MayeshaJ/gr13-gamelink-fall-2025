@@ -89,6 +89,9 @@ class _CreateGameViewState extends State<CreateGameView> {
 
     await GameListController.instance.ensureCurrentUserNameCached();
 
+    // Refresh the games list to show the newly created game
+    await GameListController.instance.refresh();
+
     setState(() => loading = false);
 
     if (!mounted) return;

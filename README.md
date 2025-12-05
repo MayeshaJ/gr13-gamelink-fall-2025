@@ -309,6 +309,34 @@ The project follows an **MVC (Model-View-Controller)** architecture:
 - **Views**: UI components (`lib/views/`)
 - **Controllers**: Business logic (`lib/controllers/`)
 
+### Design System
+
+The app uses a consistent design system with the following principles:
+
+#### Color Scheme
+- **Dark Mode**:
+  - Background: `#1A2332` (Dark Navy)
+  - Cards: `#243447` (Dark Blue)
+  - Accent: `#39FF14` (Neon Green)
+- **Light Mode**:
+  - Background: `#F5F5F7` (Light Grey)
+  - Cards: `#FFFFFF` (White)
+  - Accent: `#00C853` (Darker Green)
+
+#### Typography
+- **Headings**: `GoogleFonts.teko` (AppBar titles, headers, scores)
+- **Body Text**: `GoogleFonts.barlowSemiCondensed` (inputs, buttons, list items)
+
+#### Responsive Sizing
+- Uses `flutter_screenutil` for all dimensions
+- Design size: 411 x 923 (Pixel-style device)
+- Use `.w`, `.h`, `.sp`, `.r` extensions instead of hardcoded values
+
+#### Theme Management
+- Theme preferences stored in `SharedPreferences`
+- `ThemeController` singleton manages theme state
+- All views use `AppColors` helper methods for theme-aware colors
+
 ### Navigation
 
 - **All navigation uses GoRouter** - No `Navigator.push/pop` or `MaterialPageRoute`

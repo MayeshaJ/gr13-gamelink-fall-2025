@@ -39,6 +39,15 @@ class _GameListViewState extends State<GameListView> {
     gl.SearchController.instance.updateQuery(initialQuery);
     _searchController.addListener(_handleSearchChanged);
     _searchFocusNode = FocusNode();
+    
+    // Refresh games list when view is initialized with authenticated user
+    // This ensures games load immediately after login
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final currentUser = AuthController.instance.currentUser;
+      if (currentUser != null) {
+        GameListController.instance.refresh();
+      }
+    });
   }
 
   @override
@@ -63,12 +72,14 @@ class _GameListViewState extends State<GameListView> {
       return;
     }
     final String newQuery = _searchController.text;
+    
+    // Only update local state - no route navigation while typing
+    // This prevents widget rebuilds and keyboard dismissal
     gl.SearchController.instance.updateQuery(newQuery);
-    if (newQuery == _syncedQuery) {
-      return;
-    }
     _syncedQuery = newQuery;
-    _updateQueryParam(newQuery);
+    
+    // Trigger setState to update the filtered list immediately
+    setState(() {});
   }
 
   void _applyRouterQuery(String value) {
@@ -172,7 +183,7 @@ class _GameListViewState extends State<GameListView> {
         final borderColor = AppColors.border(isDark);
 
         return Scaffold(
-          resizeToAvoidBottomInset: true,
+          resizeToAvoidBottomInset: false,
           backgroundColor: bgColor,
           appBar: AppBar(
             backgroundColor: bgColor,
@@ -362,7 +373,10 @@ class _GameListViewState extends State<GameListView> {
                                         borderSide: BorderSide.none,
                                       ),
                                     ),
-                                    onSubmitted: (_) {
+                                    onSubmitted: (String value) {
+                                      // Only update URL when user submits (presses Enter/Done)
+                                      // This prevents route rebuilds while typing
+                                      _updateQueryParam(value);
                                       _searchFocusNode.unfocus();
                                     },
                                   ),

@@ -25,6 +25,8 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
   final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
   bool _isGoogleLoading = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void initState() {
@@ -396,7 +398,9 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                         controller: _passwordController,
                         hintText: 'Password',
                         icon: Icons.lock_outline,
-                        obscureText: true,
+                        obscureText: _obscurePassword,
+                        showPasswordToggle: true,
+                        onPasswordToggle: () => setState(() => _obscurePassword = !_obscurePassword),
                         isDark: isDark,
                         accent: accent,
                         textPrimary: textPrimary,
@@ -416,7 +420,9 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
                                   controller: _confirmPasswordController,
                                   hintText: 'Confirm Password',
                                   icon: Icons.lock_outline,
-                                  obscureText: true,
+                                  obscureText: _obscureConfirmPassword,
+                                  showPasswordToggle: true,
+                                  onPasswordToggle: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                                   isDark: isDark,
                                   accent: accent,
                                   textPrimary: textPrimary,
@@ -624,6 +630,8 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
     required Color textPrimary,
     required Color textSecondary,
     bool obscureText = false,
+    bool showPasswordToggle = false,
+    VoidCallback? onPasswordToggle,
     TextInputType? keyboardType,
   }) {
     return TextField(
@@ -642,6 +650,16 @@ class _AuthViewState extends State<AuthView> with SingleTickerProviderStateMixin
           color: textSecondary,
           size: 20.sp,
         ),
+        suffixIcon: showPasswordToggle && onPasswordToggle != null
+            ? IconButton(
+                icon: Icon(
+                  obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  color: textSecondary,
+                  size: 20.sp,
+                ),
+                onPressed: onPasswordToggle,
+              )
+            : null,
         contentPadding: EdgeInsets.symmetric(
           horizontal: 16.w,
           vertical: 14.h,
