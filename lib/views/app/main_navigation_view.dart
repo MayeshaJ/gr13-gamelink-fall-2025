@@ -45,10 +45,8 @@ class _MainNavigationViewState extends State<MainNavigationView> with WidgetsBin
 
   @override
   void didChangeMetrics() {
-    // Force rebuild when metrics change (including keyboard appearance/dismissal)
-    if (mounted) {
-      setState(() {});
-    }
+    // No need to force rebuild - resizeToAvoidBottomInset: false handles layout
+    // This prevents unnecessary rebuilds that could cause keyboard dismissal
   }
 
   @override
