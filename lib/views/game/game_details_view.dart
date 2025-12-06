@@ -495,7 +495,17 @@ class _GameDetailsViewState extends State<GameDetailsView> {
       child: SafeArea(
         top: false,
         child: isHost
-            ? _buildHostActions(gameModel, isCancelled, isDark, accent, textSecondary)
+            ? _buildHostActions(
+                gameModel: gameModel,
+                isCancelled: isCancelled,
+                isParticipant: isParticipant,
+                isFull: isFull,
+                isStarted: isStarted,
+                currentUserId: currentUserId!,
+                isDark: isDark,
+                accent: accent,
+                textSecondary: textSecondary,
+              )
             : _buildGuestActions(
                 gameModel: gameModel,
                 currentUserId: currentUserId,
@@ -512,9 +522,64 @@ class _GameDetailsViewState extends State<GameDetailsView> {
     );
   }
 
-  Widget _buildHostActions(GameModel gameModel, bool isCancelled, bool isDark, Color accent, Color textSecondary) {
+  Widget _buildHostActions({
+    required GameModel gameModel,
+    required bool isCancelled,
+    required bool isParticipant,
+    required bool isFull,
+    required bool isStarted,
+    required String currentUserId,
+    required bool isDark,
+    required Color accent,
+    required Color textSecondary,
+  }) {
+    // Host can join if not already a participant, game not full, not started, and not cancelled
+    final bool canJoin = !isParticipant && !isFull && !isStarted && !isCancelled;
+
     return Row(
       children: [
+        // Join Game button (only show if host can join)
+        if (canJoin) ...[
+          Expanded(
+            child: SizedBox(
+              height: 44.h,
+              child: ElevatedButton.icon(
+                onPressed: !_isJoining
+                    ? () => _handleJoin(gameModel, currentUserId)
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: accent,
+                  foregroundColor: Colors.black,
+                  disabledBackgroundColor: AppColors.disabled(isDark),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  elevation: 0,
+                ),
+                icon: _isJoining
+                    ? SizedBox(
+                        width: 18.w,
+                        height: 18.h,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                        ),
+                      )
+                    : Icon(Icons.person_add, size: 18.sp),
+                label: Text(
+                  'JOIN GAME',
+                  style: GoogleFonts.barlowSemiCondensed(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 10.w),
+        ],
+        // Edit button
         Expanded(
           child: SizedBox(
             height: 44.h,
@@ -553,6 +618,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
           ),
         ),
         SizedBox(width: 10.w),
+        // Cancel button
         Expanded(
           child: SizedBox(
             height: 44.h,

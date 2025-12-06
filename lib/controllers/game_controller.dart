@@ -184,6 +184,7 @@ class GameController {
 
     String? hostId;
     String gameTitle = 'your game';
+    String? promotedUserId;
 
     await FirebaseFirestore.instance.runTransaction((transaction) async {
       final doc = await transaction.get(docRef);
@@ -196,6 +197,7 @@ class GameController {
           List<String>.from(data['participants'] ?? []);
       final List<String> waitlist =
           List<String>.from(data['waitlist'] ?? []);
+      final int maxPlayers = data['maxPlayers'] ?? 0;
 
       hostId = data['hostId'] as String?;
       gameTitle = data['title'] as String? ?? 'your game';
@@ -204,13 +206,21 @@ class GameController {
         throw Exception('You are not a participant');
       }
 
+      // Check if game was full before removing the user
+      final bool wasFull = participants.length >= maxPlayers;
+
       // Remove user from participants list
-      // No automatic promotion - waitlist users will be notified and can join manually
       participants.remove(userId);
+
+      // If game was full and there's someone on the waitlist, promote the first person
+      if (wasFull && waitlist.isNotEmpty) {
+        promotedUserId = waitlist.removeAt(0);
+        participants.add(promotedUserId!);
+      }
 
       transaction.update(docRef, {
         'participants': participants,
-        // Waitlist stays unchanged - all waitlisted users will be notified
+        'waitlist': waitlist,
       });
     });
 
@@ -224,8 +234,15 @@ class GameController {
       );
     }
 
-    // Note: All waitlisted users will be notified via Firebase Cloud Function
-    // when a spot opens. They can then manually join the game.
+    // Notify the promoted user if someone was promoted from waitlist
+    if (promotedUserId != null) {
+      await NotificationController.createNotification(
+        toUserId: promotedUserId!,
+        type: 'waitlist_promoted',
+        message: 'Good news! A spot opened up and you have been added to "$gameTitle".',
+        gameId: gameId,
+      );
+    }
   }
 
   // ─────────────────────────────────────────────────────────────
